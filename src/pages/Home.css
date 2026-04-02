@@ -409,7 +409,7 @@
 .home-info-grid {
   margin-top: 1.4rem;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
   gap: 1rem;
 }
 
@@ -439,8 +439,14 @@
 .home-kpis {
   margin-top: 1rem;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 0.85rem;
+}
+
+.home-kpis--single {
+  max-width: 22rem;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .home-kpi-card {
@@ -534,10 +540,6 @@
   .home-info-grid,
   .home-faq-grid {
     grid-template-columns: 1fr;
-  }
-
-  .home-kpis {
-    grid-template-columns: 1fr 1fr;
   }
 }
 

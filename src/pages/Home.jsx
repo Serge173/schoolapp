@@ -1,35 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MLA_LOGO_URLS } from '../data/mlaLogoUrls';
+import ArrowIcon from '../components/ArrowIcon';
+import { FIGS_ABIDJAN, FIGS_BURKINA, figsRegionalWhatsAppUrl } from '../data/figsBureaus';
 import { faviconUrl } from '../utils/favicon';
 import './Home.css';
 
-function ArrowIcon() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="16.106" height="13.455" viewBox="0 0 16.106 13.455" aria-hidden>
-      <g transform="translate(1 1.412)">
-        <path
-          d="M228.715,283.664l5.987-5.316-5.987-5.316"
-          transform="translate(-220.596 -273.032)"
-          fill="none"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-        />
-        <line
-          x1="14.106"
-          transform="translate(0 5.316)"
-          fill="none"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-        />
-      </g>
-    </svg>
-  );
-}
+const WHATSAPP_PREFILL =
+  'Bonjour, je contacte les bureaux FIGS Abidjan / Burkina Faso pour mon projet d’études en France.';
 
 function logoPositions(count) {
   return Array.from({ length: count }, (_, i) => {
@@ -68,29 +46,24 @@ const ACCUEIL_ATOUTS = [
 
 const ATOUTS_GAUCHE = ACCUEIL_ATOUTS.slice(0, 2);
 const ATOUTS_DROITE = ACCUEIL_ATOUTS.slice(2, 4);
-const CHIFFRES_CLES = [
-  { label: 'Bureaux internationaux', value: '13' },
-  { label: 'Bureau Outre-Mer', value: '1' },
-  { label: 'Écoles privées partenaires', value: '17' },
-  { label: 'Programmes (Bac à Bac+5)', value: '50+' },
-];
+const CHIFFRES_CLES = [{ label: 'Programmes (Bac à Bac+5)', value: '50+' }];
 
 const FAQ_HOME = [
   {
     q: 'Quels services proposez-vous ?',
-    a: 'Accompagnement personnalisé et gratuit : orientation, préparation aux entretiens, visa, logement et démarches administratives.',
+    a: 'Un accompagnement personnalisé et gratuit : conseil d’orientation, préparation aux entretiens, préparation du visa, aide au logement et accompagnement administratif — comme décrit sur figs-education.com.',
   },
   {
     q: 'L’accompagnement est-il payant ?',
-    a: 'Non. Les services d’accompagnement sont gratuits pour les étudiants.',
+    a: 'Les services apportés par FIGS Education sont totalement gratuits pour l’accompagnement (hors frais propres à l’école ou à la candidature, indiqués sur le site officiel).',
   },
   {
     q: 'Qui est FIGS Education ?',
-    a: 'Le service international du réseau Compétences & Développement, avec des bureaux proches des étudiants dans le monde.',
+    a: 'FIGS Education, l’expérience académique française, est le service international du réseau Compétences & Développement. SchoolApp représente à part égale les bureaux FIGS d’Abidjan (Côte d’Ivoire) et du Burkina Faso : la même logique d’orientation et d’accompagnement, avec les coordonnées publiées sur figs-education.com pour chaque territoire.',
   },
   {
     q: 'Comment candidater ?',
-    a: 'La procédure est simple : dossier académique, pièces d’identité, justificatifs et validation de la candidature.',
+    a: 'La procédure en ligne repose sur un dossier (pièces d’identité, CV, derniers diplômes et bulletins, niveau de français pour les non-francophones, etc.). Le détail des pièces et frais éventuels figure sur le site FIGS — voir la FAQ et la procédure d’admission.',
   },
 ];
 
@@ -162,13 +135,19 @@ export default function Home() {
         <div style={{ textAlign: 'center', marginBottom: '2.25rem' }}>
           <h1 style={{ fontSize: '2.25rem', marginBottom: '0.5rem' }}>Bienvenue sur SchoolApp</h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>
-            Découvrez les filières et parcours des universités privées.
+            Application du{' '}
+            <a href={FIGS_ABIDJAN.siteFigs} target="_blank" rel="noopener noreferrer">
+              FIGS Education
+            </a>{' '}
+            pour les <strong>bureaux régionaux d’Abidjan</strong> ({FIGS_ABIDJAN.pays}) et du <strong>Burkina Faso</strong> :
+            filières, niveaux et écoles partenaires pour étudier en France (orientation, admission, l’expérience académique
+            française).
           </p>
         </div>
 
         <section className="home-showcase" aria-labelledby="home-atouts-title">
           <h2 id="home-atouts-title" className="home-showcase-title">
-            Votre orientation, en toute confiance
+            FIGS Education vous accompagne dans votre projet d’études en France
           </h2>
 
           <div className="home-showcase-layout">
@@ -203,25 +182,52 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="home-info-grid" aria-label="Informations clés FIGS">
+        <section className="home-info-grid" aria-label="Bureaux FIGS Abidjan et Burkina Faso">
           <article className="card home-info-card">
-            <h3>Étudiez en France avec FIGS</h3>
+            <h3>Bureau Abidjan — {FIGS_ABIDJAN.pays}</h3>
             <p>
-              FIGS Education accompagne les étudiants internationaux et ultramarins dans leur projet d’études :
-              orientation, admission et installation.
+              Contenus FIGS pour les candidats du <strong>bureau d’Abidjan</strong> : filières (Agri, Assurance,
+              Communication, Droit, Digital, Management, etc.), du Bac au Bac+5, écoles privées partenaires.
             </p>
             <p>
-              Vous pouvez démarrer en France, ou commencer près de chez vous selon les affiliations, puis obtenir un
-              diplôme reconnu par l’État français.
+              <strong>Contact (figs-education.com — nos bureaux) :</strong> {FIGS_ABIDJAN.responsable} —{' '}
+              <a href={`mailto:${FIGS_ABIDJAN.email}`}>{FIGS_ABIDJAN.email}</a> —{' '}
+              <a href={`tel:+${FIGS_ABIDJAN.phoneDigitsInternational}`}>{FIGS_ABIDJAN.phoneDisplay}</a>
+            </p>
+            <p style={{ marginBottom: 0 }}>
+              <a href={FIGS_ABIDJAN.pageBureaux} target="_blank" rel="noopener noreferrer">
+                Voir tous les bureaux FIGS
+              </a>
             </p>
           </article>
 
           <article className="card home-info-card">
-            <h3>Rentrées et calendrier</h3>
+            <h3>Bureau Burkina Faso</h3>
+            <p>
+              Le <strong>bureau FIGS Burkina Faso</strong> est représenté au même titre qu’Abidjan dans cette
+              application : même accompagnement vers les formations en France, avec une boîte mail dédiée sur le site
+              officiel FIGS.
+            </p>
+            <p>
+              <strong>Contact :</strong>{' '}
+              <a href={`mailto:${FIGS_BURKINA.email}`}>{FIGS_BURKINA.email}</a>
+            </p>
+            <p style={{ marginBottom: 0 }}>
+              Selon FIGS, l’organisation du réseau met en lien le Burkina Faso et le bureau Côte d’Ivoire ; la ligne
+              téléphone/WhatsApp publiée pour Abidjan sert aussi de contact rapide pour les dossiers régionaux (
+              <a href={FIGS_ABIDJAN.pageBureaux} target="_blank" rel="noopener noreferrer">
+                détail sur figs-education.com
+              </a>
+              ).
+            </p>
+          </article>
+
+          <article className="card home-info-card">
+            <h3>Rentrées et calendrier (FIGS)</h3>
             <ul className="home-list">
               <li>Rentrée principale : septembre 2026</li>
               <li>Rentrée décalée : janvier à mars</li>
-              <li>Candidature en ligne disponible dès maintenant</li>
+              <li>Candidature en ligne — candidatez dès maintenant</li>
             </ul>
             <Link to="/inscription" className="btn btn-primary btn-arrow home-inline-cta">
               <span>Commencer ma candidature</span>
@@ -230,7 +236,7 @@ export default function Home() {
           </article>
         </section>
 
-        <section className="home-kpis" aria-label="Chiffres clés">
+        <section className="home-kpis home-kpis--single" aria-label="Chiffres clés">
           {CHIFFRES_CLES.map((item) => (
             <div key={item.label} className="card home-kpi-card">
               <p className="home-kpi-value">{item.value}</p>
@@ -250,7 +256,7 @@ export default function Home() {
             ))}
           </div>
           <div className="home-links-row">
-            <a href="https://www.figs-education.com/" target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-arrow">
+            <a href={FIGS_ABIDJAN.siteFigs} target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-arrow">
               <span>Site officiel FIGS</span>
               <ArrowIcon />
             </a>
@@ -258,6 +264,15 @@ export default function Home() {
               <span>Contacter un conseiller</span>
               <ArrowIcon />
             </Link>
+            <a
+              href={figsRegionalWhatsAppUrl(WHATSAPP_PREFILL)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-primary btn-arrow"
+            >
+              <span>Contacter les bureaux par WhatsApp</span>
+              <ArrowIcon />
+            </a>
           </div>
         </section>
       </div>

@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import { FIGS_ABIDJAN } from './data/figsBureaus';
 
 export default function Layout() {
   return (
@@ -12,7 +13,6 @@ export default function Layout() {
           <nav>
             <Link to="/">Accueil</Link>
             <Link to="/contact">Contact</Link>
-            <a href="/admin" target="_blank" rel="noopener noreferrer">Espace admin</a>
           </nav>
         </div>
       </header>
@@ -29,7 +29,11 @@ export default function Layout() {
               SchoolApp
             </Link>
             <p>
-              Orientation et inscription dans les universités privées : filières, niveaux et écoles partenaires.
+              Données d’orientation alignées sur{' '}
+              <a href="https://www.figs-education.com/" target="_blank" rel="noopener noreferrer">
+                FIGS Education
+              </a>{' '}
+              — bureaux régionaux <strong>Abidjan</strong> (Côte d’Ivoire) et <strong>Burkina Faso</strong>.
             </p>
           </div>
           <nav className="layout-footer-nav" aria-label="Liens du pied de page">
@@ -41,7 +45,7 @@ export default function Layout() {
           <div className="layout-footer-contact">
             <h4>Contact</h4>
             <Link to="/contact">Formulaire de contact</Link>
-            <a href="mailto:contact@shoolapp.com">contact@shoolapp.com</a>
+            <a href={`mailto:${FIGS_ABIDJAN.email}`}>{FIGS_ABIDJAN.email}</a>
           </div>
         </div>
         <div className="layout-footer-bottom">

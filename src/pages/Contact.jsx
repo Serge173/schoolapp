@@ -1,6 +1,25 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
+import ArrowIcon from '../components/ArrowIcon';
+import { FIGS_ABIDJAN, FIGS_BURKINA, figsRegionalWhatsAppUrl } from '../data/figsBureaus';
+
+const WHATSAPP_PREFILL =
+  'Bonjour, je contacte les bureaux FIGS Abidjan / Burkina Faso pour mon projet d’études en France.';
+
+function WhatsAppButton() {
+  return (
+    <a
+      href={figsRegionalWhatsAppUrl(WHATSAPP_PREFILL)}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="btn btn-primary btn-arrow"
+    >
+      <span>Contacter les bureaux par WhatsApp</span>
+      <ArrowIcon />
+    </a>
+  );
+}
 
 export default function Contact() {
   const [form, setForm] = useState({ nom: '', email: '', message: '' });
@@ -26,7 +45,7 @@ export default function Contact() {
       await api.contact.send(form);
       setSent(true);
     } catch (err) {
-      setError(err.message || 'Erreur lors de l\'envoi.');
+      setError(err.message || "Erreur lors de l'envoi.");
     } finally {
       setLoading(false);
     }
@@ -39,7 +58,9 @@ export default function Contact() {
         <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
           Merci pour votre message. Nous vous répondrons dans les meilleurs délais.
         </p>
-        <Link to="/" className="btn btn-primary">Retour à l'accueil</Link>
+        <Link to="/" className="btn btn-primary">
+          Retour à l'accueil
+        </Link>
       </div>
     );
   }
@@ -47,21 +68,79 @@ export default function Contact() {
   return (
     <>
       <div style={{ marginBottom: '2rem' }}>
-        <Link to="/" style={{ color: 'var(--text-muted)', display: 'inline-block', marginBottom: '0.5rem' }}>← Accueil</Link>
+        <Link to="/" style={{ color: 'var(--text-muted)', display: 'inline-block', marginBottom: '0.5rem' }}>
+          ← Accueil
+        </Link>
         <h1 style={{ marginTop: '0.5rem' }}>Contact</h1>
         <p style={{ color: 'var(--text-muted)' }}>
-          Une question sur SchoolApp ou sur les parcours d’orientation ? Écrivez-nous.
+          SchoolApp gère et représente les <strong>deux bureaux FIGS</strong> — <strong>Abidjan</strong> (Côte d’Ivoire){' '}
+          et <strong>Burkina Faso</strong>. Retrouvez les coordonnées officielles ci-dessous ou utilisez le formulaire
+          SchoolApp.
         </p>
       </div>
 
       <div style={{ display: 'grid', gap: '2rem', maxWidth: 560 }}>
         <div className="card" style={{ padding: '1.25rem 1.5rem' }}>
-          <h3 style={{ marginBottom: '0.75rem', fontSize: '1.05rem' }}>Coordonnées</h3>
+          <h3 style={{ marginBottom: '0.75rem', fontSize: '1.05rem' }}>Bureau FIGS — Abidjan ({FIGS_ABIDJAN.pays})</h3>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '0.5rem', fontSize: '0.95rem' }}>
+            Données publiées sur{' '}
+            <a href={FIGS_ABIDJAN.pageBureaux} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>
+              figs-education.com — nos bureaux
+            </a>
+            .
+          </p>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
+            <strong>{FIGS_ABIDJAN.responsable}</strong>
+          </p>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
+            Email :{' '}
+            <a href={`mailto:${FIGS_ABIDJAN.email}`} style={{ color: 'var(--accent)' }}>
+              {FIGS_ABIDJAN.email}
+            </a>
+          </p>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
+            Tél. :{' '}
+            <a href={`tel:+${FIGS_ABIDJAN.phoneDigitsInternational}`} style={{ color: 'var(--accent)' }}>
+              {FIGS_ABIDJAN.phoneDisplay}
+            </a>
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.65rem' }}>
+            <WhatsAppButton />
+          </div>
+        </div>
+
+        <div className="card" style={{ padding: '1.25rem 1.5rem' }}>
+          <h3 style={{ marginBottom: '0.75rem', fontSize: '1.05rem' }}>Bureau FIGS — {FIGS_BURKINA.pays}</h3>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '0.75rem', fontSize: '0.95rem' }}>
+            Le bureau Burkina Faso est pleinement couvert par cette application : orientation et inscription selon les
+            mêmes programmes FIGS, avec une adresse e-mail dédiée sur le site officiel.
+          </p>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
+            Email :{' '}
+            <a href={`mailto:${FIGS_BURKINA.email}`} style={{ color: 'var(--accent)' }}>
+              {FIGS_BURKINA.email}
+            </a>
+          </p>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '0.85rem', fontSize: '0.92rem' }}>
+            Selon FIGS, la coordination passe par le réseau (notamment le bureau Côte d’Ivoire). La ligne WhatsApp
+            ci-dessous correspond au numéro public du bureau d’Abidjan et sert aussi de contact rapide pour les dossiers
+            Burkina Faso.
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.65rem' }}>
+            <WhatsAppButton />
+          </div>
+        </div>
+
+        <div className="card" style={{ padding: '1.25rem 1.5rem' }}>
+          <h3 style={{ marginBottom: '0.75rem', fontSize: '1.05rem' }}>SchoolApp — message en ligne</h3>
           <p style={{ color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-            Email : <a href="mailto:contact@shoolapp.com" style={{ color: 'var(--accent)' }}>contact@shoolapp.com</a>
+            Email :{' '}
+            <a href={`mailto:${FIGS_ABIDJAN.email}`} style={{ color: 'var(--accent)' }}>
+              {FIGS_ABIDJAN.email}
+            </a>
           </p>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
-            Horaires : du lundi au vendredi, 9h–18h (heure de Paris).
+            Horaires : du lundi au vendredi, 9h–18h (heure locale des bureaux d’Abidjan et du Burkina Faso).
           </p>
         </div>
 

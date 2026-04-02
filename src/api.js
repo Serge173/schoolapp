@@ -1,4 +1,7 @@
-const API_BASE = '/api';
+const API_BASE = (import.meta.env.VITE_API_BASE || '/api').replace(/\/+$/, '');
+const API_ORIGIN = API_BASE.startsWith('http')
+  ? API_BASE.replace(/\/api$/i, '')
+  : '';
 
 async function request(path, options = {}) {
   const url = path.startsWith('http') ? path : `${API_BASE}${path}`;
@@ -95,5 +98,6 @@ export const api = {
 export function uploadsUrl(path) {
   if (!path) return null;
   const name = path.split(/[/\\]/).pop();
-  return `/uploads/${path.includes('brochure') ? 'brochures' : path.includes('logo') ? 'logos' : 'photos'}/${name}`;
+  const uploadPath = `/uploads/${path.includes('brochure') ? 'brochures' : path.includes('logo') ? 'logos' : 'photos'}/${name}`;
+  return API_ORIGIN ? `${API_ORIGIN}${uploadPath}` : uploadPath;
 }

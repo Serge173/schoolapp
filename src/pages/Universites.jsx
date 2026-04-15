@@ -1,73 +1,122 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { api } from '../api';
+import { NIVEAUX_PARCOURS } from '../data/niveauxParcours';
+import './Universites.css';
 
 export default function Universites() {
-  const { filiereId } = useParams();
+  const { filiereId, type: typeParam } = useParams();
   const [searchParams] = useSearchParams();
   const [universites, setUniversites] = useState([]);
   const [filiere, setFiliere] = useState(null);
   const [loading, setLoading] = useState(true);
   const niveau = searchParams.get('niveau') || '';
+  const niveauLabel =
+    NIVEAUX_PARCOURS.find((n) => n.value === niveau)?.label || niveau.replace(/_/g, ' ') || 'Niveau non précisé';
+  const niveauxPath = typeParam
+    ? `/filieres/${typeParam}/filiere/${filiereId}`
+    : `/filieres/filiere/${filiereId}`;
 
   useEffect(() => {
-    Promise.all([
-      api.filieres.get(filiereId),
-      api.universites.list({ filiere_id: filiereId, type: 'privee' }),
-    ]).then(([f, list]) => {
-      setFiliere(f);
-      setUniversites(list);
-      setLoading(false);
-    }).catch(() => setLoading(false));
-  }, [filiereId]);
+    let cancelled = false;
+    setLoading(true);
+    const uniParams = {
+      filiere_id: filiereId,
+      type: 'privee',
+      ...(niveau ? { niveau } : {}),
+    };
+    Promise.all([api.filieres.get(filiereId), api.universites.list(uniParams)])
+      .then(([f, list]) => {
+        if (!cancelled) {
+          setFiliere(f);
+          setUniversites(list);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setUniversites([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [filiereId, niveau]);
 
-  if (loading) return <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>Chargement…</p>;
+  if (loading) {
+    return (
+      <div className="ecoles-page">
+        <p className="ecoles-loading">Chargement des établissements…</p>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <div style={{ marginBottom: '2rem' }}>
-        <Link to={`/filieres/filiere/${filiereId}`} style={{ color: 'var(--text-muted)', marginBottom: '0.5rem', display: 'inline-block' }}>← Niveaux</Link>
-        <h1 style={{ marginTop: '0.5rem' }}>{filiere?.nom} — {niveau || 'Niveau non precise'}</h1>
-        <p style={{ color: 'var(--text-muted)' }}>Choisissez une ecole de notre reseau pour plus de details.</p>
+    <div className="ecoles-page">
+      <Link to={niveauxPath} className="ecoles-back">
+        ← Niveaux
+      </Link>
+
+      <header className="ecoles-hero">
+        <h1>{filiere?.nom ?? 'Filière'} — écoles du réseau</h1>
+        <p className="ecoles-hero-lead">
+          {niveau
+            ? 'Établissements correspondant à votre filière et à ce niveau (alignement catalogue FIGS). Choisissez une école pour la fiche détaillée.'
+            : 'Écoles privées du réseau pour cette filière. Sélectionnez un établissement pour poursuivre.'}
+        </p>
+        <div className="ecoles-meta-row">
+          {filiere?.nom && <span className="ecoles-chip">{filiere.nom}</span>}
+          <span className="ecoles-chip ecoles-chip--niveau">{niveauLabel}</span>
+          {universites.length > 0 && (
+            <span className="ecoles-chip">
+              {universites.length} établissement{universites.length > 1 ? 's' : ''}
+            </span>
+          )}
+        </div>
+      </header>
+
+      <div className="ecoles-grid">
+        {universites.map((u) => {
+          const campusLabel =
+            Number(u.nb_campus) > 1
+              ? `${u.nb_campus} campus`
+              : Number(u.nb_campus) === 1
+                ? '1 campus'
+                : null;
+          const detailUrl = `/universite/${u.id}?filiere_id=${filiereId}&type=privee&niveau=${encodeURIComponent(niveau)}`;
+
+          return (
+            <article key={u.id} className="ecole-card">
+              <div className="ecole-card__logo" aria-hidden>
+                {u.logoUrl ? (
+                  <img src={u.logoUrl} alt="" referrerPolicy="no-referrer" width={40} height={40} />
+                ) : (
+                  <span className="ecole-card__fallback">{String(u.nom || '?').trim().charAt(0).toUpperCase()}</span>
+                )}
+              </div>
+              <div className="ecole-card__body">
+                <h2 className="ecole-card__title">{u.nom}</h2>
+                <p className="ecole-card__meta">
+                  {u.ville}
+                  {campusLabel ? ` · ${campusLabel}` : ''}
+                </p>
+                <Link to={detailUrl} className="ecole-card__cta">
+                  Voir l’établissement
+                  <span aria-hidden>→</span>
+                </Link>
+              </div>
+            </article>
+          );
+        })}
       </div>
-      <div className="grid-cards">
-        {universites.map((u) => (
-          <div key={u.id} className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div
-              style={{
-                width: 92,
-                height: 92,
-                borderRadius: 18,
-                background: 'radial-gradient(120px 120px at 20% 20%, rgba(28,117,183,0.12), transparent), var(--surface-hover)',
-                border: '1px solid var(--border)',
-                display: 'grid',
-                placeItems: 'center',
-                marginBottom: '1rem',
-              }}
-            >
-              {u.logoUrl ? (
-                <img
-                  src={u.logoUrl}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  style={{ width: 74, height: 74, objectFit: 'contain' }}
-                />
-              ) : (
-                <div style={{ width: 74, height: 74, background: 'rgba(255,255,255,0.06)', borderRadius: 14 }} />
-              )}
-            </div>
-            <h3 style={{ textAlign: 'center', marginBottom: '0.25rem' }}>{u.nom}</h3>
-            <p style={{ marginBottom: '0.35rem', fontSize: '0.95rem', color: 'var(--text-muted)' }}>{u.ville}</p>
-            <p style={{ marginBottom: '1rem', fontSize: '0.9rem', fontWeight: 600, color: 'var(--accent)' }}>
-              {Number(u.nb_campus) > 1 ? `${u.nb_campus} campus` : Number(u.nb_campus) === 1 ? '1 campus' : '—'}
-            </p>
-            <Link to={`/universite/${u.id}?filiere_id=${filiereId}&type=privee&niveau=${niveau}`} className="btn btn-primary">Voir l'etablissement</Link>
-          </div>
-        ))}
-      </div>
+
       {universites.length === 0 && (
-        <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>Aucun établissement pour cette filière.</p>
+        <p className="ecoles-empty" role="status">
+          {niveau
+            ? 'Aucun établissement ne correspond à ce niveau pour cette filière dans le catalogue FIGS. Essayez un autre niveau ou parcourez le catalogue FIGS.'
+            : 'Aucun établissement pour cette filière.'}
+        </p>
       )}
-    </>
+    </div>
   );
 }

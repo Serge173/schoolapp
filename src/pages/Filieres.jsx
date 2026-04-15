@@ -1,77 +1,26 @@
-import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api';
+import {
+  GROUPS,
+  GROUP_ICON_SRC,
+  GROUP_SOUS_FILIERES,
+  bucketCatalogueTitresByGroup,
+  bucketFilieresByGroup,
+  getDefaultFiliereIdForGroup,
+  matchesFiliereSearch,
+  mergeSpecialiteLists,
+} from '../data/filieresGroupsConfig';
 import './Filieres.css';
-
-const GROUPS = [
-  'Agri agro management',
-  'Assurance',
-  'Communication',
-  'Comptabilite - gestion',
-  'Design',
-  'Digital',
-  'Droit',
-  'Environnement',
-  'Finance',
-  'Grandes ecoles',
-  'Informatique',
-  'Management',
-  'Marketing',
-  'Relations internationales',
-  'Tourisme',
-];
-
-const GROUP_KEYWORDS = {
-  'Agri agro management': ['agri', 'agro', 'gestion'],
-  Assurance: ['assurance', 'finance', 'gestion'],
-  Communication: ['communication', 'journal', 'media'],
-  'Comptabilite - gestion': ['compta', 'comptabilite', 'gestion'],
-  Design: ['design', 'architecture'],
-  Digital: ['digital', 'numerique', 'informatique'],
-  Droit: ['droit', 'jurid'],
-  Environnement: ['environnement', 'ecologie', 'genie civil'],
-  Finance: ['finance', 'banque', 'economie', 'gestion'],
-  'Grandes ecoles': ['ingenieur', 'commerce', 'management', 'informatique'],
-  Informatique: ['informatique', 'data', 'cyber', 'developpement'],
-  Management: ['management', 'gestion', 'business'],
-  Marketing: ['marketing', 'communication', 'commerce'],
-  'Relations internationales': ['relations internationales', 'international', 'droit'],
-  Tourisme: ['tourisme', 'hospitalite', 'management'],
-};
-
-const GROUP_SUBFILIERES = {
-  'Agri agro management': ['Agro management'],
-};
-
-const GROUP_ICON_SRC = {
-  'Agri agro management': '/icons/filieres/default.svg',
-  Assurance: '/icons/filieres/finance.svg',
-  Communication: '/icons/filieres/communication.svg',
-  'Comptabilite - gestion': '/icons/filieres/gestion.svg',
-  Design: '/icons/filieres/architecture.svg',
-  Digital: '/icons/filieres/informatique.svg',
-  Droit: '/icons/filieres/droit.svg',
-  Environnement: '/icons/filieres/genie-civil.svg',
-  Finance: '/icons/filieres/finance.svg',
-  'Grandes ecoles': '/icons/filieres/default.svg',
-  Informatique: '/icons/filieres/informatique.svg',
-  Management: '/icons/filieres/gestion.svg',
-  Marketing: '/icons/filieres/marketing.svg',
-  'Relations internationales': '/icons/filieres/communication.svg',
-  Tourisme: '/icons/filieres/default.svg',
-};
-
-function normalize(text) {
-  return (text || '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase();
-}
 
 export default function Filieres() {
   const navigate = useNavigate();
+  const { type: typeParam } = useParams();
+  const typeSegment = typeParam || 'privee';
   const [filieres, setFilieres] = useState([]);
+  const [figsPrograms, setFigsPrograms] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     api.filieres
@@ -84,38 +33,112 @@ export default function Filieres() {
       .catch(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    api.programmesFigs
+      .list({})
+      .then((d) => setFigsPrograms(Array.isArray(d?.programs) ? d.programs : []))
+      .catch(() => setFigsPrograms([]));
+  }, []);
+
+  const filieresByGroup = useMemo(() => bucketFilieresByGroup(filieres), [filieres]);
+
+  const specialitesByGroup = useMemo(() => {
+    const catalogueByG = bucketCatalogueTitresByGroup(figsPrograms);
+    const out = {};
+    for (const g of GROUPS) {
+      out[g] = mergeSpecialiteLists(GROUP_SOUS_FILIERES[g] || [], catalogueByG[g] || []);
+    }
+    return out;
+  }, [figsPrograms]);
+
+  const visibleGroups = useMemo(() => {
+    const q = searchQuery.trim();
+    if (!q) return GROUPS;
+    return GROUPS.filter((group) => {
+      if (matchesFiliereSearch(group, q)) return true;
+      const sous = specialitesByGroup[group] || [];
+      if (sous.some((label) => matchesFiliereSearch(label, q))) return true;
+      const apiList = filieresByGroup[group] || [];
+      if (
+        apiList.some(
+          (f) => matchesFiliereSearch(f.nom, q) || (f.slug && matchesFiliereSearch(f.slug.replace(/-/g, ' '), q))
+        )
+      )
+        return true;
+      return false;
+    });
+  }, [searchQuery, filieresByGroup, specialitesByGroup]);
+
+  const filierePath = (filiereId) =>
+    typeParam ? `/filieres/${typeSegment}/filiere/${filiereId}` : `/filieres/filiere/${filiereId}`;
+
+  const onSpecialiteChosen = (group, e) => {
+    const value = e.target.value;
+    e.target.value = '';
+    if (!value) return;
+    const filiereId = getDefaultFiliereIdForGroup(group, filieres);
+    if (!filiereId) {
+      const retour = typeSegment === 'publique' || typeSegment === 'privee' ? typeSegment : '';
+      const q = new URLSearchParams({
+        grande_filiere: group,
+        specialite: value,
+        ...(retour ? { retour } : {}),
+      });
+      navigate(`/demande-orientation?${q.toString()}`);
+      return;
+    }
+    navigate(filierePath(filiereId));
+  };
+
   if (loading) return <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>Chargement…</p>;
 
   return (
-    <>
-      <div style={{ marginBottom: '2rem' }}>
-        <Link to="/" style={{ color: 'var(--text-muted)', marginBottom: '0.5rem', display: 'inline-block' }}>
+    <div className="filieres-page">
+      <header className="filieres-page-header">
+        <Link to="/" className="filieres-back-link">
           ← Accueil
         </Link>
-        <h1 style={{ marginTop: '0.5rem' }}>Selectionnez une filiere ...</h1>
-        <p style={{ color: 'var(--text-muted)' }}>
-          Universites privees: icones par groupe + liste deroulante pour choisir la filiere.
+        <h1 className="filieres-page-title">Onze grands domaines de filières</h1>
+        <p className="filieres-page-lead">
+          Choisissez une <strong>spécialisation</strong> dans la liste déroulante du domaine : intitulés pédagogiques du
+          site et <strong>formations du catalogue FIGS</strong>. Ensuite :{' '}
+          <strong>choix du niveau</strong> (BTS, Bachelor, Master…), puis les écoles.
         </p>
-      </div>
-      <div className="grid-cards">
-        {GROUPS.map((group) => {
-          const keywords = GROUP_KEYWORDS[group] || [];
-          const matches = filieres.filter((f) => {
-            const text = normalize(`${f.nom} ${f.slug}`);
-            return keywords.some((k) => text.includes(normalize(k)));
-          });
-          const subfilieres = GROUP_SUBFILIERES[group] || matches.map((f) => f.nom);
-
-          const resolveFiliere = (label) => {
-            const n = normalize(label);
-            return filieres.find((f) => {
-              const nom = normalize(f.nom);
-              const slug = normalize(f.slug);
-              return nom === n || slug === n || nom.includes(n) || n.includes(nom) || slug.includes(n);
-            });
-          };
-
+        <div className="filieres-search-wrap">
+          <label htmlFor="filieres-search" className="filieres-search-label">
+            Rechercher une filière
+          </label>
+          <input
+            id="filieres-search"
+            type="search"
+            className="filieres-search-input"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Nom du domaine, spécialité, école… ou initiales (ex. info, ri, compta)"
+            autoComplete="off"
+            spellCheck="false"
+            aria-describedby="filieres-search-hint"
+          />
+          <p id="filieres-search-hint" className="filieres-search-hint">
+            Filtre les <strong>11 domaines</strong> : nom du domaine, une spécialité (y compris titres catalogue FIGS), une
+            filière réseau (nom / slug). Les initiales des mots comptent (ex. <em>ri</em> pour Relations internationales).
+          </p>
+        </div>
+      </header>
+      {visibleGroups.length === 0 && (
+        <p className="filieres-search-empty" role="status">
+          Aucun domaine ne correspond à « {searchQuery.trim()} ».{' '}
+          <button type="button" className="filieres-search-reset" onClick={() => setSearchQuery('')}>
+            Effacer la recherche
+          </button>
+        </p>
+      )}
+      <div className="grid-cards filieres-eleven-grid">
+        {visibleGroups.map((group, groupIndex) => {
+          const refSous = specialitesByGroup[group] || [];
           const groupIcon = GROUP_ICON_SRC[group] || '/icons/filieres/default.svg';
+          const refHeadingId = `sous-ref-h-${groupIndex}`;
+          const refSelectId = `ref-sous-select-${groupIndex}`;
 
           return (
             <div key={group} className="card filieres-group-card">
@@ -124,52 +147,51 @@ export default function Filieres() {
                   className="filieres-group-favicon"
                   src={groupIcon}
                   alt=""
-                  width={44}
-                  height={44}
+                  width={36}
+                  height={36}
                   loading="lazy"
                   decoding="async"
                 />
-                <div>
+                <div className="filieres-group-head-text">
                   <h3>{group}</h3>
-                  <p className="filieres-group-meta">{subfilieres.length} filiere(s)</p>
+                  <p className="filieres-group-meta">{refSous.length} spécialisation(s)</p>
                 </div>
               </div>
-              <div className="filieres-group-select-row">
-                <img
-                  className="filieres-group-select-favicon"
-                  src={groupIcon}
-                  alt=""
-                  width={24}
-                  height={24}
-                  loading="lazy"
-                  decoding="async"
-                />
+
+              <section className="filieres-sous-section" aria-labelledby={refHeadingId}>
+                <h4 id={refHeadingId} className="filieres-sous-heading">
+                  Spécialisations
+                </h4>
+                <label htmlFor={refSelectId} className="filieres-select-label">
+                  Choisir une spécialité pour continuer
+                </label>
                 <select
-                  className="filieres-group-select"
+                  id={refSelectId}
+                  className="filieres-group-select filieres-ref-sous-select"
                   defaultValue=""
-                  onChange={(e) => {
-                    const filiereId = e.target.value;
-                    if (filiereId) navigate(`/filieres/filiere/${filiereId}`);
-                  }}
+                  aria-labelledby={refHeadingId}
+                  onChange={(e) => onSpecialiteChosen(group, e)}
                 >
-                  <option value="">Selectionnez une filiere</option>
-                  {subfilieres.map((label) => {
-                    const mapped = resolveFiliere(label);
-                    return (
-                      <option key={`${group}-${label}`} value={mapped?.id || ''} disabled={!mapped}>
-                        {mapped ? label : `${label} (bientot disponible)`}
-                      </option>
-                    );
-                  })}
+                  <option value="">
+                    {refSous.length ? `— Liste (${refSous.length}) —` : 'Aucune spécialisation listée'}
+                  </option>
+                  {refSous.map((label) => (
+                    <option key={`${group}:${label}`} value={label} title={label}>
+                      {label}
+                    </option>
+                  ))}
                 </select>
-              </div>
+              </section>
             </div>
           );
         })}
       </div>
       {filieres.length === 0 && (
-        <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>Aucune filiere disponible pour le moment.</p>
+        <p className="filieres-empty-db" role="status">
+          Aucune filière avec école privée en base : le parcours après choix de spécialité ne pourra pas démarrer tant
+          que des liaisons ne sont pas configurées.
+        </p>
       )}
-    </>
+    </div>
   );
 }

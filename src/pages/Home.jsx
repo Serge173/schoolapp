@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MLA_LOGO_URLS } from '../data/mlaLogoUrls';
 import ArrowIcon from '../components/ArrowIcon';
-import { FIGS_ABIDJAN, FIGS_BURKINA, figsRegionalWhatsAppUrl } from '../data/figsBureaus';
+import { FIGS_ABIDJAN } from '../data/figsBureaus';
+import ParlerConseillerWhatsAppLink from '../components/ParlerConseillerWhatsAppLink';
 import { faviconUrl } from '../utils/favicon';
 import './Home.css';
 
 const WHATSAPP_PREFILL =
-  'Bonjour, je contacte les bureaux FIGS Abidjan / Burkina Faso pour mon projet d’études en France.';
+  "Bonjour, je vous écris depuis FigsApp-Côte d'Ivoire pour mon projet d'études en France (bureau FIGS Abidjan / Burkina Faso).";
 
 function logoPositions(count) {
   return Array.from({ length: count }, (_, i) => {
@@ -23,19 +24,9 @@ const FIGS_LOGO_URL = 'https://www.figs-education.com/_nuxt/img/FIGS_logo.aefcad
 
 const ACCUEIL_ATOUTS = [
   {
-    titre: 'Admission',
-    texte: 'Une procédure d’admission simplifiée.',
-    faviconDomain: 'service-public.fr',
-  },
-  {
     titre: 'Large choix de formations',
     texte: '+ de 50 programmes de Bac à Bac+5.',
     faviconDomain: 'onisep.fr',
-  },
-  {
-    titre: 'Diplômes reconnus',
-    texte: 'Diplômes français reconnus.',
-    faviconDomain: 'education.gouv.fr',
   },
   {
     titre: 'Accompagnement',
@@ -44,14 +35,14 @@ const ACCUEIL_ATOUTS = [
   },
 ];
 
-const ATOUTS_GAUCHE = ACCUEIL_ATOUTS.slice(0, 2);
-const ATOUTS_DROITE = ACCUEIL_ATOUTS.slice(2, 4);
+const ATOUTS_GAUCHE = [ACCUEIL_ATOUTS[0]];
+const ATOUTS_DROITE = [ACCUEIL_ATOUTS[1]];
 const CHIFFRES_CLES = [{ label: 'Programmes (Bac à Bac+5)', value: '50+' }];
 
 const FAQ_HOME = [
   {
     q: 'Quels services proposez-vous ?',
-    a: 'Un accompagnement personnalisé et gratuit : conseil d’orientation, préparation aux entretiens, préparation du visa, aide au logement et accompagnement administratif — comme décrit sur figs-education.com.',
+    a: 'Sur FigsApp-Côte d’Ivoire : un accompagnement personnalisé et gratuit — conseil d’orientation, préparation aux entretiens, préparation du visa, aide au logement et accompagnement administratif — comme décrit sur figs-education.com.',
   },
   {
     q: 'L’accompagnement est-il payant ?',
@@ -59,17 +50,17 @@ const FAQ_HOME = [
   },
   {
     q: 'Qui est FIGS Education ?',
-    a: 'FIGS Education, l’expérience académique française, est le service international du réseau Compétences & Développement. SchoolApp représente à part égale les bureaux FIGS d’Abidjan (Côte d’Ivoire) et du Burkina Faso : la même logique d’orientation et d’accompagnement, avec les coordonnées publiées sur figs-education.com pour chaque territoire.',
+    a: 'FIGS Education, l’expérience académique française, est le service international du réseau Compétences & Développement. FigsApp-Côte d’Ivoire couvre les candidatures depuis Abidjan et le Burkina Faso : même accompagnement, avec le contact unique du bureau d’Abidjan (voir figs-education.com).',
   },
   {
     q: 'Comment candidater ?',
-    a: 'La procédure en ligne repose sur un dossier (pièces d’identité, CV, derniers diplômes et bulletins, niveau de français pour les non-francophones, etc.). Le détail des pièces et frais éventuels figure sur le site FIGS — voir la FAQ et la procédure d’admission.',
+    a: 'La procédure en ligne sur FigsApp-Côte d’Ivoire repose sur un dossier (pièces d’identité, CV, derniers diplômes et bulletins, niveau de français pour les non-francophones, etc.). Le détail des pièces et frais éventuels figure sur le site FIGS — voir la FAQ et la procédure d’admission.',
   },
 ];
 
 function AtoutCard({ item }) {
   return (
-    <li className="home-highlight-card">
+    <li className="home-highlight-card home-highlight-card--showcase-pair">
       <img
         className="home-highlight-favicon"
         src={faviconUrl(item.faviconDomain, 48)}
@@ -80,7 +71,7 @@ function AtoutCard({ item }) {
         loading="lazy"
         decoding="async"
       />
-      <div>
+      <div className="home-highlight-body">
         <h3 className="home-highlight-heading">{item.titre}</h3>
         <p className="home-highlight-text">{item.texte}</p>
       </div>
@@ -133,29 +124,33 @@ export default function Home() {
 
       <div className="home-content">
         <div style={{ textAlign: 'center', marginBottom: '2.25rem' }}>
-          <h1 style={{ fontSize: '2.25rem', marginBottom: '0.5rem' }}>Bienvenue sur SchoolApp</h1>
+          <h1 style={{ fontSize: '2.25rem', marginBottom: '0.5rem' }}>Bienvenue sur FigsApp-Côte d’Ivoire</h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>
-            Application du{' '}
+            <strong>FigsApp-Côte d’Ivoire</strong> est votre portail pour explorer les filières, niveaux et écoles
+            partenaires et lancer une candidature, au service des <strong>bureaux régionaux d’Abidjan</strong> (
+            {FIGS_ABIDJAN.pays}) et du <strong>Burkina Faso</strong> de{' '}
             <a href={FIGS_ABIDJAN.siteFigs} target="_blank" rel="noopener noreferrer">
               FIGS Education
             </a>{' '}
-            pour les <strong>bureaux régionaux d’Abidjan</strong> ({FIGS_ABIDJAN.pays}) et du <strong>Burkina Faso</strong> :
-            filières, niveaux et écoles partenaires pour étudier en France (orientation, admission, l’expérience académique
-            française).
+            : orientation, admission et l’expérience académique française.
           </p>
         </div>
 
         <section className="home-showcase" aria-labelledby="home-atouts-title">
           <h2 id="home-atouts-title" className="home-showcase-title">
-            FIGS Education vous accompagne dans votre projet d’études en France
+            FIGS Education et FigsApp-Côte d’Ivoire vous accompagnent dans votre projet d’études en France
           </h2>
 
           <div className="home-showcase-layout">
-            <ul className="home-showcase-column home-showcase-column--left" aria-label="Atouts à gauche">
-              {ATOUTS_GAUCHE.map((item, i) => (
-                <AtoutCard key={item.titre} item={item} />
-              ))}
-            </ul>
+            <div className="home-showcase-top home-showcase-top--left">
+              <ParlerConseillerWhatsAppLink
+                prefillMessage={WHATSAPP_PREFILL}
+                className="btn btn-primary btn-block btn-arrow home-showcase-side-cta"
+              >
+                <span>Parler à un conseiller</span>
+                <ArrowIcon />
+              </ParlerConseillerWhatsAppLink>
+            </div>
 
             <div className="home-showcase-center">
               <Link to="/filieres" className="home-showcase-cta-link">
@@ -168,26 +163,44 @@ export default function Home() {
                     height={72}
                     referrerPolicy="no-referrer"
                   />
-                  <h3 className="home-cta-title">Université Privée</h3>
-                  <p className="home-cta-desc">Consulter les filières et établissements privés</p>
+                  <p className="home-cta-apply-hint">Cliquez ici pour postuler</p>
+                  <h3 className="home-cta-title">Pour une meilleure Université Privée en France</h3>
+                  <p className="home-cta-desc">Consulter les filières et meilleurs établissements privés de France</p>
                 </div>
               </Link>
             </div>
 
-            <ul className="home-showcase-column home-showcase-column--right" aria-label="Atouts à droite">
-              {ATOUTS_DROITE.map((item, i) => (
+            <div className="home-showcase-top home-showcase-top--right">
+              <Link
+                to="/rendez-vous"
+                className="btn btn-primary btn-block btn-arrow home-showcase-side-cta"
+              >
+                <span>Prendre un RDV avec le bureau</span>
+                <ArrowIcon />
+              </Link>
+            </div>
+
+            <ul className="home-showcase-atout home-showcase-atout--left" aria-label="Large choix de formations">
+              {ATOUTS_GAUCHE.map((item) => (
+                <AtoutCard key={item.titre} item={item} />
+              ))}
+            </ul>
+
+            <ul className="home-showcase-atout home-showcase-atout--right" aria-label="Accompagnement">
+              {ATOUTS_DROITE.map((item) => (
                 <AtoutCard key={item.titre} item={item} />
               ))}
             </ul>
           </div>
         </section>
 
-        <section className="home-info-grid" aria-label="Bureaux FIGS Abidjan et Burkina Faso">
+        <section className="home-info-grid" aria-label="FigsApp-Côte d’Ivoire — bureaux FIGS Abidjan et Burkina Faso">
           <article className="card home-info-card">
             <h3>Bureau Abidjan — {FIGS_ABIDJAN.pays}</h3>
             <p>
-              Contenus FIGS pour les candidats du <strong>bureau d’Abidjan</strong> : filières (Agri, Assurance,
-              Communication, Droit, Digital, Management, etc.), du Bac au Bac+5, écoles privées partenaires.
+              Sur <strong>FigsApp-Côte d’Ivoire</strong>, retrouvez les contenus FIGS pour les candidats du{' '}
+              <strong>bureau d’Abidjan</strong> : filières (Agri, Assurance, Communication, Droit, Digital, Management,
+              etc.), du Bac au Bac+5, écoles privées partenaires.
             </p>
             <p>
               <strong>Contact (figs-education.com — nos bureaux) :</strong> {FIGS_ABIDJAN.responsable} —{' '}
@@ -202,28 +215,25 @@ export default function Home() {
           </article>
 
           <article className="card home-info-card">
-            <h3>Bureau Burkina Faso</h3>
+            <h3>Candidats Burkina Faso</h3>
             <p>
-              Le <strong>bureau FIGS Burkina Faso</strong> est représenté au même titre qu’Abidjan dans cette
-              application : même accompagnement vers les formations en France, avec une boîte mail dédiée sur le site
-              officiel FIGS.
-            </p>
-            <p>
-              <strong>Contact :</strong>{' '}
-              <a href={`mailto:${FIGS_BURKINA.email}`}>{FIGS_BURKINA.email}</a>
+              Le <strong>Burkina Faso</strong> est couvert au même titre que la Côte d’Ivoire sur{' '}
+              <strong>FigsApp-Côte d’Ivoire</strong>. L’accompagnement et les formations proposées sont les mêmes.
             </p>
             <p style={{ marginBottom: 0 }}>
-              Selon FIGS, l’organisation du réseau met en lien le Burkina Faso et le bureau Côte d’Ivoire ; la ligne
-              téléphone/WhatsApp publiée pour Abidjan sert aussi de contact rapide pour les dossiers régionaux (
+              <strong>Contact unique (identique à Abidjan) :</strong>{' '}
+              <a href={`mailto:${FIGS_ABIDJAN.email}`}>{FIGS_ABIDJAN.email}</a> —{' '}
+              <a href={`tel:+${FIGS_ABIDJAN.phoneDigitsInternational}`}>{FIGS_ABIDJAN.phoneDisplay}</a> — WhatsApp
+              conseillers : {FIGS_ABIDJAN.phoneDisplay} · {FIGS_ABIDJAN.phoneWhatsAppSecondaryDisplay}. Plus d’infos sur{' '}
               <a href={FIGS_ABIDJAN.pageBureaux} target="_blank" rel="noopener noreferrer">
-                détail sur figs-education.com
+                figs-education.com
               </a>
-              ).
+              .
             </p>
           </article>
 
           <article className="card home-info-card">
-            <h3>Rentrées et calendrier (FIGS)</h3>
+            <h3>Rentrées et calendrier — FigsApp-Côte d’Ivoire et FIGS</h3>
             <ul className="home-list">
               <li>Rentrée principale : septembre 2026</li>
               <li>Rentrée décalée : janvier à mars</li>
@@ -264,15 +274,17 @@ export default function Home() {
               <span>Contacter un conseiller</span>
               <ArrowIcon />
             </Link>
-            <a
-              href={figsRegionalWhatsAppUrl(WHATSAPP_PREFILL)}
-              target="_blank"
-              rel="noopener noreferrer"
+            <ParlerConseillerWhatsAppLink
+              prefillMessage={WHATSAPP_PREFILL}
               className="btn btn-primary btn-arrow"
             >
-              <span>Contacter les bureaux par WhatsApp</span>
+              <span>Parler à un conseiller</span>
               <ArrowIcon />
-            </a>
+            </ParlerConseillerWhatsAppLink>
+            <Link to="/rendez-vous" className="btn btn-primary btn-arrow">
+              <span>Prendre un RDV avec le bureau</span>
+              <ArrowIcon />
+            </Link>
           </div>
         </section>
       </div>

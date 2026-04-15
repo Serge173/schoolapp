@@ -1,0 +1,17 @@
+/* Pleine largeur du conteneur layout (évite la colonne étroite + max 1100px de .rdv-page) */
+.demande-orientation-filiere-page.rdv-page {
+  max-width: none;
+  width: 100%;
+}
+
+.demande-orientation-filiere-page .demande-orientation-card {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+}
+
+.demande-orientation-filiere-page .demande-orientation-success {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+}

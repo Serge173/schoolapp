@@ -17,10 +17,10 @@ export const MLA_LOGO_URLS = [
   '/images/ecoles/medium_LOGO_IGEFI_SIGN_BAS_and_CMJN_e91be09e87.jpg',
   '/images/ecoles/small_LOGO_IHEDREA_and_RVB_1_0e1efcec2b_7c5d354b79.png',
   '/images/ecoles/medium_LOGO_ILERI_and_RVB_1_624b35dd3b_949aaaf49f.png',
-  '/images/ecoles/medium_LOGO_SUPDECOM_and_RVB_1_3cfa6e6ffd_3b38beca52.png',
+  'https://www.ecoles-supdecom.com/_ipx/s_180x72/images/logo-navbar.svg',
   '/images/ecoles/medium_VIVA_MUNDI_LOGO_RVB_3_bf48a63bb2_a4fb51bc01.png',
   '/images/ecoles/medium_LOGO_WIS_and_RVB_2025_WIS_VECTORISE_NOIR_4fb2d87bde.png',
 ];
 
-/** Logo 3A (premier du réseau) — header, CTA accueil, favicon navigateur */
+/** Logo 3A (premier du réseau) — logos écoles / vitrine */
 export const MLA_BRAND_LOGO_URL = MLA_LOGO_URLS[0];

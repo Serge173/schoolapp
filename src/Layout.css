@@ -1,0 +1,201 @@
+/* Header — navigation desktop + mobile (tablette / téléphone) */
+
+.layout-header-nav a {
+  color: #234766;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.layout-header-nav a:hover {
+  color: #0f2e4a;
+}
+
+.layout-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  position: relative;
+}
+
+.layout-header a.logo {
+  min-width: 0;
+  font-size: clamp(1rem, 3.5vw, 1.35rem);
+}
+
+/* Bouton hamburger (visible seulement < 1024px) */
+.layout-menu-btn {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.35);
+  color: #14395a;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s;
+  z-index: 1002;
+}
+
+.layout-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.layout-menu-btn:focus-visible {
+  outline: 2px solid #14395a;
+  outline-offset: 2px;
+}
+
+.layout-menu-btn-bar {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 1px;
+}
+
+/* Bouton fermer (croix) — même zone tactile */
+.layout-menu-btn--close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius);
+  background: rgba(20, 57, 90, 0.08);
+  color: #14395a;
+  font-size: 1.75rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.layout-menu-btn--close:hover {
+  background: rgba(20, 57, 90, 0.15);
+}
+
+.layout-menu-btn--close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Backdrop */
+.layout-nav-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 35, 50, 0.45);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.layout-nav-backdrop.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Nav principale */
+.layout-header-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0;
+}
+
+.layout-nav-mobile-head {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding-bottom: 1rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.layout-nav-mobile-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #14395a;
+}
+
+@media (max-width: 1023px) {
+  .layout-menu-btn--open {
+    display: flex;
+  }
+
+  .layout-header-row--nav-open .layout-menu-btn--open {
+    display: none;
+  }
+
+  .layout-nav-backdrop {
+    display: block;
+  }
+
+  .layout-header-nav {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: min(100%, 360px);
+    height: 100vh;
+    height: 100dvh;
+    margin: 0;
+    padding: 1rem 1.25rem 2rem;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 0;
+    background: var(--surface);
+    box-shadow: -8px 0 32px rgba(26, 35, 50, 0.18);
+    z-index: 1001;
+    overflow-y: auto;
+    transform: translateX(100%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .layout-header-nav.is-open {
+    transform: translateX(0);
+  }
+
+  .layout-nav-mobile-head {
+    display: flex;
+  }
+
+  .layout-header-nav a {
+    margin-left: 0 !important;
+    padding: 0.85rem 0.25rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 1.05rem;
+    color: #234766;
+  }
+
+  .layout-header-nav a:last-of-type {
+    border-bottom: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .layout-header-nav {
+    flex-direction: row;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .layout-header-nav a {
+    margin-left: 0;
+    padding: 0.25rem 0;
+  }
+}

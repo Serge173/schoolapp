@@ -1,24 +1,108 @@
-import { Outlet } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useEffect, useState, useCallback } from 'react';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 import { FIGS_ABIDJAN } from './data/figsBureaus';
 import { getFooterSocialLinks } from './data/socialLinks';
 import SocialIcon from './components/SocialIcon';
+import './Layout.css';
+
+const NAV_LINKS = [
+  { to: '/', label: 'Accueil' },
+  { to: '/filieres', label: 'Filières' },
+  { to: '/catalogue-figs', label: 'Catalogue FIGS' },
+  { to: '/rendez-vous', label: 'Rendez-vous' },
+  { to: '/contact', label: 'Contact' },
+];
 
 export default function Layout() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
+
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
+  const openMenu = useCallback(() => setMenuOpen(true), []);
+
+  useEffect(() => {
+    closeMenu();
+  }, [location.pathname, closeMenu]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') closeMenu();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [menuOpen, closeMenu]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const mq = window.matchMedia('(max-width: 1023px)');
+    if (!mq.matches) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [menuOpen]);
+
+  useEffect(() => {
+    const onResize = () => {
+      if (window.innerWidth >= 1024) setMenuOpen(false);
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
   return (
     <div className="layout-root">
       <header className="layout-header">
         <div className="container">
-          <Link to="/" className="logo">
-            FigsApp-Côte d'Ivoire
-          </Link>
-          <nav>
-            <Link to="/">Accueil</Link>
-            <Link to="/filieres">Filières</Link>
-            <Link to="/catalogue-figs">Catalogue FIGS</Link>
-            <Link to="/rendez-vous">Rendez-vous</Link>
-            <Link to="/contact">Contact</Link>
-          </nav>
+          <div className={`layout-header-row${menuOpen ? ' layout-header-row--nav-open' : ''}`}>
+            <Link to="/" className="logo" onClick={closeMenu}>
+              FigsApp-Côte d'Ivoire
+            </Link>
+
+            <button
+              type="button"
+              className="layout-menu-btn layout-menu-btn--open"
+              aria-expanded={menuOpen}
+              aria-controls="main-navigation"
+              aria-label="Ouvrir le menu"
+              onClick={openMenu}
+            >
+              <span className="layout-menu-btn-bar" aria-hidden />
+              <span className="layout-menu-btn-bar" aria-hidden />
+              <span className="layout-menu-btn-bar" aria-hidden />
+            </button>
+
+            <div
+              className={`layout-nav-backdrop ${menuOpen ? 'is-open' : ''}`}
+              aria-hidden
+              onClick={closeMenu}
+            />
+
+            <nav
+              id="main-navigation"
+              className={`layout-header-nav ${menuOpen ? 'is-open' : ''}`}
+              aria-label="Navigation principale"
+            >
+              <div className="layout-nav-mobile-head">
+                <span className="layout-nav-mobile-title">Menu</span>
+                <button
+                  type="button"
+                  className="layout-menu-btn--close"
+                  aria-label="Fermer le menu"
+                  onClick={closeMenu}
+                >
+                  ×
+                </button>
+              </div>
+              {NAV_LINKS.map(({ to, label }) => (
+                <Link key={to} to={to} onClick={closeMenu}>
+                  {label}
+                </Link>
+              ))}
+            </nav>
+          </div>
         </div>
       </header>
       <main className="layout-main" style={{ padding: '2rem 0', overflowX: 'hidden' }}>
@@ -43,11 +127,11 @@ export default function Layout() {
           </div>
           <nav className="layout-footer-nav" aria-label="Liens du pied de page">
             <h4>Navigation</h4>
-            <Link to="/">Accueil</Link>
-            <Link to="/filieres">Filières</Link>
-            <Link to="/catalogue-figs">Catalogue FIGS</Link>
-            <Link to="/rendez-vous">Rendez-vous</Link>
-            <Link to="/contact">Contact</Link>
+            {NAV_LINKS.map(({ to, label }) => (
+              <Link key={to} to={to}>
+                {label}
+              </Link>
+            ))}
           </nav>
           <div className="layout-footer-contact">
             <h4>Contact</h4>

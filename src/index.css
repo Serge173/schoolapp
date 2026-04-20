@@ -86,11 +86,6 @@ input, select, textarea {
   box-shadow: 0 2px 8px rgba(255, 174, 27, 0.35);
   padding: 1rem 0;
 }
-.layout-header .container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
 .layout-header a.logo {
   display: inline-flex;
   align-items: center;
@@ -108,14 +103,7 @@ input, select, textarea {
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid var(--border);
 }
-.layout-header nav a {
-  margin-left: 1.5rem;
-  color: #234766;
-  font-weight: 600;
-}
-.layout-header nav a:hover {
-  color: #0f2e4a;
-}
+/* Liens nav principal : voir Layout.css (menu responsive) */
 
 /* Admin pages - unified brand look */
 .admin-page {

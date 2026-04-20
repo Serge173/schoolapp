@@ -11,13 +11,61 @@ const API_ORIGIN = API_BASE.startsWith('http')
   ? API_BASE.replace(/\/api$/i, '')
   : '';
 
+function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+function isTransientHttpStatus(status) {
+  return status === 502 || status === 503 || status === 504;
+}
+
+function isNetworkError(err) {
+  return (
+    err instanceof TypeError
+    || (typeof err?.message === 'string' && err.message.toLowerCase().includes('failed to fetch'))
+  );
+}
+
+/**
+ * Retries légers pour cold start Render / coupures réseau.
+ * GET : jusqu’à 3 tentatives sur 502/503/504 ou erreur réseau.
+ * Autres : 1 retry uniquement sur erreur réseau (pas sur 4xx/5xx applicatifs).
+ */
 async function request(path, options = {}) {
+  const method = (options.method || 'GET').toUpperCase();
+  const maxAttempts = method === 'GET' || method === 'HEAD' ? 3 : 2;
   const url = path.startsWith('http') ? path : `${API_BASE}${path}`;
   const headers = { 'Content-Type': 'application/json', ...options.headers };
-  const res = await fetch(url, { ...options, headers, credentials: 'include' });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || data.errors?.[0]?.msg || 'Erreur');
-  return data;
+
+  let lastErr;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      const res = await fetch(url, { ...options, headers, credentials: 'include' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg = data.error || data.errors?.[0]?.msg || 'Erreur';
+        if (
+          attempt < maxAttempts
+          && (method === 'GET' || method === 'HEAD')
+          && isTransientHttpStatus(res.status)
+        ) {
+          await sleep(250 * attempt + Math.floor(Math.random() * 150));
+          continue;
+        }
+        throw new Error(msg);
+      }
+      return data;
+    } catch (err) {
+      lastErr = err;
+      const canRetryNetwork = attempt < maxAttempts && isNetworkError(err);
+      if (canRetryNetwork) {
+        await sleep(400 * attempt + Math.floor(Math.random() * 200));
+        continue;
+      }
+      throw err instanceof Error ? err : new Error(String(err));
+    }
+  }
+  throw lastErr instanceof Error ? lastErr : new Error(String(lastErr));
 }
 
 export const api = {

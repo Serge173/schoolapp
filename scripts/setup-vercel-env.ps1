@@ -29,10 +29,11 @@ Add-VercelEnv "JWT_SECRET" $jwt
 Add-VercelEnv "CORS_ORIGIN" "https://figsappcotedivoire.com,https://www.figsappcotedivoire.com"
 
 Write-Host ""
-Write-Host "Supprimez VITE_API_BASE manuellement si elle pointe vers une ancienne URL :" -ForegroundColor Yellow
+Write-Host "IMPORTANT — supprimez VITE_API_BASE (ancien backend Render) :" -ForegroundColor Yellow
 Write-Host "  Vercel > frontend > Settings > Environment Variables > VITE_API_BASE > Delete"
 Write-Host ""
-Write-Host "Puis : Deployments > dernier deploiement main > ... > Promote to Production"
+Write-Host "Puis : Settings > Build and Deployment > Node.js Version = 20.x"
+Write-Host "Puis : Deployments > dernier deploiement main > Promote to Production"
 Write-Host "Ou   : vercel --prod"
 Write-Host ""
 Write-Host "Test : https://figsappcotedivoire.com/api/health" -ForegroundColor Green

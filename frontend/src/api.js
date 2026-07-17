@@ -1,4 +1,4 @@
-/** Base des appels API (dev : /api via proxy Vite). Si URL absolue sans /api, on l’ajoute (évite les 404). */
+/** Base des appels API (dev : /api via proxy Vite). Sur figsappcotedivoire.com → même domaine /api (Vercel). */
 function normalizeApiBase(raw) {
   const s = String(raw || '/api').replace(/\/+$/, '') || '/api';
   if (s.startsWith('http') && !/\/api$/i.test(s) && !s.includes('/api/')) {
@@ -7,7 +7,16 @@ function normalizeApiBase(raw) {
   return s;
 }
 
-const API_BASE = normalizeApiBase(import.meta.env.VITE_API_BASE);
+const PROD_HOSTS = new Set(['figsappcotedivoire.com', 'www.figsappcotedivoire.com']);
+
+function resolveApiBase() {
+  if (typeof window !== 'undefined' && PROD_HOSTS.has(window.location.hostname)) {
+    return '/api';
+  }
+  return normalizeApiBase(import.meta.env.VITE_API_BASE);
+}
+
+const API_BASE = resolveApiBase();
 const API_ORIGIN = API_BASE.startsWith('http')
   ? API_BASE.replace(/\/api$/i, '')
   : '';

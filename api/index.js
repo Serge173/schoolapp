@@ -4,8 +4,18 @@ let expressApp;
 let initPromise;
 let bootError;
 
+function isRetriableBootError(err) {
+  const msg = err?.message || '';
+  return msg.includes('JWT_SECRET') || msg.includes('CORS_ORIGIN');
+}
+
 function boot() {
-  if (bootError) return Promise.reject(bootError);
+  if (bootError) {
+    if (!isRetriableBootError(bootError)) return Promise.reject(bootError);
+    bootError = undefined;
+    initPromise = undefined;
+    expressApp = undefined;
+  }
   if (!initPromise) {
     initPromise = (async () => {
       try {

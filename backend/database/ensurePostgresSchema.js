@@ -1,15 +1,10 @@
 const fs = require('fs');
 const path = require('path');
-const { Pool, neonConfig } = require('@neondatabase/serverless');
+const { Pool } = require('@neondatabase/serverless');
+const { configureNeon } = require('../config/neon');
 const { getDbDriver } = require('../utils/dbDriver');
 
-if (!process.env.VERCEL) {
-  try {
-    neonConfig.webSocketConstructor = require('ws');
-  } catch {
-    neonConfig.poolQueryViaFetch = true;
-  }
-}
+configureNeon();
 
 async function ensurePostgresSchema() {
   const dotenvPath = process.env.DOTENV_CONFIG_PATH;

@@ -1,9 +1,21 @@
 /**
  * Entrée serverless Vercel quand le Root Directory du projet est `frontend`.
- * (Si Root Directory = `.`, c'est api/index.js à la racine qui est utilisé.)
  */
-const app = require('../../backend/app');
 const { runStartupMigrations } = require('../../backend/database/startupMigrations');
+
+function loadApp() {
+  try {
+    return require('../../backend/app');
+  } catch (err) {
+    const msg = err.message || String(err);
+    if (msg.includes('JWT_SECRET')) {
+      throw new Error('JWT_SECRET manquant sur Vercel (Settings → Environment Variables).');
+    }
+    throw err;
+  }
+}
+
+const expressApp = loadApp();
 
 let initPromise = runStartupMigrations().catch((err) => {
   console.error('[vercel-api] Startup failed:', err.message || err);
@@ -12,11 +24,13 @@ let initPromise = runStartupMigrations().catch((err) => {
 
 module.exports = (req, res) => {
   initPromise
-    .then(() => app(req, res))
+    .then(() => expressApp(req, res))
     .catch((err) => {
       console.error('[vercel-api]', err);
       if (!res.headersSent) {
-        res.status(500).json({ error: 'Initialisation du service impossible.' });
+        res.status(500).json({
+          error: err.message || 'Initialisation du service impossible.',
+        });
       }
     });
 };

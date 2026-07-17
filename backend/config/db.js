@@ -44,6 +44,8 @@ if (driver === 'sqlite') {
   };
 } else if (driver === 'postgres') {
   const { Pool } = require('@neondatabase/serverless');
+  const { configureNeon } = require('./neon');
+  configureNeon();
 
   const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL;
   const pool = new Pool({ connectionString });

@@ -3,11 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "description": "FigsApp Côte d'Ivoire — frontend + API Vercel + Neon",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
     "build": "cd frontend && npm run build",
-    "vercel-build": "cd backend && npm install && cd ../frontend && npm install && npm run build",
+    "vercel-build": "cd backend && npm install --omit=dev --no-optional && cd ../frontend && npm install && npm run build",
     "db:init": "cd backend && node database/ensurePostgresSchema.js",
     "db:seed-admin": "cd backend && node database/seed-admin-postgres.js"
   }

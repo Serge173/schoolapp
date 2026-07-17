@@ -10,10 +10,12 @@
     "db:init-postgres": "node database/ensurePostgresSchema.js",
     "db:seed-admin-postgres": "node database/seed-admin-postgres.js"
   },
+  "engines": {
+    "node": "20.x"
+  },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
     "bcryptjs": "^2.4.3",
-    "better-sqlite3": "^9.6.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
@@ -25,6 +27,9 @@
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.6.5",
     "nodemailer": "^8.0.4"
+  },
+  "optionalDependencies": {
+    "better-sqlite3": "^9.6.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"

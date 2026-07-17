@@ -10,7 +10,14 @@ function convertPlaceholders(sql) {
 }
 
 if (driver === 'sqlite') {
-  const Database = require('better-sqlite3');
+  let Database;
+  try {
+    Database = require('better-sqlite3');
+  } catch (err) {
+    throw new Error(
+      'better-sqlite3 est requis pour SQLite (dev local). Exécutez: npm install dans backend/'
+    );
+  }
   const dbPath = path.join(__dirname, '..', 'data', 'shoolapp.db');
   const db = new Database(dbPath);
 

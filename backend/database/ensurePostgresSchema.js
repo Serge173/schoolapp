@@ -1,9 +1,20 @@
 const fs = require('fs');
 const path = require('path');
-const { Pool } = require('@neondatabase/serverless');
+const { Pool, neonConfig } = require('@neondatabase/serverless');
 const { getDbDriver } = require('../utils/dbDriver');
 
+if (!process.env.VERCEL) {
+  try {
+    neonConfig.webSocketConstructor = require('ws');
+  } catch {
+    neonConfig.poolQueryViaFetch = true;
+  }
+}
+
 async function ensurePostgresSchema() {
+  const dotenvPath = process.env.DOTENV_CONFIG_PATH;
+  if (dotenvPath) require('dotenv').config({ path: dotenvPath, override: true });
+
   if (getDbDriver() !== 'postgres') return;
 
   const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL;
@@ -18,7 +29,8 @@ async function ensurePostgresSchema() {
   const statements = sql
     .split(';')
     .map((s) => s.trim())
-    .filter((s) => s.length > 0 && !s.startsWith('--'));
+    .map((s) => s.split('\n').filter((line) => !line.trim().startsWith('--')).join('\n').trim())
+    .filter((s) => s.length > 0);
 
   for (const statement of statements) {
     try {

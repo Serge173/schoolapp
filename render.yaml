@@ -23,7 +23,7 @@ services:
         value: 200kb
       # IMPORTANT: remplace par ton frontend Vercel
       - key: CORS_ORIGIN
-        value: https://frontend-six-psi-82.vercel.app
+        value: https://figsappcotedivoire.com,https://www.figsappcotedivoire.com
       # DB MySQL (a remplir dans Render Dashboard)
       - key: DB_HOST
         sync: false

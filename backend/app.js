@@ -44,7 +44,30 @@ app.use(helmet({
   hsts: isProd ? { maxAge: 31536000, includeSubDomains: true, preload: true } : false,
 }));
 
-const corsOrigins = (process.env.CORS_ORIGIN || '').split(',').map((v) => v.trim()).filter(Boolean);
+/** Accepte aussi la variante www / sans-www de chaque origine configurée. */
+function expandCorsOrigins(origins) {
+  const set = new Set(origins);
+  for (const origin of origins) {
+    try {
+      const u = new URL(origin);
+      const host = u.hostname;
+      const base = `${u.protocol}//`;
+      const port = u.port ? `:${u.port}` : '';
+      if (host.startsWith('www.')) {
+        set.add(`${base}${host.slice(4)}${port}`);
+      } else {
+        set.add(`${base}www.${host}${port}`);
+      }
+    } catch {
+      /* ignore invalid URL */
+    }
+  }
+  return [...set];
+}
+
+const corsOrigins = expandCorsOrigins(
+  (process.env.CORS_ORIGIN || '').split(',').map((v) => v.trim()).filter(Boolean)
+);
 app.use(cors({
   origin: (origin, cb) => {
     if (!origin) return cb(null, true);

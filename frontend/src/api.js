@@ -6,6 +6,7 @@ function normalizeApiBase(raw) {
   }
   return s;
 }
+
 const API_BASE = normalizeApiBase(import.meta.env.VITE_API_BASE);
 const API_ORIGIN = API_BASE.startsWith('http')
   ? API_BASE.replace(/\/api$/i, '')

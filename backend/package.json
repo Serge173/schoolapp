@@ -8,7 +8,8 @@
     "dev": "nodemon server.js",
     "migrate:pays-bureau": "node database/apply-pays-bureau-migration.js",
     "db:init-postgres": "node database/ensurePostgresSchema.js",
-    "db:seed-admin-postgres": "node database/seed-admin-postgres.js"
+    "db:seed-admin-postgres": "node database/seed-admin-postgres.js",
+    "db:seed-render-postgres": "node database/seed-render-data-postgres.js"
   },
   "engines": {
     "node": "20.x"

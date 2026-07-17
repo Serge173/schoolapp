@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
-
-const JWT_SECRET = process.env.JWT_SECRET || 'secret-dev-change-in-production';
+const { getJwtSecret } = require('../utils/jwtSecret');
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '12h';
 const ADMIN_COOKIE_NAME = process.env.ADMIN_COOKIE_NAME || 'sa_admin';
 
@@ -17,7 +16,7 @@ exports.authenticate = (req, res, next) => {
     return res.status(401).json({ error: 'Accès non autorisé.' });
   }
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, getJwtSecret());
     req.adminId = decoded.id;
     req.adminEmail = decoded.email;
     next();
@@ -27,7 +26,7 @@ exports.authenticate = (req, res, next) => {
 };
 
 exports.generateToken = (admin) => {
-  return jwt.sign({ id: admin.id, email: admin.email }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+  return jwt.sign({ id: admin.id, email: admin.email }, getJwtSecret(), { expiresIn: JWT_EXPIRES_IN });
 };
 
 exports.ADMIN_COOKIE_NAME = ADMIN_COOKIE_NAME;

@@ -15,13 +15,12 @@ const demandesOrientationRouter = require('./routes/demandes-orientation');
 const programmesFigsRouter = require('./routes/programmes-figs');
 const { uploadDir } = require('./middleware/upload');
 const { requestLogger } = require('./middleware/requestLogger');
+const { assertJwtSecretConfigured } = require('./utils/jwtSecret');
 
 const app = express();
 const isProd = process.env.NODE_ENV === 'production';
 
-if (isProd && !process.env.JWT_SECRET) {
-  throw new Error('JWT_SECRET is required in production.');
-}
+if (isProd) assertJwtSecretConfigured();
 
 if (isProd && !process.env.CORS_ORIGIN && !process.env.VERCEL) {
   throw new Error('CORS_ORIGIN must be configured in production.');

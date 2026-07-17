@@ -1,4 +1,6 @@
-require('dotenv').config();
+if (!process.env.VERCEL && !process.env.VERCEL_ENV) {
+  require('dotenv').config();
+}
 const path = require('path');
 const { getDbDriver } = require('../utils/dbDriver');
 

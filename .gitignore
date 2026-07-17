@@ -1,0 +1,36 @@
+# Dépendances
+node_modules/
+
+# Builds
+dist/
+build/
+
+# Logs
+*.log
+backend/logs/
+
+# Secrets locaux (ne jamais committer)
+.env
+.env.*
+!.env.example
+!backend/.env.example
+.env.local
+.env.*.local
+render.env
+*.pem
+
+# Base SQLite locale
+backend/data/*.db
+backend/data/*.sqlite*
+
+# Uploads locaux
+backend/uploads/
+
+# Outils / IDE
+.vercel
+.DS_Store
+Thumbs.db
+
+# Fichiers HTML exportés par erreur
+**/dashboard pro bien jolie - Recherche Images.html
+**/dashboard pro bien jolie - Recherche Images_files/

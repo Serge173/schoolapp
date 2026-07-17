@@ -15,5 +15,5 @@
       "includeFiles": "backend/**",
       "memory": 1024
     }
-  },
+  }
 }

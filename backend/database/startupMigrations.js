@@ -6,6 +6,11 @@ async function runStartupMigrations() {
 
   if (driver === 'postgres') {
     await ensurePostgresSchema();
+    const { Pool } = require('@neondatabase/serverless');
+    const pool = new Pool({ connectionString: process.env.DATABASE_URL || process.env.POSTGRES_URL });
+    const { ensureAdminPostgres } = require('./ensureAdminPostgres');
+    await ensureAdminPostgres(pool);
+    await pool.end();
     return;
   }
 

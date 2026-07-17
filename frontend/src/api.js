@@ -25,7 +25,18 @@ async function request(path, options = {}) {
   const url = path.startsWith('http') ? path : `${API_BASE}${path}`;
   const headers = { 'Content-Type': 'application/json', ...options.headers };
   const res = await fetch(url, { ...options, headers, credentials: 'include' });
-  const data = await res.json().catch(() => ({}));
+  const text = await res.text();
+  let data = {};
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      if (text.trimStart().startsWith('<!DOCTYPE') || text.trimStart().startsWith('<html')) {
+        throw new Error('API indisponible. Vérifiez le déploiement Vercel (/api).');
+      }
+      throw new Error('Réponse serveur invalide.');
+    }
+  }
   if (!res.ok) throw new Error(data.error || data.errors?.[0]?.msg || 'Erreur');
   return data;
 }

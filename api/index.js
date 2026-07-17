@@ -1,33 +1,34 @@
 const { runStartupMigrations } = require('../backend/database/startupMigrations');
 
-function loadApp() {
-  try {
-    return require('../backend/app');
-  } catch (err) {
-    const msg = err.message || String(err);
-    if (msg.includes('JWT_SECRET')) {
-      throw new Error('JWT_SECRET manquant sur Vercel (Settings → Environment Variables).');
-    }
-    throw err;
+let expressApp;
+let initPromise;
+let bootError;
+
+function boot() {
+  if (bootError) return Promise.reject(bootError);
+  if (!initPromise) {
+    initPromise = (async () => {
+      try {
+        const app = require('../backend/app');
+        await runStartupMigrations();
+        expressApp = app;
+      } catch (err) {
+        bootError = err;
+        throw err;
+      }
+    })();
   }
+  return initPromise;
 }
 
-const expressApp = loadApp();
-
-let initPromise = runStartupMigrations().catch((err) => {
-  console.error('[vercel-api] Startup failed:', err.message || err);
-  throw err;
-});
-
 module.exports = (req, res) => {
-  initPromise
+  boot()
     .then(() => expressApp(req, res))
     .catch((err) => {
       console.error('[vercel-api]', err);
       if (!res.headersSent) {
-        res.status(500).json({
-          error: err.message || 'Initialisation du service impossible.',
-        });
+        const msg = err.message || 'Initialisation du service impossible.';
+        res.status(500).json({ error: msg });
       }
     });
 };

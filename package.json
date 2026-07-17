@@ -9,8 +9,8 @@
   "scripts": {
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
-    "build": "cd frontend && npm run build",
-    "vercel-build": "cd backend && npm install --omit=dev --no-optional && cd ../frontend && npm install && npm run build",
+    "build": "npm --prefix frontend run build",
+    "vercel-build": "npm --prefix backend install --omit=dev --no-optional && npm --prefix frontend install && npm --prefix frontend run build",
     "db:init": "cd backend && node database/ensurePostgresSchema.js",
     "db:seed-admin": "cd backend && node database/seed-admin-postgres.js",
     "db:seed-render": "cd backend && node database/seed-render-data-postgres.js"

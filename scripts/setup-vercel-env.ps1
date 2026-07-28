@@ -1,5 +1,10 @@
-# Configuration Vercel — à lancer UNE FOIS dans PowerShell
-# Prérequis : vercel login  (puis relancer ce script)
+# Vercel — configuration dashboard (projet schoolapp / figsapp)
+# Root Directory : . (racine du repo, PAS frontend/)
+# Framework Preset : Other (PAS Vite)
+# Node.js : 20.x
+# Build Command : (vide — vercel.json) ou npm run vercel-build
+# Output Directory : frontend/dist
+# Install Command : (vide — vercel.json)
 
 $ErrorActionPreference = "Stop"
 Set-Location (Split-Path $PSScriptRoot -Parent)
@@ -11,8 +16,6 @@ if (-not (Get-Command vercel -ErrorAction SilentlyContinue)) {
   exit 1
 }
 
-$jwt = -join ((48..57) + (65..90) + (97..122) | Get-Random -Count 64 | ForEach-Object { [char]$_ })
-# JWT fixe pour éviter de changer les sessions à chaque run (modifiable)
 $jwt = "c0fa1d11372c43eb6ef99da0b89599b07b4cb29f085bfa56e25d128c28c8b780ca391ff32924613a00a85581c8df536d"
 
 function Add-VercelEnv($name, $value) {
@@ -29,11 +32,13 @@ Add-VercelEnv "JWT_SECRET" $jwt
 Add-VercelEnv "CORS_ORIGIN" "https://figsappcotedivoire.com,https://www.figsappcotedivoire.com"
 
 Write-Host ""
-Write-Host "IMPORTANT — supprimez VITE_API_BASE (ancien backend Render) :" -ForegroundColor Yellow
-Write-Host "  Vercel > frontend > Settings > Environment Variables > VITE_API_BASE > Delete"
+Write-Host "Dashboard Vercel (Build and Deployment) :" -ForegroundColor Yellow
+Write-Host "  Root Directory = . (vide)"
+Write-Host "  Framework Preset = Other"
+Write-Host "  Node.js = 20.x"
+Write-Host "  Build / Install = vides (vercel.json gere tout)"
+Write-Host "  Output Directory = frontend/dist"
 Write-Host ""
-Write-Host "Puis : Settings > Build and Deployment > Node.js Version = 20.x"
-Write-Host "Puis : Deployments > dernier deploiement main > Promote to Production"
-Write-Host "Ou   : vercel --prod"
+Write-Host "Supprimez VITE_API_BASE si present."
 Write-Host ""
 Write-Host "Test : https://figsappcotedivoire.com/api/health" -ForegroundColor Green

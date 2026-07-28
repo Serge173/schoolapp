@@ -9,7 +9,7 @@
   "scripts": {
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
-    "build": "npm --prefix frontend run build",
+    "build": "npm run vercel-build",
     "vercel-build": "npm --prefix backend install --omit=dev --no-optional && npm --prefix frontend install && npm --prefix frontend run build",
     "db:init": "cd backend && node database/ensurePostgresSchema.js",
     "db:seed-admin": "cd backend && node database/seed-admin-postgres.js",

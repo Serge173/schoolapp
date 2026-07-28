@@ -1,8 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "installCommand": "npm --prefix ../backend install --omit=dev --no-optional && npm install",
-  "buildCommand": "npm run build",
+  "framework": null,
+  "buildCommand": "npm --prefix .. run vercel-build",
   "outputDirectory": "dist",
+  "installCommand": "echo \"install via vercel-build\"",
   "rewrites": [
     { "source": "/api/health", "destination": "/api/health.js" },
     { "source": "/api/(.*)", "destination": "/api/index.js" },
@@ -15,6 +16,9 @@
       "maxDuration": 30,
       "includeFiles": "../backend/**",
       "memory": 1024
+    },
+    "api/health.js": {
+      "includeFiles": "../backend/utils/jwtSecret.js"
     }
   }
 }

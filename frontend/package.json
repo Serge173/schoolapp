@@ -8,8 +8,8 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "npm --prefix ../backend install --omit=dev && vite build",
-    "vercel-build": "npm --prefix ../backend install --omit=dev && vite build",
+    "build": "npm --prefix ../backend install --omit=dev --omit=optional && vite build",
+    "vercel-build": "npm --prefix ../backend install --omit=dev --omit=optional && vite build",
     "preview": "vite preview"
   },
   "dependencies": {

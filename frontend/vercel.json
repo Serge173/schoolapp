@@ -4,15 +4,12 @@
   "installCommand": "npm --prefix ../backend install --omit=dev --no-optional && npm install",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "rewrites": [
-    { "source": "/api/ping", "destination": "/api/ping.js" },
-    { "source": "/api/health", "destination": "/api/health.js" },
-    { "source": "/api/(.*)", "destination": "/api/index.js" },
-    { "source": "/api", "destination": "/api/index.js" },
-    { "source": "/uploads/(.*)", "destination": "/api/index.js" },
-    { "source": "/(.*)", "destination": "/index.html" }
-  ],
   "functions": {
+    "api/[...slug].js": {
+      "maxDuration": 30,
+      "includeFiles": "../backend/**",
+      "memory": 1024
+    },
     "api/index.js": {
       "maxDuration": 30,
       "includeFiles": "../backend/**",
@@ -21,5 +18,9 @@
     "api/health.js": {
       "includeFiles": "../backend/utils/**"
     }
-  }
+  },
+  "rewrites": [
+    { "source": "/uploads/(.*)", "destination": "/api/index" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }

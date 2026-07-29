@@ -1,25 +1,42 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
   "framework": null,
   "installCommand": "npm --prefix backend install --omit=dev --no-optional && npm --prefix frontend install",
-  "buildCommand": "npm --prefix frontend run build",
+  "buildCommand": "npm run vercel-build",
   "outputDirectory": "frontend/dist",
-  "rewrites": [
-    { "source": "/api/ping", "destination": "/api/ping.js" },
-    { "source": "/api/health", "destination": "/api/health.js" },
-    { "source": "/api/(.*)", "destination": "/api/index.js" },
-    { "source": "/api", "destination": "/api/index.js" },
-    { "source": "/uploads/(.*)", "destination": "/api/index.js" },
-    { "source": "/(.*)", "destination": "/index.html" }
-  ],
-  "functions": {
-    "api/index.js": {
-      "maxDuration": 30,
-      "includeFiles": "backend/**",
-      "memory": 1024
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "frontend/dist" }
     },
-    "api/health.js": {
-      "includeFiles": "backend/utils/**"
+    {
+      "src": "api/index.js",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 30,
+        "includeFiles": "backend/**",
+        "memory": 1024
+      }
+    },
+    {
+      "src": "api/health.js",
+      "use": "@vercel/node",
+      "config": { "includeFiles": "backend/utils/**" }
+    },
+    {
+      "src": "api/ping.js",
+      "use": "@vercel/node"
     }
-  }
+  ],
+  "routes": [
+    { "src": "/api/ping", "dest": "/api/ping.js" },
+    { "src": "/api/health", "dest": "/api/health.js" },
+    { "src": "/api/(.*)", "dest": "/api/index.js" },
+    { "src": "/api", "dest": "/api/index.js" },
+    { "src": "/uploads/(.*)", "dest": "/api/index.js" },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
 }

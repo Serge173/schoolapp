@@ -1,4 +1,4 @@
-/** Base des appels API (dev : /api via proxy Vite). Sur figsappcotedivoire.com → même domaine /api (Vercel). */
+/** Base des appels API (dev : /api via proxy Vite). En prod Vercel → même domaine /api. */
 function normalizeApiBase(raw) {
   const s = String(raw || '/api').replace(/\/+$/, '') || '/api';
   if (s.startsWith('http') && !/\/api$/i.test(s) && !s.includes('/api/')) {
@@ -7,13 +7,34 @@ function normalizeApiBase(raw) {
   return s;
 }
 
-const PROD_HOSTS = new Set(['figsappcotedivoire.com', 'www.figsappcotedivoire.com']);
+function isValidAbsoluteApiBase(value) {
+  const s = normalizeApiBase(value);
+  if (!s.startsWith('http')) return false;
+  if (s.includes('<') || s.includes('>')) return false;
+  try {
+    new URL(s);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 function resolveApiBase() {
-  if (typeof window !== 'undefined' && PROD_HOSTS.has(window.location.hostname)) {
+  const envBase = import.meta.env.VITE_API_BASE;
+
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    const isLocal = host === 'localhost' || host === '127.0.0.1';
+    if (isLocal && isValidAbsoluteApiBase(envBase)) {
+      return normalizeApiBase(envBase);
+    }
     return '/api';
   }
-  return normalizeApiBase(import.meta.env.VITE_API_BASE);
+
+  if (isValidAbsoluteApiBase(envBase)) {
+    return normalizeApiBase(envBase);
+  }
+  return '/api';
 }
 
 const API_BASE = resolveApiBase();

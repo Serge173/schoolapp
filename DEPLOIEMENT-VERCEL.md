@@ -148,10 +148,33 @@ cd backend && node database/seed-admin-postgres.js
 
 ---
 
+## Déploiement figé (site inchangé après `git push`)
+
+Si `https://figsappcotedivoire.com/api-ping.json` renvoie la page React (HTML) ou si `/api/ping` affiche une ancienne erreur JWT, le **déploiement Production** n’a pas été mis à jour.
+
+1. **Vercel → Project `frontend` → Settings → General**  
+   - Framework : **Other** (pas Vite)  
+   - Build : `npm run vercel-build`  
+   - Output : `frontend/dist`  
+   - Root Directory : vide (racine du repo)  
+   - Si « Production Overrides » affiche encore `cd frontend && npm run build` : **Deployments → dernier commit → Redeploy** en choisissant **Use existing Build Cache** = non.
+
+2. **Deploy Hook (recommandé)**  
+   - Vercel → Settings → Git → **Deploy Hooks** → Create (branche `master` ou `main`)  
+   - GitHub → repo `schoolapp` → Settings → Secrets → **VERCEL_DEPLOY_HOOK** = URL du hook  
+   - Chaque `git push` lance alors `.github/workflows/vercel-deploy.yml`.
+
+3. **Vérification après deploy Ready**  
+   - `GET /api/ping` → `{"v":"jwt-fix-5",...}`  
+   - `GET /api/health` → `{"ok":true,"jwt":true,"vercel":true,...}`  
+   - `POST /api/admin/login` avec `admin@shoolapp.com` / `admin123`
+
+---
+
 ## Dépannage
 
 ### `JWT_SECRET is required in production`
-Ajoutez `JWT_SECRET` dans les variables Vercel et redéployez.
+Ajoutez `JWT_SECRET` **ou** connectez Neon (`POSTGRES_URL` / `DATABASE_URL`) dans les variables Vercel, puis redéployez sans cache.
 
 ### Erreur base de données au démarrage
 Vérifiez que Neon est bien connecté au projet et que `DATABASE_URL` est présent.

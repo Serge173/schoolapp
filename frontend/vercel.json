@@ -4,22 +4,15 @@
   "installCommand": "npm --prefix ../backend install --omit=dev --no-optional && npm install",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "builds": [
-    {
-      "src": "api/server.js",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 30,
-        "includeFiles": "../backend/**",
-        "memory": 1024
-      }
-    }
+  "rewrites": [
+    { "source": "/uploads/(.*)", "destination": "/api/server" },
+    { "source": "/api/(.*)", "destination": "/api/server" }
   ],
-  "routes": [
-    { "src": "/api/ping", "dest": "/api-ping.json" },
-    { "src": "/api/health", "dest": "/api-health.json" },
-    { "src": "/uploads/(.*)", "dest": "/api/server.js" },
-    { "src": "/api/(.*)", "dest": "/api/server.js" },
-    { "src": "/(.*)", "dest": "/index.html" }
-  ]
+  "functions": {
+    "api/server.js": {
+      "maxDuration": 30,
+      "memory": 1024,
+      "includeFiles": "../backend/**"
+    }
+  }
 }

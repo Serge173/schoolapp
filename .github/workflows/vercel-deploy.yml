@@ -1,0 +1,24 @@
+name: Deploy Vercel Production
+
+on:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  trigger-deploy:
+    name: Trigger Vercel deploy hook
+    runs-on: ubuntu-latest
+    steps:
+      - name: POST deploy hook
+        env:
+          VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$VERCEL_DEPLOY_HOOK" ]; then
+            echo "VERCEL_DEPLOY_HOOK non configuré — ajoutez le secret GitHub (voir DEPLOIEMENT-VERCEL.md)."
+            exit 0
+          fi
+          curl -fsSL -X POST "$VERCEL_DEPLOY_HOOK"
+          echo "Déploiement Vercel demandé."

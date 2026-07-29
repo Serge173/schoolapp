@@ -1,11 +1,8 @@
 {
-  "installCommand": "npm --prefix ../backend install --omit=dev --omit=optional && npm install",
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
   "rewrites": [
     { "source": "/api/ping", "destination": "/api/ping" },
     { "source": "/api/health", "destination": "/api/health" },
-    { "source": "/api/programmes-figs/:id", "destination": "/api/programmes-figs/:id" },
+    { "source": "/api/programmes-figs/:id", "destination": "/api/programmes-figs?id=:id" },
     { "source": "/api/programmes-figs", "destination": "/api/programmes-figs" },
     { "source": "/uploads/(.*)", "destination": "/api/server" },
     { "source": "/api/(.*)", "destination": "/api/server" },

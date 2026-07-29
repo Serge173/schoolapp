@@ -1,5 +1,9 @@
+const { ensureJwtSecretEnv } = require('../backend/utils/ensureJwtSecretEnv');
+
 function hasJwtConfig() {
-  if (process.env.JWT_SECRET) return true;
+  ensureJwtSecretEnv();
+  const manual = (process.env.JWT_SECRET || '').trim();
+  if (manual) return true;
   const dbUrl =
     process.env.DATABASE_URL ||
     process.env.POSTGRES_URL ||
@@ -9,11 +13,12 @@ function hasJwtConfig() {
 }
 
 module.exports = (_req, res) => {
+  const jwtReady = hasJwtConfig();
   res.status(200).json({
     ok: true,
-    jwt: hasJwtConfig(),
+    jwt: jwtReady,
     env: process.env.NODE_ENV || process.env.VERCEL_ENV || null,
     vercel: Boolean(process.env.VERCEL || process.env.VERCEL_ENV),
-    db: hasJwtConfig() && !process.env.JWT_SECRET,
+    db: jwtReady && !(process.env.JWT_SECRET || '').trim(),
   });
 };

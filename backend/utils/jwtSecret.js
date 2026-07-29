@@ -24,7 +24,8 @@ function deriveJwtFromDatabaseUrl(dbUrl) {
 }
 
 function getJwtSecret() {
-  if (process.env.JWT_SECRET) return process.env.JWT_SECRET;
+  const manual = (process.env.JWT_SECRET || '').trim();
+  if (manual) return manual;
   const dbUrl = getDatabaseUrl();
   if (dbUrl) return deriveJwtFromDatabaseUrl(dbUrl);
   if (process.env.NODE_ENV !== 'production') {

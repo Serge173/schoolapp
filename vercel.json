@@ -18,7 +18,7 @@
       "memory": 1024
     },
     "api/health.js": {
-      "includeFiles": "backend/utils/jwtSecret.js"
+      "includeFiles": "backend/utils/**"
     }
   }
 }

@@ -16,6 +16,9 @@
       "maxDuration": 30,
       "includeFiles": "../backend/**",
       "memory": 1024
+    },
+    "api/health.js": {
+      "includeFiles": "../backend/utils/**"
     }
   }
 }

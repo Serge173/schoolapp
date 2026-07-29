@@ -1,3 +1,5 @@
+require('../backend/utils/ensureJwtSecretEnv').ensureJwtSecretEnv();
+
 const { runStartupMigrations } = require('../backend/database/startupMigrations');
 
 let expressApp;

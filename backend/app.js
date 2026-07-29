@@ -15,7 +15,10 @@ const demandesOrientationRouter = require('./routes/demandes-orientation');
 const programmesFigsRouter = require('./routes/programmes-figs');
 const { uploadDir } = require('./middleware/upload');
 const { requestLogger } = require('./middleware/requestLogger');
+const { ensureJwtSecretEnv } = require('./utils/ensureJwtSecretEnv');
 const { assertJwtSecretConfigured, isVercelRuntime } = require('./utils/jwtSecret');
+
+ensureJwtSecretEnv();
 
 const app = express();
 const isProd = process.env.NODE_ENV === 'production';

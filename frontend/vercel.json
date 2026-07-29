@@ -4,23 +4,40 @@
   "installCommand": "npm --prefix ../backend install --omit=dev --no-optional && npm install",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "functions": {
-    "api/[...slug].js": {
-      "maxDuration": 30,
-      "includeFiles": "../backend/**",
-      "memory": 1024
+  "builds": [
+    {
+      "src": "api/ping.js",
+      "use": "@vercel/node"
     },
-    "api/index.js": {
-      "maxDuration": 30,
-      "includeFiles": "../backend/**",
-      "memory": 1024
+    {
+      "src": "api/health.js",
+      "use": "@vercel/node",
+      "config": { "includeFiles": "../backend/utils/**" }
     },
-    "api/health.js": {
-      "includeFiles": "../backend/utils/**"
+    {
+      "src": "api/[...slug].js",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 30,
+        "includeFiles": "../backend/**",
+        "memory": 1024
+      }
+    },
+    {
+      "src": "api/index.js",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 30,
+        "includeFiles": "../backend/**",
+        "memory": 1024
+      }
     }
-  },
-  "rewrites": [
-    { "source": "/uploads/(.*)", "destination": "/api/index" },
-    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "routes": [
+    { "src": "/api/ping", "dest": "/api/ping.js" },
+    { "src": "/api/health", "dest": "/api/health.js" },
+    { "src": "/uploads/(.*)", "dest": "/api/index.js" },
+    { "src": "/api/(.*)", "dest": "/api/[...slug].js" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }

@@ -1,7 +1,5 @@
 const crypto = require('crypto');
 
-const crypto = require('crypto');
-
 function getDatabaseUrl() {
   if (process.env.DATABASE_URL) return process.env.DATABASE_URL;
   if (process.env.POSTGRES_URL) return process.env.POSTGRES_URL;
@@ -20,6 +18,9 @@ function getDatabaseUrl() {
 
 /** Dérive JWT_SECRET depuis Neon si absent ou vide (Vercel + ancien code déployé). */
 function ensureJwtSecretEnv() {
+  if (!process.env.DATABASE_URL && process.env.POSTGRES_URL) {
+    process.env.DATABASE_URL = process.env.POSTGRES_URL;
+  }
   const manual = (process.env.JWT_SECRET || '').trim();
   if (manual) {
     process.env.JWT_SECRET = manual;

@@ -63,6 +63,14 @@ function boot() {
 }
 
 module.exports = (req, res) => {
+  const path = (req.url || '').split('?')[0];
+  if (path === '/api/ping' || path.endsWith('/api/ping')) {
+    return require('./ping')(req, res);
+  }
+  if (path === '/api/health' || path.endsWith('/api/health')) {
+    return require('./health')(req, res);
+  }
+
   boot()
     .then(() => expressApp(req, res))
     .catch((err) => {

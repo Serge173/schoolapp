@@ -1,17 +1,19 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "installCommand": "npm --prefix backend install --omit=dev --no-optional && npm --prefix frontend install",
   "buildCommand": "npm run vercel-build",
   "outputDirectory": "frontend/dist",
   "rewrites": [
+    { "source": "/api/ping", "destination": "/api/ping" },
+    { "source": "/api/health", "destination": "/api/health" },
     { "source": "/uploads/(.*)", "destination": "/api/server" },
-    { "source": "/api/(.*)", "destination": "/api/server" }
+    { "source": "/api/(.*)", "destination": "/api/server" },
+    { "source": "/api", "destination": "/api/server" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ],
   "functions": {
     "api/server.js": {
       "maxDuration": 30,
-      "memory": 1024,
       "includeFiles": "backend/**"
     }
   }

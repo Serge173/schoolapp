@@ -36,7 +36,8 @@ git push
 
 1. Allez sur [vercel.com/new](https://vercel.com/new)
 2. Importez votre repo GitHub
-3. **Root Directory** : laissez `.` (racine du repo, **pas** `frontend`)
+3. **Root Directory** : laissez **vide** (racine du repo, **pas** `frontend`)
+   - Si Root Directory = `frontend`, le build **échoue** (le backend est hors du dossier).
 4. Vercel détecte automatiquement `vercel.json` à la racine
 
 ---

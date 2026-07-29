@@ -12,7 +12,7 @@
     "db:seed-render-postgres": "node database/seed-render-data-postgres.js"
   },
   "engines": {
-    "node": "20.x"
+    "node": ">=20"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",

@@ -1,0 +1,10 @@
+{
+  "rewrites": [
+    { "source": "/api/ping", "destination": "/api/ping" },
+    { "source": "/api/health", "destination": "/api/health" },
+    { "source": "/uploads/(.*)", "destination": "/api/server" },
+    { "source": "/api/(.*)", "destination": "/api/server" },
+    { "source": "/api", "destination": "/api/server" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

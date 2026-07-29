@@ -1,12 +1,7 @@
 {
-  "functions": {
-    "api/programmes-figs.js": {
-      "includeFiles": "../backend/data/figs-programmes.json"
-    },
-    "api/programmes-figs/[id].js": {
-      "includeFiles": "../backend/data/figs-programmes.json"
-    }
-  },
+  "installCommand": "npm --prefix ../backend install --omit=dev --omit=optional && npm install",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
   "rewrites": [
     { "source": "/api/ping", "destination": "/api/ping" },
     { "source": "/api/health", "destination": "/api/health" },

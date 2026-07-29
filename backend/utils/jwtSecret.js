@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const { ensureJwtSecretEnv, getDatabaseUrl: getDatabaseUrlFromEnv } = require('./ensureJwtSecretEnv');
 
 function isVercelRuntime() {
   return Boolean(
@@ -10,13 +11,7 @@ function isVercelRuntime() {
 }
 
 function getDatabaseUrl() {
-  return (
-    process.env.DATABASE_URL ||
-    process.env.POSTGRES_URL ||
-    process.env.POSTGRES_PRISMA_URL ||
-    process.env.POSTGRES_URL_NON_POOLING ||
-    ''
-  );
+  return getDatabaseUrlFromEnv() || '';
 }
 
 function deriveJwtFromDatabaseUrl(dbUrl) {
@@ -24,6 +19,7 @@ function deriveJwtFromDatabaseUrl(dbUrl) {
 }
 
 function getJwtSecret() {
+  ensureJwtSecretEnv();
   const manual = (process.env.JWT_SECRET || '').trim();
   if (manual) return manual;
   const dbUrl = getDatabaseUrl();
@@ -35,6 +31,7 @@ function getJwtSecret() {
 }
 
 function assertJwtSecretConfigured() {
+  ensureJwtSecretEnv();
   if (!getJwtSecret()) {
     throw new Error(
       'JWT_SECRET is required in production (ou DATABASE_URL Neon sur Vercel).'

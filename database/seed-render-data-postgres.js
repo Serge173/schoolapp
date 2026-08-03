@@ -4,11 +4,9 @@
  *   DOTENV_CONFIG_PATH=.env.neon.local node database/seed-render-data-postgres.js
  */
 const path = require('path');
-
+require('dotenv').config({ path: path.join(__dirname, '..', 'config', '.env') });
 if (process.env.DOTENV_CONFIG_PATH) {
   require('dotenv').config({ path: process.env.DOTENV_CONFIG_PATH, override: true });
-} else if (!process.env.DATABASE_URL && !process.env.POSTGRES_URL) {
-  require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 }
 
 const { Pool, neonConfig } = require('@neondatabase/serverless');

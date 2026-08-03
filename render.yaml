@@ -1,12 +1,14 @@
+# Déploiement principal : Vercel (voir DEPLOIEMENT-VERCEL.md).
+# Render — optionnel, API seule (sans frontend React).
 services:
   - type: web
-    name: figsapp-cote-divoire-backend
+    name: figsapp-cote-divoire-api
     runtime: node
-    rootDir: backend
+    rootDir: .
     plan: free
     autoDeploy: true
-    buildCommand: npm install
-    startCommand: npm start
+    buildCommand: npm install --omit=dev --omit=optional
+    startCommand: node api/listen.js
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
@@ -21,19 +23,7 @@ services:
         value: sa_admin
       - key: JSON_BODY_LIMIT
         value: 200kb
-      # IMPORTANT: remplace par ton frontend Vercel
       - key: CORS_ORIGIN
         value: https://figsappcotedivoire.com,https://www.figsappcotedivoire.com
-      # DB MySQL (a remplir dans Render Dashboard)
-      - key: DB_HOST
+      - key: DATABASE_URL
         sync: false
-      - key: DB_USER
-        sync: false
-      - key: DB_PASSWORD
-        sync: false
-      - key: DB_NAME
-        value: shoolapp
-      - key: DB_SSL
-        value: true
-      - key: DB_SSL_REJECT_UNAUTHORIZED
-        value: true

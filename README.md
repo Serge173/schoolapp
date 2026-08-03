@@ -4,53 +4,63 @@ Plateforme web permettant aux candidats de découvrir les filières, consulter l
 
 ## Stack technique
 
-- **Frontend** : React 18, React Router, Vite
-- **Backend** : Node.js, Express
-- **Base de données** : MySQL
+- **Admin / site public** : React 18, Vite (`admin/`)
+- **API** : Node.js, Express (`api/`)
+- **Base de données** : Neon PostgreSQL (prod + dev recommandé) ou SQLite (Node 20)
 
 ## Prérequis
 
-- Node.js 18+
-- MySQL 8+
+- Node.js **20.x** (recommandé)
+- `config/.env` avec `DATABASE_URL` Neon (copie depuis Vercel → Storage → Neon)
 
-## Installation locale
+## Installation locale (étape par étape)
 
-### 1. Base de données MySQL
-
-Créer la base et les tables :
+### 1. Dépendances
 
 ```bash
-cd backend
-mysql -u root -p < database/schema.sql
-```
-
-Créer l'administrateur par défaut (email: `admin@shoolapp.com`, mot de passe: `admin123`) :
-
-```bash
-node database/seed-admin.js
-```
-
-### 2. Backend
-
-```bash
-cd backend
-cp .env.example .env
-# Éditer .env : DB_PASSWORD, JWT_SECRET, etc.
 npm install
-npm run dev
 ```
 
-Le serveur API tourne sur **http://localhost:5000**.
-
-### 3. Frontend
+### 2. Configuration
 
 ```bash
-cd frontend
-npm install
-npm run dev
+copy config\.env.example config\.env
 ```
 
-L'application tourne sur **http://localhost:3001** (proxy API vers 5000 en dev).
+Éditez `config/.env` : collez votre `DATABASE_URL` Neon.
+
+### 3. Base de données (Neon)
+
+```bash
+npm run setup:neon
+```
+
+Crée le schéma, l'admin (`admin@shoolapp.com` / `admin123`) et les données de démo (universités, filières).
+
+### 4. Démarrer
+
+```bash
+scripts\start-dev.bat
+```
+
+Ou : `npm run dev`
+
+| URL | |
+|-----|---|
+| Site | http://localhost:3001 |
+| Admin | http://localhost:3001/admin |
+| API | http://localhost:5000/api/health |
+
+### 5. Vérifier que tout fonctionne
+
+```bash
+npm run test:local
+```
+
+Tous les tests doivent afficher **OK**.
+
+> Si le port 3001 est occupé, fermez les anciens terminaux `npm run dev` puis relancez `scripts\start-dev.bat`.
+
 
 ## Deploiement complet sur Vercel (recommandé)
 
@@ -62,7 +72,7 @@ Résumé :
 1. Importer le repo sur Vercel (racine `.`, pas `frontend`)
 2. Storage → Create Database → **Neon** (plan Free)
 3. Variables : `JWT_SECRET`, `NODE_ENV=production`, `CORS_ORIGIN=https://votre-app.vercel.app`
-4. Deploy → puis `node backend/database/seed-admin-postgres.js` avec `DATABASE_URL` Neon
+4. Deploy → puis `npm run db:seed-admin` avec `DATABASE_URL` Neon dans `config/.env`
 
 ## Deploiement (Frontend Vercel + Backend Railway) — ancienne méthode
 

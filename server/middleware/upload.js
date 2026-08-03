@@ -5,7 +5,7 @@ const crypto = require('crypto');
 
 const defaultUploadDir = process.env.VERCEL
   ? path.join('/tmp', 'figsapp-uploads')
-  : path.join(__dirname, '..', 'api', 'uploads');
+  : path.join(__dirname, '..', 'uploads');
 const uploadDir = process.env.UPLOAD_PATH || defaultUploadDir;
 const photosDir = path.join(uploadDir, 'photos');
 const brochuresDir = path.join(uploadDir, 'brochures');

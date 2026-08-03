@@ -9,10 +9,9 @@
   "scripts": {
     "dev": "concurrently -n api,web -c blue,green \"npm run dev:api\" \"npm run dev:admin\"",
     "dev:clean": "scripts\\start-dev.bat",
-    "dev:api": "node --watch api/listen.js",
+    "dev:api": "node --watch server/listen.js",
     "dev:admin": "vite --config admin/vite.config.js",
     "build": "vite build --config admin/vite.config.js",
-    "vercel-build": "npm install --omit=dev && vite build --config admin/vite.config.js",
     "setup:local": "node scripts/init-db.js",
     "setup:neon": "npm run db:init && npm run db:seed-admin && npm run db:seed-demo",
     "test:local": "node scripts/test-local-api.js",

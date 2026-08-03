@@ -27,6 +27,7 @@ database/*.db-wal
 
 # Uploads locaux
 api/uploads/
+server/uploads/
 api/data/contact-messages.json
 
 # Outils / IDE

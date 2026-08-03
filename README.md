@@ -80,7 +80,8 @@ Guide complet : [DEPLOIEMENT-VERCEL.md](./DEPLOIEMENT-VERCEL.md)
 
 ```
 ├── admin/          # React (site public + /admin)
-├── api/            # Express + handlers Vercel
+├── api/            # Handlers Vercel (server.js, ping, health, programmes-figs)
+├── server/         # Express app, routes, middleware, listen (dev local)
 ├── config/         # db, neon, jwt (.env)
 ├── database/       # schéma Postgres, seeds, figs-programmes.json
 ├── includes/       # libs partagées

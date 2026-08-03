@@ -1,6 +1,6 @@
 /**
  * Logos écoles MLA — fichiers réels dans public/images/ecoles/
- * (même ordre que les 17 écoles privées dans backend/data/universites-seed.js)
+ * (même ordre que les 17 écoles privées dans database/seeds/universites-seed.js)
  */
 export const MLA_LOGO_URLS = [
   '/images/ecoles/medium_LOGO_3_A_and_GRIS_CMJN_2596bcbdf1_657a5eab8f.jpg',

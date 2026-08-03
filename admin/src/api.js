@@ -1,46 +1,5 @@
-/** Base des appels API (dev : /api via proxy Vite). En prod Vercel → même domaine /api. */
-function normalizeApiBase(raw) {
-  const s = String(raw || '/api').replace(/\/+$/, '') || '/api';
-  if (s.startsWith('http') && !/\/api$/i.test(s) && !s.includes('/api/')) {
-    return `${s}/api`;
-  }
-  return s;
-}
-
-function isValidAbsoluteApiBase(value) {
-  const s = normalizeApiBase(value);
-  if (!s.startsWith('http')) return false;
-  if (s.includes('<') || s.includes('>')) return false;
-  try {
-    new URL(s);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function resolveApiBase() {
-  const envBase = import.meta.env.VITE_API_BASE;
-
-  if (typeof window !== 'undefined') {
-    const host = window.location.hostname;
-    const isLocal = host === 'localhost' || host === '127.0.0.1';
-    if (isLocal && isValidAbsoluteApiBase(envBase)) {
-      return normalizeApiBase(envBase);
-    }
-    return '/api';
-  }
-
-  if (isValidAbsoluteApiBase(envBase)) {
-    return normalizeApiBase(envBase);
-  }
-  return '/api';
-}
-
-const API_BASE = resolveApiBase();
-const API_ORIGIN = API_BASE.startsWith('http')
-  ? API_BASE.replace(/\/api$/i, '')
-  : '';
+/** API sur le même domaine (/api) — plus de backend externe Railway/Render. */
+const API_BASE = '/api';
 
 async function request(path, options = {}) {
   const url = path.startsWith('http') ? path : `${API_BASE}${path}`;
@@ -181,5 +140,5 @@ export function uploadsUrl(path) {
   if (!path) return null;
   const name = path.split(/[/\\]/).pop();
   const uploadPath = `/uploads/${path.includes('brochure') ? 'brochures' : path.includes('logo') ? 'logos' : 'photos'}/${name}`;
-  return API_ORIGIN ? `${API_ORIGIN}${uploadPath}` : uploadPath;
+  return uploadPath;
 }

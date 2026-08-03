@@ -1,7 +1,7 @@
 /**
- * Seed Neon/PostgreSQL — mêmes données que Render (seed-universites.js + référentiel).
+ * Seed Neon/PostgreSQL — données de démo (universités, campus, filières, référentiel).
  * Usage:
- *   DOTENV_CONFIG_PATH=.env.neon.local node database/seed-render-data-postgres.js
+ *   DOTENV_CONFIG_PATH=.env.neon.local node database/seed-demo-data-postgres.js
  */
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', 'config', '.env') });
@@ -151,7 +151,7 @@ async function run() {
       (SELECT COUNT(*)::int FROM universite_filieres) AS liaisons
   `);
   console.log('Résumé Neon:', counts.rows[0]);
-  console.log('Terminé — données alignées sur Render (22 universités, campus, filières, référentiel).');
+  console.log('Terminé — 22 universités, campus, filières, référentiel.');
 
   await pool.end();
 }

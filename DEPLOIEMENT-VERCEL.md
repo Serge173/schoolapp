@@ -1,7 +1,7 @@
 # Déploiement Vercel + Neon (FigsApp)
 
 Site React + API Express (serverless) + PostgreSQL Neon sur **un seul domaine**.  
-Plus de backend séparé (Railway / Render / `VITE_API_BASE`).
+Plus de backend séparé ni `VITE_API_BASE`.
 
 ## Architecture
 
@@ -19,12 +19,12 @@ figsappcotedivoire.com
 |-----------|--------|
 | Root Directory | `.` (racine, **pas** `frontend`) |
 | Framework Preset | **Other** |
-| Node.js | **20.x** |
+| Node.js | **24.x** |
 | Build Command | *(vide — `vercel.json`)* ou `npm run build` |
 | Output Directory | `admin/dist` |
 | Install Command | *(vide — `vercel.json`)* |
 
-**Supprimez** `VITE_API_BASE` si elle existe (ancienne API Railway/Render).
+**Supprimez** `VITE_API_BASE` si elle existe (ancienne API externe).
 
 ---
 

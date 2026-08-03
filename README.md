@@ -14,7 +14,7 @@ Voir la section **Installation locale** ci-dessous, puis [DEPLOIEMENT-VERCEL.md]
 
 ## Prérequis
 
-- Node.js **20.x**
+- Node.js **24.x**
 - `config/.env` avec `DATABASE_URL` Neon
 
 ## Installation locale
@@ -69,7 +69,7 @@ Guide complet : [DEPLOIEMENT-VERCEL.md](./DEPLOIEMENT-VERCEL.md)
 4. `npm run setup:neon` avec la nouvelle `DATABASE_URL`
 5. `git push` + redeploy sans cache
 
-**Pas de** `VITE_API_BASE`, Railway ou Render pour l'API — tout passe par `/api` sur le même domaine.
+**Pas de** `VITE_API_BASE` externe — tout passe par `/api` sur le même domaine.
 
 ## Utilisation
 

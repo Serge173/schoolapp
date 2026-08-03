@@ -1,5 +1,5 @@
 /**
- * Crée la table rendez_vous si absente (MySQL / Render).
+ * Crée la table rendez_vous si absente (MySQL).
  */
 const mysql = require('mysql2/promise');
 

@@ -1,5 +1,5 @@
 {
-  "installCommand": "npm install --omit=dev --omit=optional",
+  "installCommand": "npm install --omit=dev",
   "buildCommand": "npm run build",
   "outputDirectory": "admin/dist",
   "functions": {

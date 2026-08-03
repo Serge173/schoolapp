@@ -17,7 +17,6 @@ api/logs/
 config/.env
 .env.local
 .env.*.local
-render.env
 *.pem
 
 # Base SQLite locale

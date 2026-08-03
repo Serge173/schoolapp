@@ -1,5 +1,5 @@
 /**
- * Crée la table demandes_orientation si absente (MySQL / Render).
+ * Crée la table demandes_orientation si absente (MySQL).
  */
 const mysql = require('mysql2/promise');
 

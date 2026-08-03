@@ -16,7 +16,7 @@ async function main() {
 
   if (!process.env.DB_HOST) {
 
-    console.error('DB_HOST manquant — cette migration est pour MySQL (Render / prod).');
+    console.error('DB_HOST manquant — cette migration est pour MySQL en production.');
 
     process.exit(1);
 

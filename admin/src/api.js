@@ -1,4 +1,4 @@
-/** API sur le même domaine (/api) — plus de backend externe Railway/Render. */
+/** API sur le même domaine (/api). */
 const API_BASE = '/api';
 
 async function request(path, options = {}) {

@@ -1,6 +1,6 @@
 /**
  * Migration pays_bureau sur MySQL (idempotente).
- * Utilisée au démarrage du serveur (Render) et par `npm run migrate:pays-bureau`.
+ * Utilisée au démarrage du serveur et par `npm run migrate:pays-bureau`.
  */
 const mysql = require('mysql2/promise');
 

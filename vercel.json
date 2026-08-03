@@ -7,7 +7,7 @@
       "includeFiles": "database/figs-programmes.json"
     },
     "api/server.js": {
-      "maxDuration": 30
+      "maxDuration": 60
     }
   },
   "rewrites": [

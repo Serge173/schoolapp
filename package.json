@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "concurrently -n api,web -c blue,green \"npm run dev:api\" \"npm run dev:admin\"",
+    "dev:clean": "scripts\\start-dev.bat",
     "dev:api": "node --watch api/listen.js",
     "dev:admin": "vite --config admin/vite.config.js",
     "build": "vite build --config admin/vite.config.js",

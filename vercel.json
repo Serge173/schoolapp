@@ -2,6 +2,14 @@
   "installCommand": "npm install --omit=dev --omit=optional",
   "buildCommand": "npm run build",
   "outputDirectory": "admin/dist",
+  "functions": {
+    "api/programmes-figs.js": {
+      "includeFiles": "database/figs-programmes.json"
+    },
+    "api/server.js": {
+      "maxDuration": 30
+    }
+  },
   "rewrites": [
     { "source": "/api/ping", "destination": "/api/ping" },
     { "source": "/api/health", "destination": "/api/health" },

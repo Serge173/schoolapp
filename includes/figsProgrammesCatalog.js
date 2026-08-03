@@ -44,6 +44,9 @@ let cache = null;
 let mtime = 0;
 
 function loadCatalog() {
+  if (process.env.VERCEL || process.env.VERCEL_ENV) {
+    return require('../database/figs-programmes.json');
+  }
   const p = getDataPath();
   const raw = fs.readFileSync(p, 'utf8');
   return JSON.parse(raw);

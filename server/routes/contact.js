@@ -4,7 +4,9 @@ const path = require('path');
 const { body, validationResult } = require('express-validator');
 
 const router = express.Router();
-const dataFile = path.join(__dirname, 'data', 'contact-messages.json');
+const dataFile = process.env.VERCEL
+  ? path.join('/tmp', 'figsapp-contact-messages.json')
+  : path.join(__dirname, 'data', 'contact-messages.json');
 
 const validations = [
   body('nom').trim().notEmpty().withMessage('Le nom est requis').isLength({ max: 120 }),

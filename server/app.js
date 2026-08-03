@@ -22,6 +22,10 @@ ensureJwtSecretEnv();
 
 const app = express();
 const isProd = process.env.NODE_ENV === 'production';
+const isVercel = Boolean(process.env.VERCEL || process.env.VERCEL_ENV);
+
+/** express-rate-limit : pas de validation X-Forwarded-For sur Vercel serverless */
+const rateLimitDefaults = isVercel ? { validate: false } : {};
 
 if (isProd) assertJwtSecretConfigured();
 
@@ -79,10 +83,24 @@ app.use(cors({
   },
   credentials: true,
 }));
-app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '200kb' }));
+app.use((req, res, next) => {
+  if (req.body != null && typeof req.body === 'object' && !Buffer.isBuffer(req.body)) {
+    return next();
+  }
+  if (isVercel && typeof req.body === 'string' && req.body.length) {
+    try {
+      req.body = JSON.parse(req.body);
+      return next();
+    } catch {
+      return res.status(400).json({ error: 'JSON invalide.' });
+    }
+  }
+  return express.json({ limit: process.env.JSON_BODY_LIMIT || '200kb' })(req, res, next);
+});
 app.use(requestLogger);
 
 const inscriptionLimiter = rateLimit({
+  ...rateLimitDefaults,
   windowMs: 15 * 60 * 1000,
   max: 10,
   message: { error: 'Trop de demandes. Réessayez plus tard.' },
@@ -90,16 +108,19 @@ const inscriptionLimiter = rateLimit({
 app.use('/api/inscriptions', inscriptionLimiter);
 
 const contactLimiter = rateLimit({
+  ...rateLimitDefaults,
   windowMs: 15 * 60 * 1000,
   max: 20,
   message: { error: 'Trop de messages. Réessayez plus tard.' },
 });
 const rdvLimiter = rateLimit({
+  ...rateLimitDefaults,
   windowMs: 15 * 60 * 1000,
   max: 15,
   message: { error: 'Trop de demandes de rendez-vous. Réessayez plus tard.' },
 });
 const demandeOrientationLimiter = rateLimit({
+  ...rateLimitDefaults,
   windowMs: 15 * 60 * 1000,
   max: 12,
   message: { error: 'Trop de demandes. Réessayez plus tard.' },
@@ -109,6 +130,7 @@ app.use('/api/rendez-vous', rdvLimiter, rendezVousRouter);
 app.use('/api/demandes-orientation', demandeOrientationLimiter, demandesOrientationRouter);
 
 const adminLimiter = rateLimit({
+  ...rateLimitDefaults,
   windowMs: 15 * 60 * 1000,
   max: 200,
   standardHeaders: true,

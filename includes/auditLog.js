@@ -1,7 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const logsDir = path.join(__dirname, '..', 'logs');
+const logsDir = process.env.VERCEL
+  ? path.join('/tmp', 'figsapp-logs')
+  : path.join(__dirname, '..', 'logs');
 const auditFile = path.join(logsDir, 'audit.log');
 
 function ensureDir() {

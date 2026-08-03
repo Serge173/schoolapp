@@ -1,3 +1,12 @@
-const { handleExpress } = require('../server/_boot');
+const { createServer } = require('@vercel/node');
+const { boot } = require('../server/_boot');
 
-module.exports = (req, res) => handleExpress(req, res);
+let server;
+
+module.exports = async (req, res) => {
+  if (!server) {
+    await boot();
+    server = createServer(require('../server/app'));
+  }
+  return server(req, res);
+};

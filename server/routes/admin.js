@@ -15,6 +15,7 @@ const { isSqlite, isPostgres } = require('../../config/dbDriver');
 const isProd = process.env.NODE_ENV === 'production';
 
 const loginLimiter = rateLimit({
+  validate: process.env.VERCEL ? false : undefined,
   windowMs: 15 * 60 * 1000,
   max: 20,
   standardHeaders: true,

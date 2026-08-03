@@ -1,12 +1,12 @@
-const { createServer } = require('@vercel/node');
+const serverless = require('serverless-http');
 const { boot } = require('../server/_boot');
 
-let server;
+let handler;
 
 module.exports = async (req, res) => {
-  if (!server) {
+  if (!handler) {
     await boot();
-    server = createServer(require('../server/app'));
+    handler = serverless(require('../server/app'));
   }
-  return server(req, res);
+  return handler(req, res);
 };

@@ -27,9 +27,9 @@ const crypto = require('crypto');
   }
 })();
 
-require('../backend/utils/ensureJwtSecretEnv').ensureJwtSecretEnv();
+require('../config/ensureJwtSecretEnv').ensureJwtSecretEnv();
 
-const { runStartupMigrations } = require('../backend/database/startupMigrations');
+const { runStartupMigrations } = require('../database/startupMigrations');
 
 let expressApp;
 let initPromise;
@@ -50,7 +50,7 @@ function boot() {
   if (!initPromise) {
     initPromise = (async () => {
       try {
-        const app = require('../backend/app');
+        const app = require('./app');
         await runStartupMigrations();
         expressApp = app;
       } catch (err) {

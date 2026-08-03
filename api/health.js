@@ -1,4 +1,4 @@
-const { ensureJwtSecretEnv } = require('../backend/utils/ensureJwtSecretEnv');
+const { ensureJwtSecretEnv } = require('../config/ensureJwtSecretEnv');
 
 function hasJwtConfig() {
   ensureJwtSecretEnv();

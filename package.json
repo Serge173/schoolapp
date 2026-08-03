@@ -1,18 +1,47 @@
 {
   "name": "figsapp-cote-divoire",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
-  "description": "FigsApp Côte d'Ivoire — frontend + API Vercel + Neon",
+  "description": "FigsApp Côte d'Ivoire — admin + API + Neon",
   "engines": {
-    "node": ">=20"
+    "node": "20.x"
   },
   "scripts": {
-    "dev:backend": "cd backend && npm run dev",
-    "dev:frontend": "cd frontend && npm run dev",
-    "build": "npm run vercel-build",
-    "vercel-build": "npm --prefix backend install --omit=dev --no-optional && npm --prefix frontend install && npm --prefix frontend run build",
-    "db:init": "cd backend && node --env-file=.env.neon.local database/ensurePostgresSchema.js",
-    "db:seed-admin": "cd backend && node --env-file=.env.neon.local database/seed-admin-postgres.js",
-    "db:seed-render": "cd backend && node database/seed-render-data-postgres.js"
+    "dev": "concurrently -n api,web -c blue,green \"npm run dev:api\" \"npm run dev:admin\"",
+    "dev:api": "node --watch api/listen.js",
+    "dev:admin": "vite --config admin/vite.config.js",
+    "build": "vite build --config admin/vite.config.js",
+    "vercel-build": "npm install --omit=dev --omit=optional && vite build --config admin/vite.config.js",
+    "setup:local": "node scripts/init-db.js",
+    "db:init": "node database/ensurePostgresSchema.js",
+    "db:seed-admin": "node database/seed-admin-postgres.js",
+    "db:seed-render": "node database/seed-render-data-postgres.js"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4",
+    "@vitejs/plugin-react": "^4.2.1",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "express-validator": "^7.0.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.6.5",
+    "nodemailer": "^8.0.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.21.0",
+    "vite": "^5.0.10"
+  },
+  "optionalDependencies": {
+    "better-sqlite3": "^11.10.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
   }
 }

@@ -6,14 +6,13 @@
  */
 'use strict';
 
-const path = require('path');
-const fs = require('fs');
 const {
   normalize,
   assignFiliereToGroup,
   assignProgramToGroup,
   GROUP_KEYWORDS,
 } = require('./filieresGroupsBackend');
+const { getCatalog } = require('./figsProgrammesCatalog');
 
 const FILIERE_STOPWORDS = new Set([
   'filiere',
@@ -29,15 +28,10 @@ const FILIERE_STOPWORDS = new Set([
 ]);
 
 let programsCache = null;
-let programsMtime = 0;
 
 function getPrograms() {
-  const p = path.join(__dirname, '..', 'data', 'figs-programmes.json');
-  const stat = fs.statSync(p);
-  if (!programsCache || stat.mtimeMs !== programsMtime) {
-    programsMtime = stat.mtimeMs;
-    const raw = fs.readFileSync(p, 'utf8');
-    programsCache = JSON.parse(raw).programs || [];
+  if (!programsCache) {
+    programsCache = getCatalog().programs || [];
   }
   return programsCache;
 }

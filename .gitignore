@@ -28,6 +28,7 @@ database/*.db-wal
 
 # Uploads locaux
 api/uploads/
+api/data/contact-messages.json
 
 # Outils / IDE
 .vercel

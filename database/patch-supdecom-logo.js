@@ -6,7 +6,7 @@
 require('dotenv').config();
 const path = require('path');
 
-const LOGO = 'https://www.ecoles-supdecom.com/_ipx/s_180x72/images/logo-navbar.svg';
+const LOGO = '/images/ecoles/medium_LOGO_SUPDECOM_and_RVB_1_3cfa6e6ffd_3b38beca52.png';
 const NOM = "SUP'DE COM";
 
 const useSqlite = process.env.DB_DRIVER === 'sqlite' || !process.env.DB_HOST;
@@ -14,7 +14,7 @@ const useSqlite = process.env.DB_DRIVER === 'sqlite' || !process.env.DB_HOST;
 async function main() {
   if (useSqlite) {
     const Database = require('better-sqlite3');
-    const dbPath = path.join(__dirname, '..', 'data', 'shoolapp.db');
+    const dbPath = path.join(__dirname, 'shoolapp.db');
     const db = new Database(dbPath);
     const r = db.prepare('UPDATE universites SET logo = ? WHERE nom = ?').run(LOGO, NOM);
     console.log(`patch-supdecom-logo (sqlite): ${r.changes} ligne(s) mise(s) à jour.`);

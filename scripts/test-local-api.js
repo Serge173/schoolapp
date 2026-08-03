@@ -45,6 +45,13 @@ async function main() {
     `${programmes.body?.meta?.total ?? 0} programmes`
   );
 
+  const niveaux = await req('/api/filieres/8/niveaux-disponibles');
+  ok(
+    'GET /api/filieres/8/niveaux-disponibles',
+    niveaux.status === 200 && Array.isArray(niveaux.body?.niveaux),
+    `${niveaux.body?.niveaux?.length ?? 0} niveaux`
+  );
+
   const filieres = await req('/api/filieres?type=privee');
   ok(
     'GET /api/filieres',

@@ -31,7 +31,7 @@ const ACCUEIL_ATOUTS = [
   {
     titre: 'Accompagnement',
     texte: 'Accompagnement gratuit dans toutes les démarches.',
-    faviconDomain: 'mesdemarches.gouv.fr',
+    faviconDomain: 'onisep.fr',
   },
 ];
 

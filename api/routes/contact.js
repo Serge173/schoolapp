@@ -4,7 +4,7 @@ const path = require('path');
 const { body, validationResult } = require('express-validator');
 
 const router = express.Router();
-const dataFile = path.join(__dirname, '..', 'data', 'contact-messages.json');
+const dataFile = path.join(__dirname, 'data', 'contact-messages.json');
 
 const validations = [
   body('nom').trim().notEmpty().withMessage('Le nom est requis').isLength({ max: 120 }),
@@ -41,6 +41,8 @@ router.post('/', validations, async (req, res) => {
       list = [];
     }
     list.push(entry);
+    const dataDir = path.dirname(dataFile);
+    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
     fs.writeFileSync(dataFile, JSON.stringify(list, null, 2), 'utf8');
     res.status(201).json({ message: 'Message envoyé.' });
   } catch (err) {

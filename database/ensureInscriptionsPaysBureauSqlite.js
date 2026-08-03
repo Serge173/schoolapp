@@ -6,7 +6,7 @@ const path = require('path');
 const Database = require('better-sqlite3');
 
 function ensureInscriptionsPaysBureauSqlite() {
-  const dbPath = path.join(__dirname, '..', 'data', 'shoolapp.db');
+  const dbPath = path.join(__dirname, 'shoolapp.db');
   if (!fs.existsSync(dbPath)) return { skipped: true };
   const db = new Database(dbPath);
   try {

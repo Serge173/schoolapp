@@ -11,7 +11,7 @@ export default function AdminLayout() {
   useEffect(() => {
     api.admin
       .me()
-      .then(() => reloadStats())
+      .then(() => reloadStats().catch(() => setStats(null)))
       .catch(() => {
         sessionStorage.removeItem('adminSession');
         window.location.href = '/admin';

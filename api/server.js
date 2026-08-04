@@ -1,12 +1,12 @@
 const serverless = require('serverless-http');
 const { boot } = require('../server/_boot');
 
-let handler;
+let handlerPromise;
 
 module.exports = async (req, res) => {
-  if (!handler) {
-    await boot();
-    handler = serverless(require('../server/app'));
+  if (!handlerPromise) {
+    handlerPromise = boot().then((app) => serverless(app));
   }
+  const handler = await handlerPromise;
   return handler(req, res);
 };

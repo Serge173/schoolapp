@@ -50,7 +50,11 @@ if (driver === 'sqlite') {
   configureNeon();
 
   const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL;
-  const pool = new Pool({ connectionString });
+  const isVercel = Boolean(process.env.VERCEL || process.env.VERCEL_ENV);
+  const pool = new Pool({
+    connectionString,
+  ...(isVercel ? { connectionTimeoutMillis: 8000, idleTimeoutMillis: 10000 } : {}),
+  });
 
   async function runPgQuery(sql, params = []) {
     const upper = sql.trim().toUpperCase();

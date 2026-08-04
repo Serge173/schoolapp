@@ -51,8 +51,12 @@ function boot() {
     initPromise = (async () => {
       try {
         const app = require('./app');
-        await runStartupMigrations();
+        const isVercel = Boolean(process.env.VERCEL || process.env.VERCEL_ENV);
+        if (!isVercel) {
+          await runStartupMigrations();
+        }
         expressApp = app;
+        return app;
       } catch (err) {
         bootError = err;
         throw err;

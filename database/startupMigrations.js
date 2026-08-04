@@ -5,14 +5,15 @@ async function runStartupMigrations() {
   const driver = getDbDriver();
 
   if (driver === 'postgres') {
+    // Vercel : schéma + admin via npm run setup:neon — pas de DB au cold start (bcrypt/Neon = timeout 60s).
+    if (process.env.VERCEL || process.env.VERCEL_ENV) {
+      return;
+    }
     const { Pool } = require('@neondatabase/serverless');
     const { configureNeon } = require('../config/neon');
     configureNeon();
     const pool = new Pool({ connectionString: process.env.DATABASE_URL || process.env.POSTGRES_URL });
-    // En prod Vercel le schéma est déjà créé (npm run setup:neon) — évite timeout au cold start.
-    if (!process.env.VERCEL && !process.env.VERCEL_ENV) {
-      await ensurePostgresSchema();
-    }
+    await ensurePostgresSchema();
     const { ensureAdminPostgres } = require('./ensureAdminPostgres');
     await ensureAdminPostgres(pool);
     await pool.end();

@@ -30,4 +30,25 @@ function pathnameOf(req) {
   return raw.split('?')[0].replace(/\/+$/, '') || '/';
 }
 
-module.exports = { readJsonBody, pathnameOf };
+/** Chemin API d'origine après rewrite Vercel (destination != source). */
+function originalApiPath(req) {
+  const url = new URL(req.url || '/', 'http://localhost');
+  const route = url.searchParams.get('__route');
+  if (route) {
+    return `/api/admin/${route}`.replace(/\/\/+/g, '/');
+  }
+  const path = pathnameOf(req);
+  if (path !== '/api/admin-read') return path;
+  const forwarded = req.headers['x-vercel-original-url'] || req.headers['x-forwarded-uri'];
+  if (forwarded) {
+    try {
+      const p = forwarded.startsWith('http') ? new URL(forwarded).pathname : forwarded.split('?')[0];
+      if (p) return p.replace(/\/+$/, '') || '/';
+    } catch {
+      /* ignore */
+    }
+  }
+  return path;
+}
+
+module.exports = { readJsonBody, pathnameOf, originalApiPath };

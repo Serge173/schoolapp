@@ -2,7 +2,7 @@
  * GET listes admin + délégation POST/PATCH/DELETE vers api/admin.js
  */
 const { requireAdmin } = require('./_authLite');
-const { pathnameOf } = require('./_lite');
+const { originalApiPath } = require('./_lite');
 const { fetchAdminUniversitesList } = require('../includes/adminUniversitesList');
 const { fetchAdminFilieresList, fetchAdminFilieresTree } = require('../includes/adminFilieresData');
 const { fetchAdminInscriptionsList, fetchAdminRendezVousList } = require('../includes/adminLists');
@@ -22,11 +22,18 @@ async function delegateToAdminApp(req, res) {
     delegatePromise = Promise.resolve().then(() => require('./admin'));
   }
   const handler = await delegatePromise;
+  const apiPath = originalApiPath(req);
+  const url = new URL(req.url || '/', 'http://localhost');
+  if (url.searchParams.has('__route')) {
+    url.searchParams.delete('__route');
+  }
+  const qs = url.searchParams.toString();
+  req.url = qs ? `${apiPath}?${qs}` : apiPath;
   return handler(req, res);
 }
 
 module.exports = async (req, res) => {
-  const path = pathnameOf(req);
+  const path = originalApiPath(req);
   if (!LITE_GET_PATHS.has(path)) {
     return delegateToAdminApp(req, res);
   }

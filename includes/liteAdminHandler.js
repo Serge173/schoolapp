@@ -1,18 +1,17 @@
-/**
- * Routes admin légères — une fonction Vercel (limite Hobby : 12 fonctions max).
- */
+'use strict';
+
 require('../config/ensureJwtSecretEnv').ensureJwtSecretEnv();
 
 const bcrypt = require('bcryptjs');
 const db = require('../config/db');
 const { generateToken, ADMIN_COOKIE_NAME } = require('../server/middleware/auth');
-const { writeAudit } = require('../includes/auditLog');
-const { fetchAdminStats } = require('../includes/adminStats');
-const { fetchAdminUniversitesList } = require('../includes/adminUniversitesList');
-const { fetchAdminFilieresList, fetchAdminFilieresTree } = require('../includes/adminFilieresData');
-const { fetchAdminInscriptionsList, fetchAdminRendezVousList } = require('../includes/adminLists');
-const { readJsonBody, originalApiPath } = require('../includes/apiLite');
-const { requireAdmin, clearAdminCookie } = require('../includes/apiAuthLite');
+const { writeAudit } = require('./auditLog');
+const { fetchAdminStats } = require('./adminStats');
+const { fetchAdminUniversitesList } = require('./adminUniversitesList');
+const { fetchAdminFilieresList, fetchAdminFilieresTree } = require('./adminFilieresData');
+const { fetchAdminInscriptionsList, fetchAdminRendezVousList } = require('./adminLists');
+const { readJsonBody, originalApiPath } = require('./apiLite');
+const { requireAdmin, clearAdminCookie } = require('./apiAuthLite');
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -24,25 +23,8 @@ const LITE_GET_PATHS = new Set([
   '/api/admin/rendez-vous',
 ]);
 
-let delegatePromise;
-
 function getClientIp(req) {
   return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
-}
-
-async function delegateToAdminApp(req, res) {
-  if (!delegatePromise) {
-    delegatePromise = Promise.resolve().then(() => require('./admin'));
-  }
-  const handler = await delegatePromise;
-  const apiPath = originalApiPath(req);
-  const url = new URL(req.url || '/', 'http://localhost');
-  if (url.searchParams.has('__route')) {
-    url.searchParams.delete('__route');
-  }
-  const qs = url.searchParams.toString();
-  req.url = qs ? `${apiPath}?${qs}` : apiPath;
-  return handler(req, res);
 }
 
 async function handleLogin(req, res) {
@@ -82,7 +64,7 @@ async function handleLogin(req, res) {
     writeAudit('admin.login.success', { adminId: admin.id, email: admin.email, ip: getClientIp(req) });
     return res.status(200).json({ admin: { id: admin.id, email: admin.email, nom: admin.nom } });
   } catch (err) {
-    console.error('[api/lite-admin] login', err);
+    console.error('[liteAdmin] login', err);
     return res.status(500).json({ error: 'Erreur serveur.' });
   }
 }
@@ -103,7 +85,7 @@ async function handleMe(req, res) {
     if (!rows.length) return res.status(401).json({ error: 'Session invalide.' });
     return res.status(200).json({ admin: rows[0] });
   } catch (err) {
-    console.error('[api/lite-admin] me', err);
+    console.error('[liteAdmin] me', err);
     return res.status(500).json({ error: 'Erreur serveur.' });
   }
 }
@@ -114,7 +96,7 @@ async function handleStats(req, res) {
   try {
     return res.status(200).json(await fetchAdminStats());
   } catch (err) {
-    console.error('[api/lite-admin] stats', err);
+    console.error('[liteAdmin] stats', err);
     return res.status(500).json({ error: 'Erreur serveur.' });
   }
 }
@@ -142,7 +124,7 @@ async function handleReadList(req, res, path) {
     }
     return res.status(404).json({ error: 'Route introuvable.' });
   } catch (err) {
-    console.error('[api/lite-admin] read', path, err);
+    console.error('[liteAdmin] read', path, err);
     if (String(err.message || '').includes('invalide')) {
       return res.status(400).json({ error: err.message });
     }
@@ -150,14 +132,31 @@ async function handleReadList(req, res, path) {
   }
 }
 
-module.exports = async (req, res) => {
+/** Retourne true si la route légère a été traitée. */
+async function handleLiteAdmin(req, res) {
   const path = originalApiPath(req);
 
-  if (path === '/api/admin/login' && req.method === 'POST') return handleLogin(req, res);
-  if (path === '/api/admin/logout' && req.method === 'POST') return handleLogout(req, res);
-  if (path === '/api/admin/me' && req.method === 'GET') return handleMe(req, res);
-  if (path === '/api/admin/stats' && req.method === 'GET') return handleStats(req, res);
-  if (LITE_GET_PATHS.has(path) && req.method === 'GET') return handleReadList(req, res, path);
+  if (path === '/api/admin/login' && req.method === 'POST') {
+    await handleLogin(req, res);
+    return true;
+  }
+  if (path === '/api/admin/logout' && req.method === 'POST') {
+    await handleLogout(req, res);
+    return true;
+  }
+  if (path === '/api/admin/me' && req.method === 'GET') {
+    await handleMe(req, res);
+    return true;
+  }
+  if (path === '/api/admin/stats' && req.method === 'GET') {
+    await handleStats(req, res);
+    return true;
+  }
+  if (LITE_GET_PATHS.has(path) && req.method === 'GET') {
+    await handleReadList(req, res, path);
+    return true;
+  }
+  return false;
+}
 
-  return delegateToAdminApp(req, res);
-};
+module.exports = { handleLiteAdmin };

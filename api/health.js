@@ -1,4 +1,5 @@
 const { ensureJwtSecretEnv } = require('../config/ensureJwtSecretEnv');
+const { handleLitePublic } = require('../includes/litePublicHandler');
 
 function hasJwtConfig() {
   ensureJwtSecretEnv();
@@ -12,7 +13,9 @@ function hasJwtConfig() {
   return Boolean(dbUrl);
 }
 
-module.exports = (_req, res) => {
+module.exports = async (req, res) => {
+  if (await handleLitePublic(req, res)) return;
+
   const jwtReady = hasJwtConfig();
   res.status(200).json({
     ok: true,

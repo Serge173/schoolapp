@@ -1,12 +1,11 @@
-/**
- * POST publics (contact, inscription, RDV, orientation) — une fonction Vercel.
- */
+'use strict';
+
 const fs = require('fs');
 const path = require('path');
-const { readJsonBody, originalApiPath } = require('../includes/apiLite');
-const { createInscription } = require('../includes/createInscription');
-const { createRendezVous } = require('../includes/createRendezVous');
-const { createDemandeOrientation } = require('../includes/createDemandeOrientation');
+const { readJsonBody, originalApiPath } = require('./apiLite');
+const { createInscription } = require('./createInscription');
+const { createRendezVous } = require('./createRendezVous');
+const { createDemandeOrientation } = require('./createDemandeOrientation');
 
 const dataFile = process.env.VERCEL || process.env.VERCEL_ENV
   ? path.join('/tmp', 'figsapp-contact-messages.json')
@@ -47,7 +46,7 @@ async function handleContact(req, res) {
     fs.writeFileSync(dataFile, JSON.stringify(list, null, 2), 'utf8');
     return res.status(201).json({ message: 'Message envoyé.' });
   } catch (err) {
-    console.error('[api/lite-public] contact', err);
+    console.error('[litePublic] contact', err);
     return res.status(500).json({ error: 'Erreur serveur.' });
   }
 }
@@ -58,7 +57,7 @@ async function handleInscriptions(req, res) {
     const result = await createInscription(body);
     return res.status(result.status).json(result.body);
   } catch (err) {
-    console.error('[api/lite-public] inscriptions', err);
+    console.error('[litePublic] inscriptions', err);
     return res.status(500).json({ error: 'Erreur lors de l\'enregistrement.' });
   }
 }
@@ -69,7 +68,7 @@ async function handleRendezVous(req, res) {
     const result = await createRendezVous(body);
     return res.status(result.status).json(result.body);
   } catch (err) {
-    console.error('[api/lite-public] rendez-vous', err);
+    console.error('[litePublic] rendez-vous', err);
     return res.status(500).json({ error: 'Erreur lors de l\'enregistrement.' });
   }
 }
@@ -80,22 +79,34 @@ async function handleDemandesOrientation(req, res) {
     const result = await createDemandeOrientation(body);
     return res.status(result.status).json(result.body);
   } catch (err) {
-    console.error('[api/lite-public] demandes-orientation', err);
+    console.error('[litePublic] demandes-orientation', err);
     return res.status(500).json({ error: 'Erreur lors de l\'enregistrement.' });
   }
 }
 
-module.exports = async (req, res) => {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Méthode non autorisée.' });
-  }
+/** Retourne true si la route publique POST a été traitée. */
+async function handleLitePublic(req, res) {
+  if (req.method !== 'POST') return false;
 
   const path = originalApiPath(req);
 
-  if (path === '/api/contact') return handleContact(req, res);
-  if (path === '/api/inscriptions') return handleInscriptions(req, res);
-  if (path === '/api/rendez-vous') return handleRendezVous(req, res);
-  if (path === '/api/demandes-orientation') return handleDemandesOrientation(req, res);
+  if (path === '/api/contact') {
+    await handleContact(req, res);
+    return true;
+  }
+  if (path === '/api/inscriptions') {
+    await handleInscriptions(req, res);
+    return true;
+  }
+  if (path === '/api/rendez-vous') {
+    await handleRendezVous(req, res);
+    return true;
+  }
+  if (path === '/api/demandes-orientation') {
+    await handleDemandesOrientation(req, res);
+    return true;
+  }
+  return false;
+}
 
-  return res.status(404).json({ error: 'Route introuvable.' });
-};
+module.exports = { handleLitePublic };

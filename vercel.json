@@ -18,32 +18,18 @@
     "api/admin.js": {
       "maxDuration": 60
     },
-    "api/lite-admin.js": {
-      "maxDuration": 30
-    },
-    "api/lite-public.js": {
+    "api/health.js": {
       "maxDuration": 30
     }
   },
   "rewrites": [
     { "source": "/api/ping", "destination": "/api/ping" },
     { "source": "/api/health", "destination": "/api/health" },
-    { "source": "/api/admin/login", "destination": "/api/lite-admin?__route=login" },
-    { "source": "/api/admin/me", "destination": "/api/lite-admin?__route=me" },
-    { "source": "/api/admin/logout", "destination": "/api/lite-admin?__route=logout" },
-    { "source": "/api/admin/stats", "destination": "/api/lite-admin?__route=stats" },
-    { "source": "/api/admin/universites", "destination": "/api/lite-admin?__route=universites" },
-    { "source": "/api/admin/filieres/tree", "destination": "/api/lite-admin?__route=filieres/tree" },
-    { "source": "/api/admin/filieres", "destination": "/api/lite-admin?__route=filieres" },
-    { "source": "/api/admin/inscriptions", "destination": "/api/lite-admin?__route=inscriptions" },
-    { "source": "/api/admin/rendez-vous", "destination": "/api/lite-admin?__route=rendez-vous" },
-    { "source": "/api/lite-admin", "destination": "/api/lite-admin" },
-    { "source": "/api/admin/:path*", "destination": "/api/admin" },
-    { "source": "/api/contact", "destination": "/api/lite-public?__route=contact" },
-    { "source": "/api/inscriptions", "destination": "/api/lite-public?__route=inscriptions" },
-    { "source": "/api/rendez-vous", "destination": "/api/lite-public?__route=rendez-vous" },
-    { "source": "/api/demandes-orientation", "destination": "/api/lite-public?__route=demandes-orientation" },
-    { "source": "/api/lite-public", "destination": "/api/lite-public" },
+    { "source": "/api/admin/:path*", "destination": "/api/admin/:path*" },
+    { "source": "/api/contact", "destination": "/api/health?__route=contact" },
+    { "source": "/api/inscriptions", "destination": "/api/health?__route=inscriptions" },
+    { "source": "/api/rendez-vous", "destination": "/api/health?__route=rendez-vous" },
+    { "source": "/api/demandes-orientation", "destination": "/api/health?__route=demandes-orientation" },
     { "source": "/api/programmes-figs/:id", "destination": "/api/programmes-figs?id=:id" },
     { "source": "/api/programmes-figs", "destination": "/api/programmes-figs" },
     { "source": "/api/filieres/:id/niveaux-disponibles", "destination": "/api/filieres" },

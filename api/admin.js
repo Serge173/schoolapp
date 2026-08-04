@@ -1,9 +1,10 @@
 /**
- * Routes admin (hors login/me/logout/stats) — Express minimal sans boot complet.
+ * Routes admin — handlers légers en premier, Express pour mutations/uploads.
  */
 const serverless = require('serverless-http');
 const express = require('express');
 const cookieParser = require('cookie-parser');
+const { handleLiteAdmin } = require('../includes/liteAdminHandler');
 
 require('../config/ensureJwtSecretEnv').ensureJwtSecretEnv();
 
@@ -38,6 +39,8 @@ function createApp() {
 }
 
 module.exports = async (req, res) => {
+  if (await handleLiteAdmin(req, res)) return;
+
   if (!handlerPromise) {
     handlerPromise = Promise.resolve().then(() => serverless(createApp()));
   }

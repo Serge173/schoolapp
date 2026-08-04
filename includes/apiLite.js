@@ -48,7 +48,7 @@ function originalApiPath(req) {
     return `/api/admin/${route}`.replace(/\/\/+/g, '/');
   }
   const path = pathnameOf(req);
-  if (path !== '/api/lite-admin' && path !== '/api/lite-public') return path;
+  if (path !== '/api/health') return path;
   const forwarded = req.headers['x-vercel-original-url'] || req.headers['x-forwarded-uri'];
   if (forwarded) {
     try {

@@ -45,32 +45,63 @@ if (driver === 'sqlite') {
     },
   };
 } else if (driver === 'postgres') {
-  const { Pool } = require('@neondatabase/serverless');
   const { configureNeon } = require('./neon');
   configureNeon();
 
   const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL;
   const isVercel = Boolean(process.env.VERCEL || process.env.VERCEL_ENV);
-  const pool = new Pool({
-    connectionString,
-  ...(isVercel ? { connectionTimeoutMillis: 8000, idleTimeoutMillis: 10000 } : {}),
-  });
+  const QUERY_TIMEOUT_MS = isVercel ? 12000 : 0;
 
-  async function runPgQuery(sql, params = []) {
-    const upper = sql.trim().toUpperCase();
-    const isSelect = upper.startsWith('SELECT') || upper.startsWith('WITH');
-    const isInsert = upper.startsWith('INSERT');
-    let pgSql = convertPlaceholders(sql);
-    if (isInsert && !/RETURNING/i.test(pgSql)) {
-      pgSql += ' RETURNING id';
-    }
-    const result = await pool.query(pgSql, params);
-    if (isSelect) return [result.rows];
-    if (isInsert) {
-      const id = result.rows[0]?.id;
-      return [{ insertId: id, affectedRows: result.rowCount }];
-    }
-    return [{ affectedRows: result.rowCount }];
+  function withQueryTimeout(promise) {
+    if (!QUERY_TIMEOUT_MS) return promise;
+    return Promise.race([
+      promise,
+      new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Database query timed out')), QUERY_TIMEOUT_MS);
+      }),
+    ]);
+  }
+
+  let runPgQuery;
+
+  if (isVercel) {
+    const { neon } = require('@neondatabase/serverless');
+    const sql = neon(connectionString);
+    runPgQuery = async (sqlStr, params = []) => {
+      const upper = sqlStr.trim().toUpperCase();
+      const isSelect = upper.startsWith('SELECT') || upper.startsWith('WITH');
+      const isInsert = upper.startsWith('INSERT');
+      let pgSql = convertPlaceholders(sqlStr);
+      if (isInsert && !/RETURNING/i.test(pgSql)) {
+        pgSql += ' RETURNING id';
+      }
+      const rows = await withQueryTimeout(sql(pgSql, params));
+      if (isSelect) return [rows];
+      if (isInsert) {
+        const id = rows[0]?.id;
+        return [{ insertId: id, affectedRows: rows.length }];
+      }
+      return [{ affectedRows: rows.length }];
+    };
+  } else {
+    const { Pool } = require('@neondatabase/serverless');
+    const pool = new Pool({ connectionString });
+    runPgQuery = async (sqlStr, params = []) => {
+      const upper = sqlStr.trim().toUpperCase();
+      const isSelect = upper.startsWith('SELECT') || upper.startsWith('WITH');
+      const isInsert = upper.startsWith('INSERT');
+      let pgSql = convertPlaceholders(sqlStr);
+      if (isInsert && !/RETURNING/i.test(pgSql)) {
+        pgSql += ' RETURNING id';
+      }
+      const result = await pool.query(pgSql, params);
+      if (isSelect) return [result.rows];
+      if (isInsert) {
+        const id = result.rows[0]?.id;
+        return [{ insertId: id, affectedRows: result.rowCount }];
+      }
+      return [{ affectedRows: result.rowCount }];
+    };
   }
 
   module.exports = {

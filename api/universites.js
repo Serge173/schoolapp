@@ -4,7 +4,6 @@
 const path = require('path');
 const db = require('../config/db');
 const { resolveLogoUrl } = require('../includes/logoUrl');
-const { filterUniversitesByFiliereNiveauFigs } = require('../includes/figsParcoursMatch');
 const { pathnameOf } = require('./_lite');
 
 module.exports = async (req, res) => {
@@ -78,6 +77,7 @@ module.exports = async (req, res) => {
       const [filRows] = await db.query('SELECT id, nom, slug FROM filieres WHERE id = ? AND actif = 1', [fid]);
       const filiere = filRows[0];
       if (filiere) {
+        const { filterUniversitesByFiliereNiveauFigs } = require('../includes/figsParcoursMatch');
         rows = filterUniversitesByFiliereNiveauFigs(rows, filiere, niveau);
       }
     }

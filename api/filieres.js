@@ -2,7 +2,6 @@
  * GET filières — handler léger (sans boot Express).
  */
 const db = require('../config/db');
-const { getAvailableNiveauxForFiliere } = require('../includes/figsParcoursMatch');
 const { pathnameOf } = require('./_lite');
 
 async function listFilieres(query) {
@@ -73,6 +72,7 @@ module.exports = async (req, res) => {
          ORDER BY u.nom`,
         [id]
       );
+      const { getAvailableNiveauxForFiliere } = require('../includes/figsParcoursMatch');
       return res.status(200).json({ niveaux: getAvailableNiveauxForFiliere(filiere, uniRows || []) });
     }
 

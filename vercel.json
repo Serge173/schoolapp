@@ -13,10 +13,10 @@
       "includeFiles": "database/figs-programmes.json"
     },
     "api/server.js": {
-      "maxDuration": 60
+      "maxDuration": 15
     },
     "api/admin.js": {
-      "maxDuration": 60
+      "maxDuration": 30
     },
     "api/health.js": {
       "maxDuration": 30

@@ -47,13 +47,20 @@ function originalApiPath(req) {
     }
     return `/api/admin/${route}`.replace(/\/\/+/g, '/');
   }
-  const path = pathnameOf(req);
-  if (path !== '/api/health') return path;
+
+  let path = pathnameOf(req);
   const forwarded = req.headers['x-vercel-original-url'] || req.headers['x-forwarded-uri'];
-  if (forwarded) {
+  const needsForward =
+    path === '/api/health' ||
+    path === '/api/admin' ||
+    (path.startsWith('/api/admin/') && path.split('/').length < 4);
+
+  if (forwarded && needsForward) {
     try {
       const p = forwarded.startsWith('http') ? new URL(forwarded).pathname : forwarded.split('?')[0];
-      if (p) return p.replace(/\/+$/, '') || '/';
+      if (p && p.startsWith('/api/')) {
+        path = p.replace(/\/+$/, '') || '/';
+      }
     } catch {
       /* ignore */
     }

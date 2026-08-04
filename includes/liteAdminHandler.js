@@ -7,9 +7,6 @@ const db = require('../config/db');
 const { generateToken, ADMIN_COOKIE_NAME } = require('../server/middleware/auth');
 const { writeAudit } = require('./auditLog');
 const { fetchAdminStats } = require('./adminStats');
-const { fetchAdminUniversitesList } = require('./adminUniversitesList');
-const { fetchAdminFilieresList, fetchAdminFilieresTree } = require('./adminFilieresData');
-const { fetchAdminInscriptionsList, fetchAdminRendezVousList } = require('./adminLists');
 const { readJsonBody, originalApiPath } = require('./apiLite');
 const { requireAdmin, clearAdminCookie } = require('./apiAuthLite');
 
@@ -108,18 +105,23 @@ async function handleReadList(req, res, path) {
     const url = new URL(req.url || '/', 'http://localhost');
     const query = Object.fromEntries(url.searchParams);
     if (path === '/api/admin/universites') {
+      const { fetchAdminUniversitesList } = require('./adminUniversitesList');
       return res.status(200).json(await fetchAdminUniversitesList());
     }
     if (path === '/api/admin/filieres/tree') {
+      const { fetchAdminFilieresTree } = require('./adminFilieresData');
       return res.status(200).json(await fetchAdminFilieresTree());
     }
     if (path === '/api/admin/filieres') {
+      const { fetchAdminFilieresList } = require('./adminFilieresData');
       return res.status(200).json(await fetchAdminFilieresList());
     }
     if (path === '/api/admin/inscriptions') {
+      const { fetchAdminInscriptionsList } = require('./adminLists');
       return res.status(200).json(await fetchAdminInscriptionsList(query));
     }
     if (path === '/api/admin/rendez-vous') {
+      const { fetchAdminRendezVousList } = require('./adminLists');
       return res.status(200).json(await fetchAdminRendezVousList(query));
     }
     return res.status(404).json({ error: 'Route introuvable.' });

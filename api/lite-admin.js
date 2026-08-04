@@ -82,7 +82,7 @@ async function handleLogin(req, res) {
     writeAudit('admin.login.success', { adminId: admin.id, email: admin.email, ip: getClientIp(req) });
     return res.status(200).json({ admin: { id: admin.id, email: admin.email, nom: admin.nom } });
   } catch (err) {
-    console.error('[api/admin-lite] login', err);
+    console.error('[api/lite-admin] login', err);
     return res.status(500).json({ error: 'Erreur serveur.' });
   }
 }
@@ -103,7 +103,7 @@ async function handleMe(req, res) {
     if (!rows.length) return res.status(401).json({ error: 'Session invalide.' });
     return res.status(200).json({ admin: rows[0] });
   } catch (err) {
-    console.error('[api/admin-lite] me', err);
+    console.error('[api/lite-admin] me', err);
     return res.status(500).json({ error: 'Erreur serveur.' });
   }
 }
@@ -114,7 +114,7 @@ async function handleStats(req, res) {
   try {
     return res.status(200).json(await fetchAdminStats());
   } catch (err) {
-    console.error('[api/admin-lite] stats', err);
+    console.error('[api/lite-admin] stats', err);
     return res.status(500).json({ error: 'Erreur serveur.' });
   }
 }
@@ -142,7 +142,7 @@ async function handleReadList(req, res, path) {
     }
     return res.status(404).json({ error: 'Route introuvable.' });
   } catch (err) {
-    console.error('[api/admin-lite] read', path, err);
+    console.error('[api/lite-admin] read', path, err);
     if (String(err.message || '').includes('invalide')) {
       return res.status(400).json({ error: err.message });
     }

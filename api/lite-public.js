@@ -47,7 +47,7 @@ async function handleContact(req, res) {
     fs.writeFileSync(dataFile, JSON.stringify(list, null, 2), 'utf8');
     return res.status(201).json({ message: 'Message envoyé.' });
   } catch (err) {
-    console.error('[api/public-post] contact', err);
+    console.error('[api/lite-public] contact', err);
     return res.status(500).json({ error: 'Erreur serveur.' });
   }
 }
@@ -58,7 +58,7 @@ async function handleInscriptions(req, res) {
     const result = await createInscription(body);
     return res.status(result.status).json(result.body);
   } catch (err) {
-    console.error('[api/public-post] inscriptions', err);
+    console.error('[api/lite-public] inscriptions', err);
     return res.status(500).json({ error: 'Erreur lors de l\'enregistrement.' });
   }
 }
@@ -69,7 +69,7 @@ async function handleRendezVous(req, res) {
     const result = await createRendezVous(body);
     return res.status(result.status).json(result.body);
   } catch (err) {
-    console.error('[api/public-post] rendez-vous', err);
+    console.error('[api/lite-public] rendez-vous', err);
     return res.status(500).json({ error: 'Erreur lors de l\'enregistrement.' });
   }
 }
@@ -80,7 +80,7 @@ async function handleDemandesOrientation(req, res) {
     const result = await createDemandeOrientation(body);
     return res.status(result.status).json(result.body);
   } catch (err) {
-    console.error('[api/public-post] demandes-orientation', err);
+    console.error('[api/lite-public] demandes-orientation', err);
     return res.status(500).json({ error: 'Erreur lors de l\'enregistrement.' });
   }
 }

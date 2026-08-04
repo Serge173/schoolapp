@@ -1,5 +1,5 @@
-const { requireAdmin } = require('../_authLite');
-const { fetchAdminRendezVousList } = require('../../includes/adminLists');
+const { requireAdmin } = require('./_authLite');
+const { fetchAdminRendezVousList } = require('../includes/adminLists');
 
 module.exports = async (req, res) => {
   if (req.method === 'GET') {
@@ -13,9 +13,9 @@ module.exports = async (req, res) => {
       if (String(err.message || '').includes('invalide')) {
         return res.status(400).json({ error: err.message });
       }
-      console.error('[api/admin/rendez-vous]', err);
+      console.error('[api/admin-rendez-vous]', err);
       return res.status(500).json({ error: 'Erreur serveur.' });
     }
   }
-  return require('../admin-delegate')(req, res);
+  return require('./admin-delegate')(req, res);
 };

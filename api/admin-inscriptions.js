@@ -1,5 +1,5 @@
-const { requireAdmin } = require('../_authLite');
-const { fetchAdminInscriptionsList } = require('../../includes/adminLists');
+const { requireAdmin } = require('./_authLite');
+const { fetchAdminInscriptionsList } = require('../includes/adminLists');
 
 module.exports = async (req, res) => {
   if (req.method === 'GET') {
@@ -10,9 +10,9 @@ module.exports = async (req, res) => {
       const query = Object.fromEntries(url.searchParams);
       return res.status(200).json(await fetchAdminInscriptionsList(query));
     } catch (err) {
-      console.error('[api/admin/inscriptions]', err);
+      console.error('[api/admin-inscriptions]', err);
       return res.status(500).json({ error: 'Erreur serveur.' });
     }
   }
-  return require('../admin-delegate')(req, res);
+  return require('./admin-delegate')(req, res);
 };

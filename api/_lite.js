@@ -1,16 +1,28 @@
 'use strict';
 
 async function readJsonBody(req) {
-  if (req.body != null && typeof req.body === 'object' && !Buffer.isBuffer(req.body)) {
+  if (Buffer.isBuffer(req.body)) {
+    return JSON.parse(req.body.toString('utf8'));
+  }
+  if (req.body != null && typeof req.body === 'object') {
     return req.body;
   }
   if (typeof req.body === 'string' && req.body.length) {
     return JSON.parse(req.body);
   }
-  const chunks = [];
-  for await (const chunk of req) chunks.push(chunk);
-  const text = Buffer.concat(chunks).toString('utf8');
-  return text ? JSON.parse(text) : {};
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    req.on('data', (chunk) => chunks.push(chunk));
+    req.on('end', () => {
+      try {
+        const text = Buffer.concat(chunks).toString('utf8');
+        resolve(text ? JSON.parse(text) : {});
+      } catch (err) {
+        reject(err);
+      }
+    });
+    req.on('error', reject);
+  });
 }
 
 function pathnameOf(req) {

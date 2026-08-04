@@ -30,15 +30,25 @@ function pathnameOf(req) {
   return raw.split('?')[0].replace(/\/+$/, '') || '/';
 }
 
+const PUBLIC_LITE_ROUTES = new Set([
+  'contact',
+  'inscriptions',
+  'rendez-vous',
+  'demandes-orientation',
+]);
+
 /** Chemin API d'origine après rewrite Vercel (destination != source). */
 function originalApiPath(req) {
   const url = new URL(req.url || '/', 'http://localhost');
   const route = url.searchParams.get('__route');
   if (route) {
+    if (PUBLIC_LITE_ROUTES.has(route)) {
+      return `/api/${route}`;
+    }
     return `/api/admin/${route}`.replace(/\/\/+/g, '/');
   }
   const path = pathnameOf(req);
-  if (path !== '/api/admin-read') return path;
+  if (path !== '/api/admin-lite' && path !== '/api/public-post') return path;
   const forwarded = req.headers['x-vercel-original-url'] || req.headers['x-forwarded-uri'];
   if (forwarded) {
     try {

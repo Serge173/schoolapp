@@ -4,7 +4,7 @@
 const path = require('path');
 const db = require('../config/db');
 const { resolveLogoUrl } = require('../includes/logoUrl');
-const { pathnameOf } = require('./_lite');
+const { pathnameOf } = require('../includes/apiLite');
 
 module.exports = async (req, res) => {
   if (req.method !== 'GET') {

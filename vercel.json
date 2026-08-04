@@ -18,55 +18,32 @@
     "api/admin.js": {
       "maxDuration": 60
     },
-    "api/admin-read.js": {
+    "api/admin-lite.js": {
       "maxDuration": 30
     },
-    "api/inscriptions-post.js": {
+    "api/public-post.js": {
       "maxDuration": 30
-    },
-    "api/rendez-vous-post.js": {
-      "maxDuration": 30
-    },
-    "api/demandes-orientation-post.js": {
-      "maxDuration": 30
-    },
-    "api/admin-login.js": {
-      "maxDuration": 30
-    },
-    "api/admin-me.js": {
-      "maxDuration": 15
-    },
-    "api/admin-stats.js": {
-      "maxDuration": 30
-    },
-    "api/contact-post.js": {
-      "maxDuration": 15
     }
   },
   "rewrites": [
     { "source": "/api/ping", "destination": "/api/ping" },
     { "source": "/api/health", "destination": "/api/health" },
-    { "source": "/api/admin/login", "destination": "/api/admin-login" },
-    { "source": "/api/admin/me", "destination": "/api/admin-me" },
-    { "source": "/api/admin/logout", "destination": "/api/admin-logout" },
-    { "source": "/api/admin/stats", "destination": "/api/admin-stats" },
-    { "source": "/api/admin/universites", "destination": "/api/admin-read?__route=universites" },
-    { "source": "/api/admin/filieres/tree", "destination": "/api/admin-read?__route=filieres/tree" },
-    { "source": "/api/admin/filieres", "destination": "/api/admin-read?__route=filieres" },
-    { "source": "/api/admin/inscriptions", "destination": "/api/admin-read?__route=inscriptions" },
-    { "source": "/api/admin/rendez-vous", "destination": "/api/admin-read?__route=rendez-vous" },
-    { "source": "/api/admin-read", "destination": "/api/admin-read" },
-    { "source": "/api/admin-login", "destination": "/api/admin-login" },
-    { "source": "/api/admin-me", "destination": "/api/admin-me" },
-    { "source": "/api/admin-stats", "destination": "/api/admin-stats" },
+    { "source": "/api/admin/login", "destination": "/api/admin-lite?__route=login" },
+    { "source": "/api/admin/me", "destination": "/api/admin-lite?__route=me" },
+    { "source": "/api/admin/logout", "destination": "/api/admin-lite?__route=logout" },
+    { "source": "/api/admin/stats", "destination": "/api/admin-lite?__route=stats" },
+    { "source": "/api/admin/universites", "destination": "/api/admin-lite?__route=universites" },
+    { "source": "/api/admin/filieres/tree", "destination": "/api/admin-lite?__route=filieres/tree" },
+    { "source": "/api/admin/filieres", "destination": "/api/admin-lite?__route=filieres" },
+    { "source": "/api/admin/inscriptions", "destination": "/api/admin-lite?__route=inscriptions" },
+    { "source": "/api/admin/rendez-vous", "destination": "/api/admin-lite?__route=rendez-vous" },
+    { "source": "/api/admin-lite", "destination": "/api/admin-lite" },
     { "source": "/api/admin/:path*", "destination": "/api/admin" },
-    { "source": "/api/contact", "destination": "/api/contact-post" },
-    { "source": "/api/inscriptions", "destination": "/api/inscriptions-post" },
-    { "source": "/api/inscriptions-post", "destination": "/api/inscriptions-post" },
-    { "source": "/api/rendez-vous", "destination": "/api/rendez-vous-post" },
-    { "source": "/api/rendez-vous-post", "destination": "/api/rendez-vous-post" },
-    { "source": "/api/demandes-orientation", "destination": "/api/demandes-orientation-post" },
-    { "source": "/api/demandes-orientation-post", "destination": "/api/demandes-orientation-post" },
+    { "source": "/api/contact", "destination": "/api/public-post?__route=contact" },
+    { "source": "/api/inscriptions", "destination": "/api/public-post?__route=inscriptions" },
+    { "source": "/api/rendez-vous", "destination": "/api/public-post?__route=rendez-vous" },
+    { "source": "/api/demandes-orientation", "destination": "/api/public-post?__route=demandes-orientation" },
+    { "source": "/api/public-post", "destination": "/api/public-post" },
     { "source": "/api/programmes-figs/:id", "destination": "/api/programmes-figs?id=:id" },
     { "source": "/api/programmes-figs", "destination": "/api/programmes-figs" },
     { "source": "/api/filieres/:id/niveaux-disponibles", "destination": "/api/filieres" },

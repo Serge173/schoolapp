@@ -2,7 +2,7 @@
  * GET filières — handler léger (sans boot Express).
  */
 const db = require('../config/db');
-const { pathnameOf } = require('./_lite');
+const { pathnameOf } = require('../includes/apiLite');
 
 async function listFilieres(query) {
   const type = query.type;

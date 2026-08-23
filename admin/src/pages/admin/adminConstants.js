@@ -59,6 +59,22 @@ export const INSCRIPTION_STATUT_LABELS = {
   archive: 'Archivé',
 };
 
+/** Classe badge pour le statut d'inscription (validé = vert). */
+export function inscriptionStatutBadgeClass(statut) {
+  switch (statut) {
+    case 'valide':
+      return 'badge badge-success';
+    case 'refuse':
+      return 'badge badge-danger';
+    case 'en_cours':
+      return 'badge badge-public';
+    case 'archive':
+      return 'badge badge-muted';
+    default:
+      return 'badge';
+  }
+}
+
 export const DO_STATUT_LABELS = {
   nouveau: 'Nouveau',
   validee: 'Validée (prise en charge)',

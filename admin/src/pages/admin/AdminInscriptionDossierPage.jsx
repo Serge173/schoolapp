@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { api } from '../../api';
-import { INSCRIPTION_STATUT_LABELS } from './adminConstants';
+import { INSCRIPTION_STATUT_LABELS, inscriptionStatutBadgeClass } from './adminConstants';
 import { canWriteDossiers } from '../../data/adminRoles';
 
 const FILIERE_AUTRE_VALUE = '__autre__';
@@ -42,7 +42,7 @@ export default function AdminInscriptionDossierPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [confirmModal, setConfirmModal] = useState(null);
   const [filieres, setFilieres] = useState([]);
   const [universites, setUniversites] = useState([]);
   const [form, setForm] = useState(null);
@@ -118,7 +118,7 @@ export default function AdminInscriptionDossierPage() {
     e.preventDefault();
     setSaving(true);
     setError('');
-    setSuccess('');
+    setConfirmModal(null);
     try {
       const payload = {
         ...form,
@@ -128,13 +128,38 @@ export default function AdminInscriptionDossierPage() {
       delete payload.created_at;
       delete payload.updated_at;
       await api.admin.inscriptionUpdate(id, payload);
-      setSuccess('Dossier enregistré.');
-      await load();
+      setConfirmModal({
+        message: 'Le dossier a été enregistré avec succès.',
+        statut: payload.statut,
+      });
     } catch (err) {
       setError(err.message);
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleConfirmClose = () => {
+    setConfirmModal(null);
+    navigate('/admin/inscriptions');
+  };
+
+  const statutSelectStyle = {
+    ...inputStyle,
+    ...(form?.statut === 'valide'
+      ? {
+          borderColor: '#16a34a',
+          background: 'rgba(34, 197, 94, 0.12)',
+          color: '#166534',
+          fontWeight: 600,
+        }
+      : form?.statut === 'refuse'
+        ? {
+            borderColor: '#dc2626',
+            background: 'rgba(220, 38, 38, 0.08)',
+            color: '#b91c1c',
+          }
+        : {}),
   };
 
   if (loading) {
@@ -172,9 +197,61 @@ export default function AdminInscriptionDossierPage() {
           {error}
         </div>
       ) : null}
-      {success ? (
-        <div style={{ marginBottom: '1rem', padding: '0.75rem 1rem', background: 'rgba(34,197,94,0.12)', borderRadius: 8, color: 'var(--text)' }}>
-          {success}
+
+      {confirmModal ? (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="dossier-confirm-title"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.55)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 200,
+            padding: '1rem',
+          }}
+          onClick={handleConfirmClose}
+        >
+          <div
+            className="card"
+            style={{ width: '100%', maxWidth: 420, margin: 0, textAlign: 'center', padding: '1.5rem 1.25rem' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{
+                width: 48,
+                height: 48,
+                margin: '0 auto 1rem',
+                borderRadius: '50%',
+                background: 'rgba(34, 197, 94, 0.15)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '1.5rem',
+                color: '#16a34a',
+              }}
+              aria-hidden="true"
+            >
+              ✓
+            </div>
+            <h2 id="dossier-confirm-title" style={{ margin: '0 0 0.5rem', fontSize: '1.15rem' }}>
+              Dossier enregistré
+            </h2>
+            <p style={{ margin: '0 0 1rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+              {confirmModal.message}
+            </p>
+            {confirmModal.statut === 'valide' ? (
+              <p style={{ margin: '0 0 1.25rem' }}>
+                <span className={inscriptionStatutBadgeClass('valide')}>Validé</span>
+              </p>
+            ) : null}
+            <button type="button" className="btn btn-primary" onClick={handleConfirmClose}>
+              Retour aux inscriptions
+            </button>
+          </div>
         </div>
       ) : null}
 
@@ -187,13 +264,18 @@ export default function AdminInscriptionDossierPage() {
         <fieldset disabled={!canEdit} style={{ border: 'none', margin: 0, padding: 0, minWidth: 0 }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0 1rem' }}>
           <Field label="Statut du dossier">
-            <select name="statut" value={form.statut} onChange={handleChange} style={inputStyle}>
+            <select name="statut" value={form.statut} onChange={handleChange} style={statutSelectStyle}>
               {Object.entries(INSCRIPTION_STATUT_LABELS).map(([v, lab]) => (
                 <option key={v} value={v}>
                   {lab}
                 </option>
               ))}
             </select>
+            {form.statut === 'valide' ? (
+              <span className={inscriptionStatutBadgeClass('valide')} style={{ marginTop: '0.5rem', display: 'inline-block' }}>
+                Validé
+              </span>
+            ) : null}
           </Field>
           <Field label="Bureau FIGS">
             <select name="pays_bureau" value={form.pays_bureau} onChange={handleChange} style={inputStyle}>

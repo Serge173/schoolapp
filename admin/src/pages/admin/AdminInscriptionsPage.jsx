@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../../api';
-import { INSCRIPTION_STATUT_LABELS } from './adminConstants';
+import { INSCRIPTION_STATUT_LABELS, inscriptionStatutBadgeClass } from './adminConstants';
 
 export default function AdminInscriptionsPage() {
   const [inscriptions, setInscriptions] = useState([]);
@@ -143,7 +143,7 @@ export default function AdminInscriptionsPage() {
                 <td style={{ padding: '0.75rem' }}>{i.filiere_nom}</td>
                 <td style={{ padding: '0.75rem' }}>{i.universite_nom}</td>
                 <td style={{ padding: '0.75rem' }}>
-                  <span className="badge" style={{ border: '1px solid var(--border)' }}>
+                  <span className={inscriptionStatutBadgeClass(i.statut)}>
                     {INSCRIPTION_STATUT_LABELS[i.statut] || i.statut || 'Nouveau'}
                   </span>
                 </td>

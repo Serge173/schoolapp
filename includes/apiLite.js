@@ -42,6 +42,9 @@ function originalApiPath(req) {
   const url = new URL(req.url || '/', 'http://localhost');
   const route = url.searchParams.get('__route');
   if (route) {
+    if (route.startsWith('admin/')) {
+      return `/api/${route}`.replace(/\/\/+/g, '/');
+    }
     const entry = pathnameOf(req);
     if (entry === '/api/admin') {
       return `/api/admin/${route}`.replace(/\/\/+/g, '/');

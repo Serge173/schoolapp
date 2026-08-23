@@ -2,20 +2,9 @@
 
 require('../config/ensureJwtSecretEnv').ensureJwtSecretEnv();
 
-const bcrypt = require('bcryptjs');
 const db = require('../config/db');
-const { generateToken, ADMIN_COOKIE_NAME } = require('../server/middleware/auth');
-const { writeAudit } = require('./auditLog');
-const { fetchAdminStats } = require('./adminStats');
 const { readJsonBody, originalApiPath, cleanAdminQuery } = require('./apiLite');
 const { requireAdmin, clearAdminCookie } = require('./apiAuthLite');
-const {
-  fetchInscriptionById,
-  patchInscription,
-  listAdminAccounts,
-  createAdminAccount,
-} = require('./inscriptionAdmin');
-const { patchRendezVous } = require('./rdvAdmin');
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -34,6 +23,9 @@ function getClientIp(req) {
 
 async function handleLogin(req, res) {
   try {
+    const bcrypt = require('bcryptjs');
+    const { generateToken, ADMIN_COOKIE_NAME } = require('../server/middleware/auth');
+    const { writeAudit } = require('./auditLog');
     const body = await readJsonBody(req);
     const email = String(body.email || '').trim();
     const password = String(body.password || '');
@@ -77,6 +69,7 @@ async function handleLogin(req, res) {
 async function handleLogout(req, res) {
   const admin = requireAdmin(req, res);
   if (!admin) return;
+  const { writeAudit } = require('./auditLog');
   clearAdminCookie(res);
   writeAudit('admin.logout', { adminId: admin.id, ip: getClientIp(req) });
   return res.status(200).json({ message: 'Déconnecté.' });
@@ -99,6 +92,7 @@ async function handleStats(req, res) {
   const admin = requireAdmin(req, res);
   if (!admin) return;
   try {
+    const { fetchAdminStats } = require('./adminStats');
     return res.status(200).json(await fetchAdminStats());
   } catch (err) {
     console.error('[liteAdmin] stats', err);
@@ -129,6 +123,7 @@ async function handleReadList(req, res, path) {
       return res.status(200).json(await fetchAdminInscriptionsList(query));
     }
     if (path === '/api/admin/comptes') {
+      const { listAdminAccounts } = require('./inscriptionAdmin');
       return res.status(200).json(await listAdminAccounts());
     }
     if (path === '/api/admin/rendez-vous') {
@@ -152,6 +147,7 @@ async function handleInscriptionGet(req, res, id) {
     return res.status(400).json({ error: 'Identifiant invalide.' });
   }
   try {
+    const { fetchInscriptionById } = require('./inscriptionAdmin');
     const row = await fetchInscriptionById(id);
     if (!row) return res.status(404).json({ error: 'Inscription introuvable.' });
     return res.status(200).json(row);
@@ -168,6 +164,7 @@ async function handleInscriptionPatch(req, res, id) {
     return res.status(400).json({ error: 'Identifiant invalide.' });
   }
   try {
+    const { patchInscription } = require('./inscriptionAdmin');
     const body = await readJsonBody(req);
     const result = await patchInscription(id, body, admin.id);
     return res.status(result.status).json(result.body);
@@ -181,6 +178,8 @@ async function handleComptesPost(req, res) {
   const admin = requireAdmin(req, res);
   if (!admin) return;
   try {
+    const { createAdminAccount } = require('./inscriptionAdmin');
+    const { writeAudit } = require('./auditLog');
     const body = await readJsonBody(req);
     const result = await createAdminAccount(body);
     if (result.status === 201) {
@@ -197,6 +196,7 @@ async function handleRdvPatch(req, res, id) {
   const admin = requireAdmin(req, res);
   if (!admin) return;
   try {
+    const { patchRendezVous } = require('./rdvAdmin');
     const body = await readJsonBody(req);
     const result = await patchRendezVous(id, body, admin.id);
     return res.status(result.status).json(result.body);

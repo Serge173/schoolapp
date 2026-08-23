@@ -4,7 +4,15 @@ const path = require('path');
 const db = require('../config/db');
 const { resolveLogoUrl } = require('./logoUrl');
 
+const CACHE_TTL_MS = 45_000;
+let listCache = null;
+let listCacheAt = 0;
+
 async function fetchAdminUniversitesList() {
+  const now = Date.now();
+  if (listCache && now - listCacheAt < CACHE_TTL_MS) {
+    return listCache;
+  }
   const [rows] = await db.query(
     'SELECT id, nom, type, ville, description, logo, brochure FROM universites ORDER BY nom'
   );
@@ -75,7 +83,14 @@ async function fetchAdminUniversitesList() {
     if (u.logo) u.logoUrl = resolveLogoUrl(u.logo);
     if (u.brochure) u.brochureUrl = '/uploads/brochures/' + path.basename(u.brochure);
   }
+  listCache = rows;
+  listCacheAt = now;
   return rows;
 }
 
-module.exports = { fetchAdminUniversitesList };
+function clearUniversitesCache() {
+  listCache = null;
+  listCacheAt = 0;
+}
+
+module.exports = { fetchAdminUniversitesList, clearUniversitesCache };

@@ -1,8 +1,9 @@
 /**
- * GET filières — handler léger (sans boot Express).
+ * GET filières + POST publics (rewrite Vercel) — handler léger.
  */
 const db = require('../config/db');
 const { pathnameOf } = require('../includes/apiLite');
+const { handleLitePublic } = require('../includes/litePublicHandler');
 
 async function listFilieres(query) {
   const type = query.type;
@@ -40,6 +41,8 @@ async function listFilieres(query) {
 }
 
 module.exports = async (req, res) => {
+  if (await handleLitePublic(req, res)) return;
+
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Méthode non autorisée.' });
   }

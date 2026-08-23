@@ -17,7 +17,12 @@ async function request(path, options = {}) {
       throw new Error('Réponse serveur invalide.');
     }
   }
-  if (!res.ok) throw new Error(data.error || data.errors?.[0]?.msg || 'Erreur');
+  if (!res.ok) {
+    if (res.status === 504 || res.status === 503) {
+      throw new Error('Le serveur met trop de temps à répondre. Réessayez dans un instant.');
+    }
+    throw new Error(data.error || data.errors?.[0]?.msg || 'Erreur');
+  }
   return data;
 }
 

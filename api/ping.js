@@ -1,6 +1,6 @@
 module.exports = (_req, res) => {
   res.status(200).json({
-    v: 'lite-merge-2',
+    v: 'lite-merge-3',
     vercel: Boolean(process.env.VERCEL || process.env.VERCEL_ENV),
     hasPostgresUrl: Boolean(process.env.POSTGRES_URL),
     hasDatabaseUrl: Boolean(process.env.DATABASE_URL),

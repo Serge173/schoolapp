@@ -7,7 +7,8 @@
       "includeFiles": "database/figs-programmes.json"
     },
     "api/filieres.js": {
-      "includeFiles": "database/figs-programmes.json"
+      "includeFiles": "database/figs-programmes.json",
+      "maxDuration": 30
     },
     "api/universites.js": {
       "includeFiles": "database/figs-programmes.json"
@@ -26,10 +27,10 @@
     { "source": "/api/ping", "destination": "/api/ping" },
     { "source": "/api/health", "destination": "/api/health" },
     { "source": "/api/admin/:path*", "destination": "/api/admin/:path*" },
-    { "source": "/api/contact", "destination": "/api/health?__route=contact" },
-    { "source": "/api/inscriptions", "destination": "/api/health?__route=inscriptions" },
-    { "source": "/api/rendez-vous", "destination": "/api/health?__route=rendez-vous" },
-    { "source": "/api/demandes-orientation", "destination": "/api/health?__route=demandes-orientation" },
+    { "source": "/api/contact", "destination": "/api/filieres?__route=contact" },
+    { "source": "/api/inscriptions", "destination": "/api/filieres?__route=inscriptions" },
+    { "source": "/api/rendez-vous", "destination": "/api/filieres?__route=rendez-vous" },
+    { "source": "/api/demandes-orientation", "destination": "/api/filieres?__route=demandes-orientation" },
     { "source": "/api/programmes-figs/:id", "destination": "/api/programmes-figs?id=:id" },
     { "source": "/api/programmes-figs", "destination": "/api/programmes-figs" },
     { "source": "/api/filieres/:id/niveaux-disponibles", "destination": "/api/filieres" },

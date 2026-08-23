@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { FIGS_ABIDJAN } from './data/figsBureaus';
+import { FIGSAPP_LOGO, FIGSAPP_LOGO_ALT } from './data/brand';
 import { getFooterSocialLinks } from './data/socialLinks';
 import SocialIcon from './components/SocialIcon';
 
@@ -9,8 +10,15 @@ export default function Layout() {
     <div className="layout-root">
       <header className="layout-header">
         <div className="container">
-          <Link to="/" className="logo">
-            FigsApp-Côte d'Ivoire
+          <Link to="/" className="logo" aria-label="FigsApp-Côte d'Ivoire — accueil">
+            <img
+              src={FIGSAPP_LOGO}
+              alt={FIGSAPP_LOGO_ALT}
+              className="layout-logo-img"
+              width={148}
+              height={56}
+              decoding="async"
+            />
           </Link>
           <nav>
             <Link to="/">Accueil</Link>
@@ -30,8 +38,15 @@ export default function Layout() {
         <div className="layout-footer-strip" aria-hidden />
         <div className="container layout-footer-inner">
           <div className="layout-footer-brand">
-            <Link to="/" className="layout-footer-logo">
-              FigsApp-Côte d'Ivoire
+            <Link to="/" className="layout-footer-logo" aria-label="FigsApp-Côte d'Ivoire — accueil">
+              <img
+                src={FIGSAPP_LOGO}
+                alt={FIGSAPP_LOGO_ALT}
+                className="layout-footer-logo-img"
+                width={160}
+                height={60}
+                decoding="async"
+              />
             </Link>
             <p>
               Données d’orientation alignées sur{' '}

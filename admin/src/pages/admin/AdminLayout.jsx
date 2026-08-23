@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import { api } from '../../api';
+import { FIGSAPP_LOGO, FIGSAPP_LOGO_ALT } from '../../data/brand';
 
 export default function AdminLayout() {
   const [stats, setStats] = useState(null);
@@ -39,10 +40,19 @@ export default function AdminLayout() {
         className="admin-header"
         style={{ padding: '1rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
       >
-        <div>
-          <Link to="/" style={{ color: 'var(--text-muted)', marginRight: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <Link to="/" style={{ color: 'var(--text-muted)' }} aria-label="Retour au site">
             Site
           </Link>
+          <img
+            src={FIGSAPP_LOGO}
+            alt=""
+            className="admin-header-logo"
+            width={96}
+            height={36}
+            decoding="async"
+            aria-hidden="true"
+          />
           <span style={{ fontWeight: 600 }}>Administration</span>
         </div>
         <button type="button" className="btn btn-secondary" onClick={handleLogout}>

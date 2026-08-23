@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../api';
+import { FIGSAPP_LOGO, FIGSAPP_LOGO_ALT } from '../../data/brand';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -26,7 +27,17 @@ export default function AdminLogin() {
 
   return (
     <div className="admin-page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div className="card" style={{ width: '100%', maxWidth: 400 }}>
+      <div className="card admin-login-card" style={{ width: '100%', maxWidth: 400 }}>
+        <div className="admin-login-brand">
+          <img
+            src={FIGSAPP_LOGO}
+            alt={FIGSAPP_LOGO_ALT}
+            className="admin-login-logo"
+            width={200}
+            height={76}
+            decoding="async"
+          />
+        </div>
         <h1 style={{ marginBottom: '0.5rem', textAlign: 'center' }}>Espace administrateur</h1>
         <p style={{ color: 'var(--text-muted)', textAlign: 'center', marginBottom: '1.5rem' }}>Connectez-vous pour gérer la plateforme.</p>
         <form onSubmit={handleSubmit}>

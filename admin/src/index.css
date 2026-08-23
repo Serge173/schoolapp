@@ -95,11 +95,19 @@ input, select, textarea {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1.35rem;
-  color: #14395a;
   text-decoration: none;
+  line-height: 0;
+}
+.layout-logo-img {
+  display: block;
+  height: 52px;
+  width: auto;
+  max-width: 148px;
+  object-fit: contain;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 0.2rem 0.45rem;
+  box-shadow: 0 1px 4px rgba(15, 46, 74, 0.12);
 }
 .layout-logo-favicon {
   flex-shrink: 0;
@@ -135,6 +143,42 @@ input, select, textarea {
 .admin-header a,
 .admin-header span {
   color: #173f62 !important;
+}
+
+.admin-header-logo {
+  display: block;
+  height: 34px;
+  width: auto;
+  max-width: 96px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.15rem 0.35rem;
+  box-shadow: 0 1px 3px rgba(15, 46, 74, 0.1);
+}
+
+.admin-login-card {
+  padding-top: 1.25rem;
+}
+
+.admin-login-brand {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.admin-login-logo {
+  display: block;
+  height: auto;
+  max-height: 76px;
+  width: auto;
+  max-width: 200px;
+  object-fit: contain;
+  border-radius: 12px;
+  background: #fff;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 16px rgba(28, 117, 183, 0.08);
 }
 
 /* Cards */
@@ -318,6 +362,22 @@ input, select, textarea {
 }
 
 @media (max-width: 768px) {
+  .layout-header .container {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .layout-logo-img {
+    height: 44px;
+    max-width: 120px;
+  }
+  .layout-header nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1rem;
+  }
+  .layout-header nav a {
+    margin-left: 0;
+  }
   .layout-footer-inner {
     grid-template-columns: 1fr;
     gap: 1.75rem;
@@ -332,12 +392,20 @@ input, select, textarea {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1.2rem;
-  color: #1d75b7;
   margin-bottom: 0.5rem;
   text-decoration: none;
+  line-height: 0;
+}
+.layout-footer-logo-img {
+  display: block;
+  height: 58px;
+  width: auto;
+  max-width: 160px;
+  object-fit: contain;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--border);
 }
 .layout-footer-favicon {
   flex-shrink: 0;

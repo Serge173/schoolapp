@@ -93,6 +93,7 @@ export const api = {
     },
     rendezVousUpdate: (id, body) =>
       request(`/admin/rendez-vous/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+    rendezVousDelete: (id) => request(`/admin/rendez-vous/${id}`, { method: 'DELETE' }),
     filieres: () => request('/admin/filieres'),
     filieresTree: () => request('/admin/filieres/tree'),
     filiereCreate: (body) => request('/admin/filieres', { method: 'POST', body: JSON.stringify(body) }),

@@ -49,4 +49,26 @@ async function patchRendezVous(id, body, actor) {
   return { status: 200, body: rows[0] };
 }
 
-module.exports = { patchRendezVous };
+async function deleteRendezVous(id, actor) {
+  const actorRole = normalizeRole(actor?.role);
+  if (!hasPermission(actorRole, 'dossiers_write')) {
+    return { status: 403, body: { error: 'Votre rôle ne permet pas de supprimer les rendez-vous.' } };
+  }
+  if (!Number.isInteger(id) || id < 1) {
+    return { status: 400, body: { error: 'Identifiant invalide.' } };
+  }
+  const [existing] = await db.query('SELECT id, nom, prenom, email FROM rendez_vous WHERE id = ?', [id]);
+  if (!existing.length) return { status: 404, body: { error: 'Rendez-vous introuvable.' } };
+  await db.query('DELETE FROM rendez_vous WHERE id = ?', [id]);
+  const [check] = await db.query('SELECT id FROM rendez_vous WHERE id = ?', [id]);
+  if (check.length) return { status: 500, body: { error: 'La suppression a échoué.' } };
+  writeAudit('rendez_vous.deleted', {
+    id,
+    email: existing[0].email,
+    nom: existing[0].nom,
+    adminId: actor?.id,
+  });
+  return { status: 200, body: { message: 'Rendez-vous supprimé.' } };
+}
+
+module.exports = { patchRendezVous, deleteRendezVous };

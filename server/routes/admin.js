@@ -423,6 +423,19 @@ router.patch('/rendez-vous/:id', [
   }
 });
 
+router.delete('/rendez-vous/:id', [param('id').isInt()], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ error: errors.array()[0].msg });
+    const { deleteRendezVous } = require('../../includes/rdvAdmin');
+    const result = await deleteRendezVous(Number(req.params.id), adminActor(req));
+    res.status(result.status).json(result.body);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
+});
+
 // CRUD Universités
 router.get('/universites', async (req, res) => {
   try {

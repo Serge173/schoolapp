@@ -54,6 +54,17 @@ export default function AdminRdvPage() {
     }
   };
 
+  const handleRdvDelete = async (r) => {
+    if (!confirm(`Supprimer le rendez-vous de ${r.prenom} ${r.nom} ? Cette action est irréversible.`)) return;
+    try {
+      await api.admin.rendezVousDelete(r.id);
+      await loadRendezVous();
+      await reloadStats();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   return (
     <>
       <h1 style={{ marginBottom: '1.5rem' }}>Rendez-vous</h1>
@@ -133,6 +144,7 @@ export default function AdminRdvPage() {
               <th style={{ textAlign: 'left', padding: '0.75rem' }}>Message</th>
               <th style={{ textAlign: 'left', padding: '0.75rem' }}>Statut</th>
               <th style={{ textAlign: 'left', padding: '0.75rem' }}>Notes internes</th>
+              <th style={{ textAlign: 'left', padding: '0.75rem' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -232,6 +244,17 @@ export default function AdminRdvPage() {
                       disabled={!canEdit}
                     >
                       Enregistrer notes
+                    </button>
+                  </td>
+                  <td style={{ padding: '0.75rem', whiteSpace: 'nowrap' }}>
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      style={{ fontSize: '0.8rem', padding: '0.35rem 0.65rem', color: '#b91c1c', borderColor: 'rgba(220,38,38,0.35)' }}
+                      onClick={() => handleRdvDelete(r)}
+                      disabled={!canEdit}
+                    >
+                      Supprimer
                     </button>
                   </td>
                 </tr>

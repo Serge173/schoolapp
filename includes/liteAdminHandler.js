@@ -238,6 +238,19 @@ async function handleRdvPatch(req, res, id) {
   }
 }
 
+async function handleRdvDelete(req, res, id) {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+  try {
+    const { deleteRendezVous } = require('./rdvAdmin');
+    const result = await deleteRendezVous(id, admin);
+    return res.status(result.status).json(result.body);
+  } catch (err) {
+    console.error('[liteAdmin] rdv delete', err);
+    return res.status(500).json({ error: 'Erreur serveur.' });
+  }
+}
+
 /** Retourne true si la route légère a été traitée. */
 async function handleLiteAdmin(req, res) {
   const path = originalApiPath(req);
@@ -245,6 +258,11 @@ async function handleLiteAdmin(req, res) {
   const rdvPatchMatch = path.match(/^\/api\/admin\/rendez-vous\/(\d+)$/);
   if (rdvPatchMatch && req.method === 'PATCH') {
     await handleRdvPatch(req, res, Number(rdvPatchMatch[1]));
+    return true;
+  }
+  const rdvDeleteMatch = path.match(/^\/api\/admin\/rendez-vous\/(\d+)$/);
+  if (rdvDeleteMatch && req.method === 'DELETE') {
+    await handleRdvDelete(req, res, Number(rdvDeleteMatch[1]));
     return true;
   }
 

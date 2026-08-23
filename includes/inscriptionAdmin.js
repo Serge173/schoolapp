@@ -1,6 +1,7 @@
 'use strict';
 
 const db = require('../config/db');
+const { getDbDriver } = require('../config/dbDriver');
 const { ensureInscriptionsWorkflow } = require('../database/ensureInscriptionsWorkflow');
 const { writeAudit } = require('./auditLog');
 const { hasPermission, normalizeRole } = require('./adminRoles');

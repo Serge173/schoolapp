@@ -54,9 +54,9 @@ async function main() {
   const ping = await req('/api/ping');
   const pingOk = ping.status === 200 && ping.body?.hasPostgresUrl;
   ok('Ping / DB config', pingOk, JSON.stringify(ping.body));
-  const deployReady = ping.body?.v === 'fast-api-5';
+  const deployReady = ['fast-api-5', 'fast-api-6'].includes(ping.body?.v);
   if (!deployReady) {
-    console.log('  WARN  Déploiement API pas à jour (v attendue fast-api-5, reçue ' + (ping.body?.v || '?') + ')');
+    console.log('  WARN  Déploiement API pas à jour (v attendue fast-api-6, reçue ' + (ping.body?.v || '?') + ')');
   }
 
   const filieres = await req('/api/filieres?type=privee');
@@ -66,6 +66,8 @@ async function main() {
   ok('GET universités', universites.status === 200 && universites.body?.length > 0, `${universites.body?.length} écoles`);
 
   const uni = universites.body?.find((u) => u.id === 8) || universites.body?.[0];
+  const uniDetailPing = await req(`/api/universites/${uni.id}`);
+  ok('GET université détail', uniDetailPing.status === 200, `id=${uni.id}`);
   const filiere = filieres.body?.find((f) => f.id === 2) || filieres.body?.[0];
 
   let ville = 'Paris';
@@ -179,6 +181,24 @@ async function main() {
 
     const rdvList = await req('/api/admin/rendez-vous', { headers: hdr });
     ok('Admin RDV list', rdvList.status === 200 && Array.isArray(rdvList.body), `${rdvList.body?.length}`);
+
+    const testRdv = rdvList.body?.find((r) => r.email === testEmail);
+    if (testRdv?.id) {
+      const rdvPatch = await req(`/api/admin/rendez-vous/${testRdv.id}`, {
+        method: 'PATCH',
+        headers: hdr,
+        body: JSON.stringify({ statut: 'a_confirmer', notes_internes: 'Test patch ' + stamp }),
+      });
+      ok('PATCH rendez-vous', rdvPatch.status === 200, rdvPatch.body?.statut || rdvPatch.body?.error);
+
+      const rdvDel = await req(`/api/admin/rendez-vous/${testRdv.id}`, {
+        method: 'DELETE',
+        headers: hdr,
+      });
+      ok('DELETE rendez-vous', rdvDel.status === 200, rdvDel.body?.message || rdvDel.body?.error);
+    } else {
+      console.log('  SKIP  PATCH/DELETE rendez-vous (RDV test non trouvé dans la liste)');
+    }
 
     const stats = await req('/api/admin/stats', { headers: hdr });
     ok('Admin stats', stats.status === 200, `inscriptions total ~${stats.body?.total ?? '?'}`);

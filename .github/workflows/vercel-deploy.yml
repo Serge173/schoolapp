@@ -5,9 +5,25 @@ on:
     branches: [main, master]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
+  sync-master:
+    name: Sync master with main
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Merge main into master
+        run: |
+          git fetch origin master
+          git checkout master
+          git merge origin/main -m "ci: sync master from main"
+          git push origin master
+
   trigger-deploy:
     name: Trigger Vercel deploy hook
     runs-on: ubuntu-latest

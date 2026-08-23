@@ -16,6 +16,8 @@ import AdminLogin from './pages/admin/AdminLogin';
 import AdminLayout from './pages/admin/AdminLayout';
 import AdminOverviewPage from './pages/admin/AdminOverviewPage';
 import AdminInscriptionsPage from './pages/admin/AdminInscriptionsPage';
+import AdminInscriptionDossierPage from './pages/admin/AdminInscriptionDossierPage';
+import AdminComptesPage from './pages/admin/AdminComptesPage';
 import AdminRdvPage from './pages/admin/AdminRdvPage';
 import AdminUniversitesPage from './pages/admin/AdminUniversitesPage';
 import AdminFilieresPage from './pages/admin/AdminFilieresPage';
@@ -49,6 +51,8 @@ export default function App() {
         <Route element={<ProtectedAdmin><AdminLayout /></ProtectedAdmin>}>
           <Route path="dashboard" element={<AdminOverviewPage />} />
           <Route path="inscriptions" element={<AdminInscriptionsPage />} />
+          <Route path="inscriptions/:id" element={<AdminInscriptionDossierPage />} />
+          <Route path="comptes" element={<AdminComptesPage />} />
           <Route path="rendez-vous" element={<AdminRdvPage />} />
           <Route path="orientation" element={<Navigate to="/admin/inscriptions" replace />} />
           <Route path="universites" element={<AdminUniversitesPage />} />

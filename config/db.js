@@ -71,9 +71,14 @@ if (driver === 'sqlite') {
       const upper = sqlStr.trim().toUpperCase();
       const isSelect = upper.startsWith('SELECT') || upper.startsWith('WITH');
       const isInsert = upper.startsWith('INSERT');
+      const isUpdate = upper.startsWith('UPDATE');
+      const isDelete = upper.startsWith('DELETE');
       let pgSql = convertPlaceholders(sqlStr);
       if (isInsert && !/RETURNING/i.test(pgSql)) {
         pgSql += ' RETURNING id';
+      }
+      if ((isUpdate || isDelete) && !/RETURNING/i.test(pgSql)) {
+        pgSql += ' RETURNING 1 AS _mut';
       }
       const rows = await withQueryTimeout(sql(pgSql, params));
       if (isSelect) return [rows];

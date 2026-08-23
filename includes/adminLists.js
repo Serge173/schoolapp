@@ -1,13 +1,21 @@
 'use strict';
 
 const db = require('../config/db');
+const { ensureInscriptionsWorkflow } = require('../database/ensureInscriptionsWorkflow');
+const { INSCRIPTION_STATUTS } = require('./inscriptionAdmin');
 
 async function fetchAdminInscriptionsList(query = {}) {
+  await ensureInscriptionsWorkflow();
   let sql = `
     SELECT i.id, i.nom, i.prenom, i.date_naissance, i.sexe, i.telephone, i.email, i.ville,
            i.niveau_etude, i.serie_bac, i.annee_bac, i.filiere_id, i.filiere_autre,
            i.universite_id, i.type_universite, i.created_at,
            COALESCE(i.pays_bureau, 'CI') AS pays_bureau,
+           COALESCE(i.contact, '') AS contact,
+           COALESCE(i.contact_telephone, '') AS contact_telephone,
+           COALESCE(i.statut, 'nouveau') AS statut,
+           COALESCE(i.notes_internes, '') AS notes_internes,
+           i.updated_at,
            COALESCE(f.nom, i.filiere_autre) AS filiere_nom,
            u.nom AS universite_nom, u.ville AS universite_ville
     FROM inscriptions i
@@ -18,6 +26,10 @@ async function fetchAdminInscriptionsList(query = {}) {
   if (query.type) {
     sql += ' AND i.type_universite = ?';
     params.push(query.type);
+  }
+  if (query.statut && INSCRIPTION_STATUTS.includes(query.statut)) {
+    sql += ' AND COALESCE(i.statut, \'nouveau\') = ?';
+    params.push(query.statut);
   }
   if (query.filiere_id) {
     sql += ' AND i.filiere_id = ?';
@@ -84,4 +96,4 @@ async function fetchAdminRendezVousList(query = {}) {
   }
 }
 
-module.exports = { fetchAdminInscriptionsList, fetchAdminRendezVousList, RDV_STATUTS };
+module.exports = { fetchAdminInscriptionsList, fetchAdminRendezVousList, RDV_STATUTS, INSCRIPTION_STATUTS };

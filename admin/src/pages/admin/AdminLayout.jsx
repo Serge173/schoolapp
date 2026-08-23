@@ -105,6 +105,9 @@ export default function AdminLayout() {
             <NavLink to="/admin/filieres" className={navBtn} style={{ justifyContent: 'flex-start' }}>
               Filières
             </NavLink>
+            <NavLink to="/admin/comptes" className={navBtn} style={{ justifyContent: 'flex-start' }}>
+              Comptes admin
+            </NavLink>
           </nav>
         </aside>
         <main style={{ minWidth: 0, width: '100%' }}>

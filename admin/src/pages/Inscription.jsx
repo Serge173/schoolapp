@@ -38,6 +38,8 @@ export default function Inscription() {
     universite_id: universiteId || '',
     type_universite: type,
     pays_bureau: 'CI',
+    contact: '',
+    contact_telephone: '',
   });
 
   const backToEcole = useMemo(() => {
@@ -355,6 +357,41 @@ export default function Inscription() {
               <div className="ins-section ins-section--full">
                 <div className="ins-section__head">
                   <span className="ins-section__num">4</span>
+                  <h2 className="ins-section__title">Personne de contact</h2>
+                </div>
+                <p className="ins-section__hint" style={{ marginTop: 0, marginBottom: '0.85rem' }}>
+                  Parent, tuteur ou personne à joindre en complément du candidat (optionnel).
+                </p>
+                <div className="ins-grid-2">
+                  <div className="form-group">
+                    <label htmlFor="ins-contact">Nom du contact</label>
+                    <input
+                      id="ins-contact"
+                      name="contact"
+                      value={form.contact}
+                      onChange={handleChange}
+                      placeholder="ex. Nom du parent"
+                      autoComplete="name"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="ins-contact-tel">Téléphone du contact</label>
+                    <input
+                      id="ins-contact-tel"
+                      type="tel"
+                      name="contact_telephone"
+                      value={form.contact_telephone}
+                      onChange={handleChange}
+                      placeholder="Optionnel"
+                      autoComplete="tel"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="ins-section ins-section--full">
+                <div className="ins-section__head">
+                  <span className="ins-section__num">5</span>
                   <h2 className="ins-section__title">Parcours scolaire</h2>
                 </div>
                 <div className="ins-grid-3">
@@ -381,7 +418,7 @@ export default function Inscription() {
 
               <div className="ins-section ins-section--full">
                 <div className="ins-section__head">
-                  <span className="ins-section__num">5</span>
+                  <span className="ins-section__num">6</span>
                   <h2 className="ins-section__title">Projet d&apos;études</h2>
                 </div>
                 <div className="ins-grid-3">

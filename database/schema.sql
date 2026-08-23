@@ -115,6 +115,11 @@ CREATE TABLE IF NOT EXISTS inscriptions (
   universite_id INT NOT NULL,
   type_universite ENUM('publique', 'privee') NOT NULL,
   pays_bureau ENUM('CI', 'BF') NOT NULL DEFAULT 'CI' COMMENT 'Bureau FIGS: CI=Côte d''Ivoire, BF=Burkina Faso',
+  contact VARCHAR(120) NULL,
+  contact_telephone VARCHAR(20) NULL,
+  statut VARCHAR(20) NOT NULL DEFAULT 'nouveau',
+  notes_internes TEXT NULL,
+  updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (filiere_id) REFERENCES filieres(id),
   FOREIGN KEY (universite_id) REFERENCES universites(id)

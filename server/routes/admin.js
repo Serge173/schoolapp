@@ -143,6 +143,7 @@ router.get('/stats', async (req, res) => {
 // Liste des inscriptions avec filtres
 router.get('/inscriptions', [
   query('type').optional().isIn(['publique', 'privee']),
+  query('statut').optional().isIn(['nouveau', 'en_cours', 'valide', 'refuse', 'archive']),
   query('filiere_id').optional().isInt(),
   query('universite_id').optional().isInt(),
   query('pays_bureau').optional().isIn(['CI', 'BF']),
@@ -152,45 +153,61 @@ router.get('/inscriptions', [
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ error: errors.array()[0].msg });
-    let sql = `
-      SELECT i.id, i.nom, i.prenom, i.date_naissance, i.sexe, i.telephone, i.email, i.ville,
-             i.niveau_etude, i.serie_bac, i.annee_bac, i.filiere_id, i.filiere_autre,
-             i.universite_id, i.type_universite, i.created_at,
-             COALESCE(i.pays_bureau, 'CI') AS pays_bureau,
-             COALESCE(f.nom, i.filiere_autre) AS filiere_nom,
-             u.nom AS universite_nom, u.ville AS universite_ville
-      FROM inscriptions i
-      LEFT JOIN filieres f ON f.id = i.filiere_id
-      JOIN universites u ON u.id = i.universite_id
-      WHERE 1=1`;
-    const params = [];
-    if (req.query.type) {
-      sql += ' AND i.type_universite = ?';
-      params.push(req.query.type);
-    }
-    if (req.query.filiere_id) {
-      sql += ' AND i.filiere_id = ?';
-      params.push(req.query.filiere_id);
-    }
-    if (req.query.universite_id) {
-      sql += ' AND i.universite_id = ?';
-      params.push(req.query.universite_id);
-    }
-    if (req.query.pays_bureau) {
-      sql += ' AND COALESCE(i.pays_bureau, \'CI\') = ?';
-      params.push(req.query.pays_bureau);
-    }
-    if (req.query.date_debut) {
-      sql += ' AND DATE(i.created_at) >= ?';
-      params.push(req.query.date_debut);
-    }
-    if (req.query.date_fin) {
-      sql += ' AND DATE(i.created_at) <= ?';
-      params.push(req.query.date_fin);
-    }
-    sql += ' ORDER BY i.created_at DESC';
-    const [rows] = await db.query(sql, params);
+    const { fetchAdminInscriptionsList } = require('../../includes/adminLists');
+    const rows = await fetchAdminInscriptionsList(req.query);
     res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
+});
+
+router.get('/inscriptions/:id', async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const { fetchInscriptionById } = require('../../includes/inscriptionAdmin');
+    const row = await fetchInscriptionById(id);
+    if (!row) return res.status(404).json({ error: 'Inscription introuvable.' });
+    res.json(row);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
+});
+
+router.patch('/inscriptions/:id', async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const { patchInscription } = require('../../includes/inscriptionAdmin');
+    const result = await patchInscription(id, req.body, req.adminId);
+    res.status(result.status).json(result.body);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
+});
+
+router.get('/comptes', async (req, res) => {
+  try {
+    const { listAdminAccounts } = require('../../includes/inscriptionAdmin');
+    res.json(await listAdminAccounts());
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
+});
+
+router.post('/comptes', [
+  body('email').isEmail().normalizeEmail(),
+  body('password').isLength({ min: 8, max: 256 }),
+  body('nom').trim().isLength({ min: 1, max: 100 }),
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ error: errors.array()[0].msg });
+    const { createAdminAccount } = require('../../includes/inscriptionAdmin');
+    const result = await createAdminAccount(req.body);
+    res.status(result.status).json(result.body);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Erreur serveur.' });
@@ -336,37 +353,9 @@ router.patch('/rendez-vous/:id', [
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ error: errors.array()[0].msg });
-    const id = Number(req.params.id);
-    const { statut, notes_internes } = req.body || {};
-    if (statut === undefined && notes_internes === undefined) {
-      return res.status(400).json({ error: 'Rien à mettre à jour.' });
-    }
-    const sets = [];
-    const params = [];
-    if (statut !== undefined) {
-      sets.push('statut = ?');
-      params.push(statut);
-    }
-    if (notes_internes !== undefined) {
-      sets.push('notes_internes = ?');
-      params.push(notes_internes);
-    }
-    if (sets.length === 0) return res.status(400).json({ error: 'Rien à mettre à jour.' });
-    params.push(id);
-    let finalSql;
-    if (isSqlite()) {
-      finalSql = `UPDATE rendez_vous SET ${sets.join(', ')}, updated_at = datetime('now') WHERE id = ?`;
-    } else if (isPostgres()) {
-      finalSql = `UPDATE rendez_vous SET ${sets.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
-    } else {
-      finalSql = `UPDATE rendez_vous SET ${sets.join(', ')} WHERE id = ?`;
-    }
-    const [r] = await db.query(finalSql, params);
-    const affected = r.affectedRows ?? r.changes ?? 0;
-    if (!affected) return res.status(404).json({ error: 'Rendez-vous introuvable.' });
-    writeAudit('rendez_vous.updated', { id, statut, adminId: req.adminId });
-    const [rows] = await db.query('SELECT * FROM rendez_vous WHERE id = ?', [id]);
-    res.json(rows[0]);
+    const { patchRendezVous } = require('../../includes/rdvAdmin');
+    const result = await patchRendezVous(Number(req.params.id), req.body, req.adminId);
+    res.status(result.status).json(result.body);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Erreur serveur.' });

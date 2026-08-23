@@ -37,11 +37,44 @@ const PUBLIC_LITE_ROUTES = new Set([
   'demandes-orientation',
 ]);
 
+function cleanAdminQuery(query = {}) {
+  const q = { ...query };
+  delete q.__route;
+  delete q.__path;
+  return q;
+}
+
+function forwardedPathname(req) {
+  const forwarded = req.headers['x-vercel-original-url'] || req.headers['x-forwarded-uri'];
+  if (!forwarded) return null;
+  try {
+    const p = forwarded.startsWith('http') ? new URL(forwarded).pathname : forwarded.split('?')[0];
+    return p ? p.replace(/\/+$/, '') || '/' : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Chemin API d'origine après rewrite Vercel (destination != source). */
 function originalApiPath(req) {
+  const forwarded = forwardedPathname(req);
+  if (
+    forwarded &&
+    forwarded.startsWith('/api/') &&
+    forwarded !== '/api/admin' &&
+    forwarded !== '/api/filieres' &&
+    forwarded.split('/').length >= 4
+  ) {
+    return forwarded;
+  }
+
   const url = new URL(req.url || '/', 'http://localhost');
-  const route = url.searchParams.get('__route');
+  let route = url.searchParams.get('__route');
   if (route) {
+    if (route.includes(':id') && forwarded) {
+      const idMatch = forwarded.match(/\/(\d+)(?:\/)?$/);
+      if (idMatch) route = route.replace(':id', idMatch[1]);
+    }
     if (route.startsWith('admin/')) {
       return `/api/${route}`.replace(/\/\/+/g, '/');
     }
@@ -59,23 +92,19 @@ function originalApiPath(req) {
   }
 
   let path = pathnameOf(req);
-  const forwarded = req.headers['x-vercel-original-url'] || req.headers['x-forwarded-uri'];
-  const needsForward =
-    path === '/api/admin' ||
-    path === '/api/filieres' ||
-    (path.startsWith('/api/admin/') && path.split('/').length < 4);
+  if (forwarded && (path === '/api/admin' || path === '/api/filieres')) {
+    path = forwarded;
+  } else {
+    const needsForward =
+      path === '/api/admin' ||
+      path === '/api/filieres' ||
+      (path.startsWith('/api/admin/') && path.split('/').length < 4);
 
-  if (forwarded && needsForward) {
-    try {
-      const p = forwarded.startsWith('http') ? new URL(forwarded).pathname : forwarded.split('?')[0];
-      if (p && p.startsWith('/api/')) {
-        path = p.replace(/\/+$/, '') || '/';
-      }
-    } catch {
-      /* ignore */
+    if (forwarded && needsForward) {
+      path = forwarded;
     }
   }
-  return path;
+  return path.replace(/\/+$/, '') || '/';
 }
 
-module.exports = { readJsonBody, pathnameOf, originalApiPath };
+module.exports = { readJsonBody, pathnameOf, originalApiPath, cleanAdminQuery };

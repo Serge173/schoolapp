@@ -28,10 +28,14 @@ function validateInscriptionBody(body) {
   if (!Number.isInteger(universiteId) || universiteId < 1) errors.push('Université requise');
   if (!['publique', 'privee'].includes(b.type_universite)) errors.push('Type université invalide');
   if (!['CI', 'BF'].includes(b.pays_bureau)) errors.push('Bureau d’origine invalide (CI ou BF).');
+  const contact = String(b.contact || '').trim();
+  const contactTelephone = String(b.contact_telephone || '').trim();
+  if (contact && contact.length > 120) errors.push('Nom du contact trop long');
+  if (contactTelephone && contactTelephone.length > 20) errors.push('Téléphone du contact invalide');
   const allowed = [
     'nom', 'prenom', 'date_naissance', 'sexe', 'telephone', 'email', 'ville',
     'niveau_etude', 'serie_bac', 'annee_bac', 'filiere_id', 'filiere_autre',
-    'universite_id', 'type_universite', 'pays_bureau',
+    'universite_id', 'type_universite', 'pays_bureau', 'contact', 'contact_telephone',
   ];
   const extra = Object.keys(b).filter((k) => !allowed.includes(k));
   if (extra.length) errors.push('Champs non autorisés dans la requête.');
@@ -53,6 +57,8 @@ function validateInscriptionBody(body) {
       universite_id: universiteId,
       type_universite: b.type_universite,
       pays_bureau: b.pays_bureau,
+      contact: contact || null,
+      contact_telephone: contactTelephone || null,
     },
   };
 }
@@ -61,6 +67,8 @@ async function createInscription(body) {
   const v = validateInscriptionBody(body);
   if (v.error) return { status: 400, body: { error: v.error, errors: v.errors } };
   const d = v.data;
+  const { ensureInscriptionsWorkflow } = require('../database/ensureInscriptionsWorkflow');
+  await ensureInscriptionsWorkflow();
   const [uRows] = await db.query('SELECT id, nom, type, ville FROM universites WHERE id = ?', [d.universite_id]);
   if (!uRows.length) return { status: 400, body: { error: 'Université invalide.' } };
   const [campusRows] = await db.query('SELECT ville FROM campuses WHERE universite_id = ?', [d.universite_id]);
@@ -70,12 +78,12 @@ async function createInscription(body) {
     return { status: 400, body: { error: 'Ville choisie non valide pour cette université.' } };
   }
   const [insertMeta] = await db.query(
-    `INSERT INTO inscriptions (nom, prenom, date_naissance, sexe, telephone, email, ville, niveau_etude, serie_bac, annee_bac, filiere_id, filiere_autre, universite_id, type_universite, pays_bureau)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO inscriptions (nom, prenom, date_naissance, sexe, telephone, email, ville, niveau_etude, serie_bac, annee_bac, filiere_id, filiere_autre, universite_id, type_universite, pays_bureau, contact, contact_telephone)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       d.nom, d.prenom, d.date_naissance, d.sexe, d.telephone, d.email, d.ville,
       d.niveau_etude, d.serie_bac, d.annee_bac, d.filiere_id, d.filiere_autre,
-      d.universite_id, d.type_universite, d.pays_bureau,
+      d.universite_id, d.type_universite, d.pays_bureau, d.contact, d.contact_telephone,
     ]
   );
   const inscriptionId = insertMeta?.insertId != null ? Number(insertMeta.insertId) : null;
@@ -102,6 +110,8 @@ async function createInscription(body) {
     filiere_nom: fRows?.[0]?.nom || null,
     type_universite: d.type_universite,
     pays_bureau: d.pays_bureau,
+    contact: d.contact,
+    contact_telephone: d.contact_telephone,
   }).catch((e) => console.error('[inscriptions] notify:', e.message));
   writeAudit('inscription.created', {
     inscriptionId,

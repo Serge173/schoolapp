@@ -7,10 +7,15 @@ const db = require('../config/db');
 const { generateToken, ADMIN_COOKIE_NAME } = require('../server/middleware/auth');
 const { writeAudit } = require('./auditLog');
 const { fetchAdminStats } = require('./adminStats');
-const { readJsonBody, originalApiPath } = require('./apiLite');
+const { readJsonBody, originalApiPath, cleanAdminQuery } = require('./apiLite');
 const { requireAdmin, clearAdminCookie } = require('./apiAuthLite');
-const { getDbDriver } = require('../config/dbDriver');
-const { RDV_STATUTS } = require('./adminLists');
+const {
+  fetchInscriptionById,
+  patchInscription,
+  listAdminAccounts,
+  createAdminAccount,
+} = require('./inscriptionAdmin');
+const { patchRendezVous } = require('./rdvAdmin');
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -20,6 +25,7 @@ const LITE_GET_PATHS = new Set([
   '/api/admin/filieres/tree',
   '/api/admin/inscriptions',
   '/api/admin/rendez-vous',
+  '/api/admin/comptes',
 ]);
 
 function getClientIp(req) {
@@ -105,7 +111,7 @@ async function handleReadList(req, res, path) {
   if (!admin) return;
   try {
     const url = new URL(req.url || '/', 'http://localhost');
-    const query = Object.fromEntries(url.searchParams);
+    const query = cleanAdminQuery(Object.fromEntries(url.searchParams));
     if (path === '/api/admin/universites') {
       const { fetchAdminUniversitesList } = require('./adminUniversitesList');
       return res.status(200).json(await fetchAdminUniversitesList());
@@ -122,6 +128,9 @@ async function handleReadList(req, res, path) {
       const { fetchAdminInscriptionsList } = require('./adminLists');
       return res.status(200).json(await fetchAdminInscriptionsList(query));
     }
+    if (path === '/api/admin/comptes') {
+      return res.status(200).json(await listAdminAccounts());
+    }
     if (path === '/api/admin/rendez-vous') {
       const { fetchAdminRendezVousList } = require('./adminLists');
       return res.status(200).json(await fetchAdminRendezVousList(query));
@@ -136,7 +145,23 @@ async function handleReadList(req, res, path) {
   }
 }
 
-async function handleRdvPatch(req, res, id) {
+async function handleInscriptionGet(req, res, id) {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+  if (!Number.isInteger(id) || id < 1) {
+    return res.status(400).json({ error: 'Identifiant invalide.' });
+  }
+  try {
+    const row = await fetchInscriptionById(id);
+    if (!row) return res.status(404).json({ error: 'Inscription introuvable.' });
+    return res.status(200).json(row);
+  } catch (err) {
+    console.error('[liteAdmin] inscription get', err);
+    return res.status(500).json({ error: 'Erreur serveur.' });
+  }
+}
+
+async function handleInscriptionPatch(req, res, id) {
   const admin = requireAdmin(req, res);
   if (!admin) return;
   if (!Number.isInteger(id) || id < 1) {
@@ -144,39 +169,37 @@ async function handleRdvPatch(req, res, id) {
   }
   try {
     const body = await readJsonBody(req);
-    const { statut, notes_internes } = body || {};
-    if (statut === undefined && notes_internes === undefined) {
-      return res.status(400).json({ error: 'Rien à mettre à jour.' });
+    const result = await patchInscription(id, body, admin.id);
+    return res.status(result.status).json(result.body);
+  } catch (err) {
+    console.error('[liteAdmin] inscription patch', err);
+    return res.status(500).json({ error: 'Erreur serveur.' });
+  }
+}
+
+async function handleComptesPost(req, res) {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+  try {
+    const body = await readJsonBody(req);
+    const result = await createAdminAccount(body);
+    if (result.status === 201) {
+      writeAudit('admin.account.created', { by: admin.id, email: result.body.email });
     }
-    const sets = [];
-    const params = [];
-    if (statut !== undefined) {
-      if (!RDV_STATUTS.includes(statut)) {
-        return res.status(400).json({ error: 'Statut invalide.' });
-      }
-      sets.push('statut = ?');
-      params.push(statut);
-    }
-    if (notes_internes !== undefined) {
-      sets.push('notes_internes = ?');
-      params.push(notes_internes);
-    }
-    params.push(id);
-    const driver = getDbDriver();
-    let finalSql;
-    if (driver === 'sqlite') {
-      finalSql = `UPDATE rendez_vous SET ${sets.join(', ')}, updated_at = datetime('now') WHERE id = ?`;
-    } else if (driver === 'postgres') {
-      finalSql = `UPDATE rendez_vous SET ${sets.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
-    } else {
-      finalSql = `UPDATE rendez_vous SET ${sets.join(', ')} WHERE id = ?`;
-    }
-    const [r] = await db.query(finalSql, params);
-    const affected = r.affectedRows ?? r.changes ?? 0;
-    if (!affected) return res.status(404).json({ error: 'Rendez-vous introuvable.' });
-    writeAudit('rendez_vous.updated', { id, statut, adminId: admin.id });
-    const [rows] = await db.query('SELECT * FROM rendez_vous WHERE id = ?', [id]);
-    return res.status(200).json(rows[0]);
+    return res.status(result.status).json(result.body);
+  } catch (err) {
+    console.error('[liteAdmin] comptes post', err);
+    return res.status(500).json({ error: 'Erreur serveur.' });
+  }
+}
+
+async function handleRdvPatch(req, res, id) {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+  try {
+    const body = await readJsonBody(req);
+    const result = await patchRendezVous(id, body, admin.id);
+    return res.status(result.status).json(result.body);
   } catch (err) {
     console.error('[liteAdmin] rdv patch', err);
     return res.status(500).json({ error: 'Erreur serveur.' });
@@ -190,6 +213,22 @@ async function handleLiteAdmin(req, res) {
   const rdvPatchMatch = path.match(/^\/api\/admin\/rendez-vous\/(\d+)$/);
   if (rdvPatchMatch && req.method === 'PATCH') {
     await handleRdvPatch(req, res, Number(rdvPatchMatch[1]));
+    return true;
+  }
+
+  const insGetMatch = path.match(/^\/api\/admin\/inscriptions\/(\d+)$/);
+  if (insGetMatch && req.method === 'GET') {
+    await handleInscriptionGet(req, res, Number(insGetMatch[1]));
+    return true;
+  }
+  const insPatchMatch = path.match(/^\/api\/admin\/inscriptions\/(\d+)$/);
+  if (insPatchMatch && req.method === 'PATCH') {
+    await handleInscriptionPatch(req, res, Number(insPatchMatch[1]));
+    return true;
+  }
+
+  if (path === '/api/admin/comptes' && req.method === 'POST') {
+    await handleComptesPost(req, res);
     return true;
   }
 

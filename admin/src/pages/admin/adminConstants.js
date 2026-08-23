@@ -51,6 +51,14 @@ export const RDV_CRENEAU_LABELS = {
   flexible: 'Flexible',
 };
 
+export const INSCRIPTION_STATUT_LABELS = {
+  nouveau: 'Nouveau',
+  en_cours: 'En cours',
+  valide: 'Validé',
+  refuse: 'Refusé',
+  archive: 'Archivé',
+};
+
 export const DO_STATUT_LABELS = {
   nouveau: 'Nouveau',
   validee: 'Validée (prise en charge)',

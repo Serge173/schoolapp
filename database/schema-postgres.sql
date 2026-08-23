@@ -93,6 +93,11 @@ CREATE TABLE IF NOT EXISTS inscriptions (
   universite_id INT NOT NULL REFERENCES universites(id),
   type_universite VARCHAR(20) NOT NULL CHECK (type_universite IN ('publique', 'privee')),
   pays_bureau VARCHAR(2) NOT NULL DEFAULT 'CI' CHECK (pays_bureau IN ('CI', 'BF')),
+  contact VARCHAR(120),
+  contact_telephone VARCHAR(20),
+  statut VARCHAR(20) NOT NULL DEFAULT 'nouveau',
+  notes_internes TEXT,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

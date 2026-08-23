@@ -4,8 +4,13 @@ const db = require('../config/db');
 const { getDbDriver } = require('../config/dbDriver');
 const { writeAudit } = require('./auditLog');
 const { RDV_STATUTS } = require('./adminLists');
+const { hasPermission, normalizeRole } = require('./adminRoles');
 
-async function patchRendezVous(id, body, adminId) {
+async function patchRendezVous(id, body, actor) {
+  const actorRole = normalizeRole(actor?.role);
+  if (!hasPermission(actorRole, 'dossiers_write')) {
+    return { status: 403, body: { error: 'Votre rôle ne permet pas de modifier les rendez-vous.' } };
+  }
   if (!Number.isInteger(id) || id < 1) {
     return { status: 400, body: { error: 'Identifiant invalide.' } };
   }
@@ -40,7 +45,7 @@ async function patchRendezVous(id, body, adminId) {
   const [r] = await db.query(finalSql, params);
   const affected = r.affectedRows ?? r.changes ?? 0;
   if (!affected) return { status: 404, body: { error: 'Rendez-vous introuvable.' } };
-  writeAudit('rendez_vous.updated', { id, statut, adminId });
+  writeAudit('rendez_vous.updated', { id, statut, adminId: actor?.id });
   const [rows] = await db.query('SELECT * FROM rendez_vous WHERE id = ?', [id]);
   return { status: 200, body: rows[0] };
 }

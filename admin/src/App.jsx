@@ -21,9 +21,16 @@ import AdminComptesPage from './pages/admin/AdminComptesPage';
 import AdminRdvPage from './pages/admin/AdminRdvPage';
 import AdminUniversitesPage from './pages/admin/AdminUniversitesPage';
 import AdminFilieresPage from './pages/admin/AdminFilieresPage';
+import { canManageContent } from './data/adminRoles';
 
 function ProtectedAdmin({ children }) {
   if (!sessionStorage.getItem('adminSession')) return <Navigate to="/admin" replace />;
+  return children;
+}
+
+function AdminContentRoute({ children }) {
+  const role = sessionStorage.getItem('adminRole');
+  if (!canManageContent(role)) return <Navigate to="/admin/dashboard" replace />;
   return children;
 }
 
@@ -55,8 +62,8 @@ export default function App() {
           <Route path="comptes" element={<AdminComptesPage />} />
           <Route path="rendez-vous" element={<AdminRdvPage />} />
           <Route path="orientation" element={<Navigate to="/admin/inscriptions" replace />} />
-          <Route path="universites" element={<AdminUniversitesPage />} />
-          <Route path="filieres" element={<AdminFilieresPage />} />
+          <Route path="universites" element={<AdminContentRoute><AdminUniversitesPage /></AdminContentRoute>} />
+          <Route path="filieres" element={<AdminContentRoute><AdminFilieresPage /></AdminContentRoute>} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

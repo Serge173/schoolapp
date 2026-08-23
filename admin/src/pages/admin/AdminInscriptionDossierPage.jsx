@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { api } from '../../api';
 import { INSCRIPTION_STATUT_LABELS } from './adminConstants';
+import { canWriteDossiers } from '../../data/adminRoles';
 
 const FILIERE_AUTRE_VALUE = '__autre__';
 
@@ -36,6 +37,8 @@ function formatDateTimeFr(iso) {
 export default function AdminInscriptionDossierPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { admin } = useOutletContext() || {};
+  const canEdit = canWriteDossiers(admin?.role);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -176,6 +179,12 @@ export default function AdminInscriptionDossierPage() {
       ) : null}
 
       <form onSubmit={handleSave} className="card" style={{ maxWidth: 900 }}>
+        {!canEdit ? (
+          <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', fontSize: '0.9rem' }}>
+            Mode lecture seule — vous ne pouvez pas modifier ce dossier.
+          </p>
+        ) : null}
+        <fieldset disabled={!canEdit} style={{ border: 'none', margin: 0, padding: 0, minWidth: 0 }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0 1rem' }}>
           <Field label="Statut du dossier">
             <select name="statut" value={form.statut} onChange={handleChange} style={inputStyle}>
@@ -313,12 +322,15 @@ export default function AdminInscriptionDossierPage() {
 
         <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '1.25rem' }}>
           <button type="button" className="btn btn-secondary" onClick={() => navigate('/admin/inscriptions')}>
-            Annuler
+            {canEdit ? 'Annuler' : 'Retour'}
           </button>
-          <button type="submit" className="btn btn-primary" disabled={saving}>
-            {saving ? 'Enregistrement…' : 'Enregistrer le dossier'}
-          </button>
+          {canEdit ? (
+            <button type="submit" className="btn btn-primary" disabled={saving}>
+              {saving ? 'Enregistrement…' : 'Enregistrer le dossier'}
+            </button>
+          ) : null}
         </div>
+        </fieldset>
       </form>
     </>
   );

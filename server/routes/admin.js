@@ -12,6 +12,14 @@ const { writeAudit } = require('../../includes/auditLog');
 const { fetchAdminStats } = require('../../includes/adminStats');
 const { ensureReferentielSousFilieres, ensureReferentielSousFilieresAll } = require('../../includes/filiereReferentielSync');
 const { isSqlite, isPostgres } = require('../../config/dbDriver');
+const { requirePermission } = require('../../includes/adminPermissions');
+const { ADMIN_ROLES, ADMIN_ROLE_LABELS, ADMIN_ROLE_DESCRIPTIONS } = require('../../includes/adminRoles');
+
+const accountsGuard = requirePermission('accounts_manage');
+
+function adminActor(req) {
+  return { id: req.adminId, role: req.adminRole };
+}
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -79,6 +87,9 @@ router.post('/login', loginLimiter, [
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ error: errors.array()[0].msg });
 
+    const { ensureAdminsRoles } = require('../../database/ensureAdminsRoles');
+    const { publicAdminRow } = require('../../includes/adminAccounts');
+    await ensureAdminsRoles();
     const { email, password } = req.body || {};
     const normalizedEmail = String(email || '').trim().toLowerCase();
     const aliases = normalizedEmail === 'admin@schoolapp.com'
@@ -88,13 +99,17 @@ router.post('/login', loginLimiter, [
         : [normalizedEmail]);
     const placeholders = aliases.map(() => '?').join(', ');
     const [rows] = await db.query(
-      `SELECT id, email, password, nom FROM admins WHERE email IN (${placeholders}) ORDER BY id LIMIT 1`,
+      `SELECT id, email, password, nom, COALESCE(role, 'admin') AS role, COALESCE(actif, 1) AS actif
+       FROM admins WHERE email IN (${placeholders}) ORDER BY id LIMIT 1`,
       aliases
     );
     if (!rows.length) {
       return res.status(401).json({ error: 'Identifiants incorrects.' });
     }
     const admin = rows[0];
+    if (Number(admin.actif) !== 1) {
+      return res.status(403).json({ error: 'Ce compte est désactivé. Contactez un super administrateur.' });
+    }
     const valid = await bcrypt.compare(password, admin.password);
     if (!valid) {
       return res.status(401).json({ error: 'Identifiants incorrects.' });
@@ -108,7 +123,7 @@ router.post('/login', loginLimiter, [
       path: '/',
     });
     writeAudit('admin.login.success', { adminId: admin.id, email: admin.email, ip: getClientIp(req) });
-    res.json({ admin: { id: admin.id, email: admin.email, nom: admin.nom } });
+    res.json({ admin: publicAdminRow(admin) });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Erreur serveur.' });
@@ -122,13 +137,36 @@ router.post('/logout', authenticate, (req, res) => {
 });
 
 router.get('/me', authenticate, async (req, res) => {
-  const [rows] = await db.query('SELECT id, email, nom FROM admins WHERE id = ?', [req.adminId]);
-  if (!rows.length) return res.status(401).json({ error: 'Session invalide.' });
-  res.json({ admin: rows[0] });
+  try {
+    const { fetchAdminById, publicAdminRow } = require('../../includes/adminAccounts');
+    const row = await fetchAdminById(req.adminId);
+    if (!row || Number(row.actif) !== 1) return res.status(401).json({ error: 'Session invalide.' });
+    res.json({ admin: publicAdminRow(row) });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
 });
 
 // Toutes les routes ci-dessous nécessitent une authentification
 router.use(authenticate);
+
+router.use((req, res, next) => {
+  if (req.method === 'GET') return next();
+  const { hasPermission, normalizeRole } = require('../../includes/adminRoles');
+  const role = normalizeRole(req.adminRole);
+  const p = req.path || '';
+  if (
+    (p.startsWith('/universites') || p.startsWith('/filieres') || p.startsWith('/sous-filieres')) &&
+    !hasPermission(role, 'content_manage')
+  ) {
+    return res.status(403).json({ error: 'Votre rôle ne permet pas de modifier la configuration.' });
+  }
+  if (p.startsWith('/comptes') && !hasPermission(role, 'accounts_manage')) {
+    return res.status(403).json({ error: 'Seul un super administrateur peut gérer les comptes.' });
+  }
+  next();
+});
 
 // Statistiques
 router.get('/stats', async (req, res) => {
@@ -179,7 +217,7 @@ router.patch('/inscriptions/:id', async (req, res) => {
   try {
     const id = Number(req.params.id);
     const { patchInscription } = require('../../includes/inscriptionAdmin');
-    const result = await patchInscription(id, req.body, req.adminId);
+    const result = await patchInscription(id, req.body, adminActor(req));
     res.status(result.status).json(result.body);
   } catch (err) {
     console.error(err);
@@ -187,9 +225,13 @@ router.patch('/inscriptions/:id', async (req, res) => {
   }
 });
 
-router.get('/comptes', async (req, res) => {
+router.get('/comptes/meta', accountsGuard, (req, res) => {
+  res.json({ roles: ADMIN_ROLES, labels: ADMIN_ROLE_LABELS, descriptions: ADMIN_ROLE_DESCRIPTIONS });
+});
+
+router.get('/comptes', accountsGuard, async (req, res) => {
   try {
-    const { listAdminAccounts } = require('../../includes/inscriptionAdmin');
+    const { listAdminAccounts } = require('../../includes/adminAccounts');
     res.json(await listAdminAccounts());
   } catch (err) {
     console.error(err);
@@ -197,16 +239,36 @@ router.get('/comptes', async (req, res) => {
   }
 });
 
-router.post('/comptes', [
+router.post('/comptes', accountsGuard, [
   body('email').isEmail().normalizeEmail(),
   body('password').isLength({ min: 8, max: 256 }),
   body('nom').trim().isLength({ min: 1, max: 100 }),
+  body('role').optional().isIn(ADMIN_ROLES),
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ error: errors.array()[0].msg });
-    const { createAdminAccount } = require('../../includes/inscriptionAdmin');
-    const result = await createAdminAccount(req.body);
+    const { createAdminAccount } = require('../../includes/adminAccounts');
+    const result = await createAdminAccount(req.body, adminActor(req));
+    res.status(result.status).json(result.body);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
+});
+
+router.patch('/comptes/:id', accountsGuard, [
+  param('id').isInt(),
+  body('nom').optional().trim().isLength({ min: 1, max: 100 }),
+  body('role').optional().isIn(ADMIN_ROLES),
+  body('actif').optional().isBoolean(),
+  body('password').optional().isLength({ min: 8, max: 256 }),
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ error: errors.array()[0].msg });
+    const { patchAdminAccount } = require('../../includes/adminAccounts');
+    const result = await patchAdminAccount(Number(req.params.id), req.body, adminActor(req));
     res.status(result.status).json(result.body);
   } catch (err) {
     console.error(err);
@@ -354,7 +416,7 @@ router.patch('/rendez-vous/:id', [
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ error: errors.array()[0].msg });
     const { patchRendezVous } = require('../../includes/rdvAdmin');
-    const result = await patchRendezVous(Number(req.params.id), req.body, req.adminId);
+    const result = await patchRendezVous(Number(req.params.id), req.body, adminActor(req));
     res.status(result.status).json(result.body);
   } catch (err) {
     console.error(err);

@@ -34,7 +34,7 @@ function verifyAdmin(req) {
   if (!token) return null;
   try {
     const decoded = jwt.verify(token, getJwtSecret());
-    return { id: decoded.id, email: decoded.email };
+    return { id: decoded.id, email: decoded.email, role: decoded.role || 'admin' };
   } catch {
     return null;
   }

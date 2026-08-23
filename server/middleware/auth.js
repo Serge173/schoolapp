@@ -19,6 +19,7 @@ exports.authenticate = (req, res, next) => {
     const decoded = jwt.verify(token, getJwtSecret());
     req.adminId = decoded.id;
     req.adminEmail = decoded.email;
+    req.adminRole = decoded.role || 'admin';
     next();
   } catch {
     return res.status(401).json({ error: 'Token invalide ou expiré.' });
@@ -26,7 +27,8 @@ exports.authenticate = (req, res, next) => {
 };
 
 exports.generateToken = (admin) => {
-  return jwt.sign({ id: admin.id, email: admin.email }, getJwtSecret(), { expiresIn: JWT_EXPIRES_IN });
+  const role = admin.role || 'admin';
+  return jwt.sign({ id: admin.id, email: admin.email, role }, getJwtSecret(), { expiresIn: JWT_EXPIRES_IN });
 };
 
 exports.ADMIN_COOKIE_NAME = ADMIN_COOKIE_NAME;

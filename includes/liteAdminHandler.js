@@ -26,6 +26,9 @@ async function handleLogin(req, res) {
     const bcrypt = require('bcryptjs');
     const { generateToken, ADMIN_COOKIE_NAME } = require('../server/middleware/auth');
     const { writeAudit } = require('./auditLog');
+    const { ensureAdminsRoles } = require('../database/ensureAdminsRoles');
+    const { publicAdminRow } = require('./adminAccounts');
+    await ensureAdminsRoles();
     const body = await readJsonBody(req);
     const email = String(body.email || '').trim();
     const password = String(body.password || '');
@@ -44,13 +47,17 @@ async function handleLogin(req, res) {
         : [normalizedEmail]);
     const placeholders = aliases.map(() => '?').join(', ');
     const [rows] = await db.query(
-      `SELECT id, email, password, nom FROM admins WHERE email IN (${placeholders}) ORDER BY id LIMIT 1`,
+      `SELECT id, email, password, nom, COALESCE(role, 'admin') AS role, COALESCE(actif, 1) AS actif
+       FROM admins WHERE email IN (${placeholders}) ORDER BY id LIMIT 1`,
       aliases
     );
     if (!rows.length) {
       return res.status(401).json({ error: 'Identifiants incorrects.' });
     }
     const admin = rows[0];
+    if (Number(admin.actif) !== 1) {
+      return res.status(403).json({ error: 'Ce compte est désactivé. Contactez un super administrateur.' });
+    }
     const valid = await bcrypt.compare(password, admin.password);
     if (!valid) {
       return res.status(401).json({ error: 'Identifiants incorrects.' });
@@ -59,7 +66,7 @@ async function handleLogin(req, res) {
     const cookie = `${ADMIN_COOKIE_NAME}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${12 * 60 * 60}${isProd ? '; Secure' : ''}`;
     res.setHeader('Set-Cookie', cookie);
     writeAudit('admin.login.success', { adminId: admin.id, email: admin.email, ip: getClientIp(req) });
-    return res.status(200).json({ admin: { id: admin.id, email: admin.email, nom: admin.nom } });
+    return res.status(200).json({ admin: publicAdminRow(admin) });
   } catch (err) {
     console.error('[liteAdmin] login', err);
     return res.status(500).json({ error: 'Erreur serveur.' });
@@ -79,9 +86,10 @@ async function handleMe(req, res) {
   const admin = requireAdmin(req, res);
   if (!admin) return;
   try {
-    const [rows] = await db.query('SELECT id, email, nom FROM admins WHERE id = ?', [admin.id]);
-    if (!rows.length) return res.status(401).json({ error: 'Session invalide.' });
-    return res.status(200).json({ admin: rows[0] });
+    const { fetchAdminById, publicAdminRow } = require('./adminAccounts');
+    const row = await fetchAdminById(admin.id);
+    if (!row || Number(row.actif) !== 1) return res.status(401).json({ error: 'Session invalide.' });
+    return res.status(200).json({ admin: publicAdminRow(row) });
   } catch (err) {
     console.error('[liteAdmin] me', err);
     return res.status(500).json({ error: 'Erreur serveur.' });
@@ -91,6 +99,10 @@ async function handleMe(req, res) {
 async function handleStats(req, res) {
   const admin = requireAdmin(req, res);
   if (!admin) return;
+  const { checkPermission, forbidden } = require('./adminPermissions');
+  if (!checkPermission(admin.role, 'dossiers_read')) {
+    return forbidden(res);
+  }
   try {
     const { fetchAdminStats } = require('./adminStats');
     return res.status(200).json(await fetchAdminStats());
@@ -103,9 +115,20 @@ async function handleStats(req, res) {
 async function handleReadList(req, res, path) {
   const admin = requireAdmin(req, res);
   if (!admin) return;
+  const { checkPermission, forbidden } = require('./adminPermissions');
   try {
     const url = new URL(req.url || '/', 'http://localhost');
     const query = cleanAdminQuery(Object.fromEntries(url.searchParams));
+    if (path === '/api/admin/comptes') {
+      if (!checkPermission(admin.role, 'accounts_manage')) {
+        return forbidden(res, 'Seul un super administrateur peut gérer les comptes.');
+      }
+      const { listAdminAccounts } = require('./adminAccounts');
+      return res.status(200).json(await listAdminAccounts());
+    }
+    if (!checkPermission(admin.role, 'dossiers_read')) {
+      return forbidden(res);
+    }
     if (path === '/api/admin/universites') {
       const { fetchAdminUniversitesList } = require('./adminUniversitesList');
       return res.status(200).json(await fetchAdminUniversitesList());
@@ -121,10 +144,6 @@ async function handleReadList(req, res, path) {
     if (path === '/api/admin/inscriptions') {
       const { fetchAdminInscriptionsList } = require('./adminLists');
       return res.status(200).json(await fetchAdminInscriptionsList(query));
-    }
-    if (path === '/api/admin/comptes') {
-      const { listAdminAccounts } = require('./inscriptionAdmin');
-      return res.status(200).json(await listAdminAccounts());
     }
     if (path === '/api/admin/rendez-vous') {
       const { fetchAdminRendezVousList } = require('./adminLists');
@@ -166,7 +185,7 @@ async function handleInscriptionPatch(req, res, id) {
   try {
     const { patchInscription } = require('./inscriptionAdmin');
     const body = await readJsonBody(req);
-    const result = await patchInscription(id, body, admin.id);
+    const result = await patchInscription(id, body, admin);
     return res.status(result.status).json(result.body);
   } catch (err) {
     console.error('[liteAdmin] inscription patch', err);
@@ -178,16 +197,29 @@ async function handleComptesPost(req, res) {
   const admin = requireAdmin(req, res);
   if (!admin) return;
   try {
-    const { createAdminAccount } = require('./inscriptionAdmin');
-    const { writeAudit } = require('./auditLog');
+    const { createAdminAccount } = require('./adminAccounts');
     const body = await readJsonBody(req);
-    const result = await createAdminAccount(body);
-    if (result.status === 201) {
-      writeAudit('admin.account.created', { by: admin.id, email: result.body.email });
-    }
+    const result = await createAdminAccount(body, admin);
     return res.status(result.status).json(result.body);
   } catch (err) {
     console.error('[liteAdmin] comptes post', err);
+    return res.status(500).json({ error: 'Erreur serveur.' });
+  }
+}
+
+async function handleComptesPatch(req, res, id) {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+  if (!Number.isInteger(id) || id < 1) {
+    return res.status(400).json({ error: 'Identifiant invalide.' });
+  }
+  try {
+    const { patchAdminAccount } = require('./adminAccounts');
+    const body = await readJsonBody(req);
+    const result = await patchAdminAccount(id, body, admin);
+    return res.status(result.status).json(result.body);
+  } catch (err) {
+    console.error('[liteAdmin] comptes patch', err);
     return res.status(500).json({ error: 'Erreur serveur.' });
   }
 }
@@ -198,7 +230,7 @@ async function handleRdvPatch(req, res, id) {
   try {
     const { patchRendezVous } = require('./rdvAdmin');
     const body = await readJsonBody(req);
-    const result = await patchRendezVous(id, body, admin.id);
+    const result = await patchRendezVous(id, body, admin);
     return res.status(result.status).json(result.body);
   } catch (err) {
     console.error('[liteAdmin] rdv patch', err);
@@ -232,6 +264,12 @@ async function handleLiteAdmin(req, res) {
     return true;
   }
 
+  const comptesPatchMatch = path.match(/^\/api\/admin\/comptes\/(\d+)$/);
+  if (comptesPatchMatch && req.method === 'PATCH') {
+    await handleComptesPatch(req, res, Number(comptesPatchMatch[1]));
+    return true;
+  }
+
   if (path === '/api/admin/login' && req.method === 'POST') {
     await handleLogin(req, res);
     return true;
@@ -246,6 +284,18 @@ async function handleLiteAdmin(req, res) {
   }
   if (path === '/api/admin/stats' && req.method === 'GET') {
     await handleStats(req, res);
+    return true;
+  }
+  if (path === '/api/admin/comptes/meta' && req.method === 'GET') {
+    const admin = requireAdmin(req, res);
+    if (!admin) return true;
+    const { checkPermission, forbidden } = require('./adminPermissions');
+    if (!checkPermission(admin.role, 'accounts_manage')) {
+      forbidden(res, 'Seul un super administrateur peut gérer les comptes.');
+      return true;
+    }
+    const { ADMIN_ROLES, ADMIN_ROLE_LABELS, ADMIN_ROLE_DESCRIPTIONS } = require('./adminRoles');
+    res.status(200).json({ roles: ADMIN_ROLES, labels: ADMIN_ROLE_LABELS, descriptions: ADMIN_ROLE_DESCRIPTIONS });
     return true;
   }
   if (LITE_GET_PATHS.has(path) && req.method === 'GET') {

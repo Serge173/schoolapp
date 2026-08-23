@@ -1,10 +1,9 @@
 'use strict';
 
-const bcrypt = require('bcryptjs');
 const db = require('../config/db');
-const { getDbDriver } = require('../config/dbDriver');
 const { ensureInscriptionsWorkflow } = require('../database/ensureInscriptionsWorkflow');
 const { writeAudit } = require('./auditLog');
+const { hasPermission, normalizeRole } = require('./adminRoles');
 
 const INSCRIPTION_STATUTS = ['nouveau', 'en_cours', 'valide', 'refuse', 'archive'];
 
@@ -35,8 +34,12 @@ async function fetchInscriptionById(id) {
   return rows[0] || null;
 }
 
-async function patchInscription(id, body, adminId) {
+async function patchInscription(id, body, actor) {
   await ensureInscriptionsWorkflow();
+  const actorRole = normalizeRole(actor?.role);
+  if (!hasPermission(actorRole, 'dossiers_write')) {
+    return { status: 403, body: { error: 'Votre rôle ne permet pas de modifier les dossiers.' } };
+  }
   const existing = await fetchInscriptionById(id);
   if (!existing) return { status: 404, body: { error: 'Inscription introuvable.' } };
 
@@ -135,35 +138,9 @@ async function patchInscription(id, body, adminId) {
     sql = `UPDATE inscriptions SET ${sets.join(', ')} WHERE id = ?`;
   }
   await db.query(sql, params);
-  writeAudit('inscription.updated', { id, adminId });
+  writeAudit('inscription.updated', { id, adminId: actor?.id });
   const row = await fetchInscriptionById(id);
   return { status: 200, body: row };
-}
-
-async function createAdminAccount(body) {
-  const email = String(body?.email || '').trim().toLowerCase();
-  const password = String(body?.password || '');
-  const nom = String(body?.nom || '').trim();
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return { status: 400, body: { error: 'Email invalide.' } };
-  }
-  if (password.length < 8 || password.length > 256) {
-    return { status: 400, body: { error: 'Mot de passe : 8 caractères minimum.' } };
-  }
-  if (!nom || nom.length > 100) {
-    return { status: 400, body: { error: 'Nom requis.' } };
-  }
-  const [existing] = await db.query('SELECT id FROM admins WHERE email = ?', [email]);
-  if (existing.length) return { status: 409, body: { error: 'Cet email est déjà utilisé.' } };
-  const hash = await bcrypt.hash(password, 10);
-  const [r] = await db.query('INSERT INTO admins (email, password, nom) VALUES (?, ?, ?)', [email, hash, nom]);
-  const id = r.insertId;
-  return { status: 201, body: { id, email, nom } };
-}
-
-async function listAdminAccounts() {
-  const [rows] = await db.query('SELECT id, email, nom, created_at FROM admins ORDER BY nom, email');
-  return rows;
 }
 
 module.exports = {
@@ -171,6 +148,4 @@ module.exports = {
   cleanQuery,
   fetchInscriptionById,
   patchInscription,
-  listAdminAccounts,
-  createAdminAccount,
 };

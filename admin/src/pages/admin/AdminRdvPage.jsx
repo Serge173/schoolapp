@@ -2,9 +2,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { api } from '../../api';
 import { RDV_CRENEAU_LABELS, RDV_STATUT_LABELS, RDV_TYPE_LABELS } from './adminConstants';
+import { canWriteDossiers } from '../../data/adminRoles';
 
 export default function AdminRdvPage() {
-  const { stats, reloadStats } = useOutletContext();
+  const { stats, reloadStats, admin } = useOutletContext();
+  const canEdit = canWriteDossiers(admin?.role);
   const [rdvList, setRdvList] = useState([]);
   const [rdvFilter, setRdvFilter] = useState({ statut: '', pays_bureau: '', date_debut: '', date_fin: '' });
   const [notesDraft, setNotesDraft] = useState({});
@@ -185,6 +187,7 @@ export default function AdminRdvPage() {
                     <select
                       value={r.statut}
                       onChange={(e) => handleRdvStatut(r.id, e.target.value)}
+                      disabled={!canEdit}
                       style={{
                         padding: '0.35rem 0.5rem',
                         background: 'var(--surface)',
@@ -205,6 +208,7 @@ export default function AdminRdvPage() {
                     <textarea
                       value={notesDraft[r.id] ?? ''}
                       onChange={(e) => setNotesDraft((d) => ({ ...d, [r.id]: e.target.value }))}
+                      disabled={!canEdit}
                       rows={3}
                       placeholder="Notes visibles uniquement dans le dash…"
                       style={{
@@ -225,6 +229,7 @@ export default function AdminRdvPage() {
                       className="btn btn-secondary"
                       style={{ marginTop: '0.35rem', fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}
                       onClick={() => handleRdvNotesSave(r.id)}
+                      disabled={!canEdit}
                     >
                       Enregistrer notes
                     </button>

@@ -79,7 +79,10 @@ export const api = {
       request(`/admin/inscriptions/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
     comptes: {
       list: () => request('/admin/comptes'),
+      meta: () => request('/admin/comptes/meta'),
       create: (body) => request('/admin/comptes', { method: 'POST', body: JSON.stringify(body) }),
+      update: (id, body) =>
+        request(`/admin/comptes/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
     },
     rendezVous: (params = {}) => {
       const clean = Object.fromEntries(

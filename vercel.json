@@ -34,6 +34,8 @@
     { "source": "/api/admin/filieres/tree", "destination": "/api/admin?__route=admin/filieres/tree" },
     { "source": "/api/admin/filieres", "destination": "/api/admin?__route=admin/filieres" },
     { "source": "/api/admin/universites", "destination": "/api/admin?__route=admin/universites" },
+    { "source": "/api/admin/comptes/:id", "destination": "/api/admin?__route=admin/comptes/:id" },
+    { "source": "/api/admin/comptes/meta", "destination": "/api/admin?__route=admin/comptes/meta" },
     { "source": "/api/admin/comptes", "destination": "/api/admin?__route=admin/comptes" },
     { "source": "/api/admin/:path*", "destination": "/api/admin?__route=:path*" },
     { "source": "/api/admin", "destination": "/api/admin" },

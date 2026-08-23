@@ -15,8 +15,9 @@ export default function AdminLogin() {
     setError('');
     setLoading(true);
     try {
-      await api.admin.login(email, password);
+      const data = await api.admin.login(email, password);
       sessionStorage.setItem('adminSession', '1');
+      if (data.admin?.role) sessionStorage.setItem('adminRole', data.admin.role);
       navigate('/admin/dashboard', { replace: true });
     } catch (err) {
       setError(err.message || 'Identifiants incorrects.');

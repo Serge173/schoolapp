@@ -9,6 +9,8 @@ const { writeAudit } = require('./auditLog');
 const { fetchAdminStats } = require('./adminStats');
 const { readJsonBody, originalApiPath } = require('./apiLite');
 const { requireAdmin, clearAdminCookie } = require('./apiAuthLite');
+const { getDbDriver } = require('../config/dbDriver');
+const { RDV_STATUTS } = require('./adminLists');
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -134,9 +136,62 @@ async function handleReadList(req, res, path) {
   }
 }
 
+async function handleRdvPatch(req, res, id) {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+  if (!Number.isInteger(id) || id < 1) {
+    return res.status(400).json({ error: 'Identifiant invalide.' });
+  }
+  try {
+    const body = await readJsonBody(req);
+    const { statut, notes_internes } = body || {};
+    if (statut === undefined && notes_internes === undefined) {
+      return res.status(400).json({ error: 'Rien à mettre à jour.' });
+    }
+    const sets = [];
+    const params = [];
+    if (statut !== undefined) {
+      if (!RDV_STATUTS.includes(statut)) {
+        return res.status(400).json({ error: 'Statut invalide.' });
+      }
+      sets.push('statut = ?');
+      params.push(statut);
+    }
+    if (notes_internes !== undefined) {
+      sets.push('notes_internes = ?');
+      params.push(notes_internes);
+    }
+    params.push(id);
+    const driver = getDbDriver();
+    let finalSql;
+    if (driver === 'sqlite') {
+      finalSql = `UPDATE rendez_vous SET ${sets.join(', ')}, updated_at = datetime('now') WHERE id = ?`;
+    } else if (driver === 'postgres') {
+      finalSql = `UPDATE rendez_vous SET ${sets.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
+    } else {
+      finalSql = `UPDATE rendez_vous SET ${sets.join(', ')} WHERE id = ?`;
+    }
+    const [r] = await db.query(finalSql, params);
+    const affected = r.affectedRows ?? r.changes ?? 0;
+    if (!affected) return res.status(404).json({ error: 'Rendez-vous introuvable.' });
+    writeAudit('rendez_vous.updated', { id, statut, adminId: admin.id });
+    const [rows] = await db.query('SELECT * FROM rendez_vous WHERE id = ?', [id]);
+    return res.status(200).json(rows[0]);
+  } catch (err) {
+    console.error('[liteAdmin] rdv patch', err);
+    return res.status(500).json({ error: 'Erreur serveur.' });
+  }
+}
+
 /** Retourne true si la route légère a été traitée. */
 async function handleLiteAdmin(req, res) {
   const path = originalApiPath(req);
+
+  const rdvPatchMatch = path.match(/^\/api\/admin\/rendez-vous\/(\d+)$/);
+  if (rdvPatchMatch && req.method === 'PATCH') {
+    await handleRdvPatch(req, res, Number(rdvPatchMatch[1]));
+    return true;
+  }
 
   if (path === '/api/admin/login' && req.method === 'POST') {
     await handleLogin(req, res);

@@ -42,6 +42,13 @@ function originalApiPath(req) {
   const url = new URL(req.url || '/', 'http://localhost');
   const route = url.searchParams.get('__route');
   if (route) {
+    const entry = pathnameOf(req);
+    if (entry === '/api/admin') {
+      return `/api/admin/${route}`.replace(/\/\/+/g, '/');
+    }
+    if (entry === '/api/filieres' && PUBLIC_LITE_ROUTES.has(route)) {
+      return `/api/${route}`;
+    }
     if (PUBLIC_LITE_ROUTES.has(route)) {
       return `/api/${route}`;
     }

@@ -395,11 +395,10 @@ router.patch('/demandes-orientation/:id', [
     } else {
       finalSql = `UPDATE demandes_orientation SET ${sets.join(', ')} WHERE id = ?`;
     }
-    const [r] = await db.query(finalSql, params);
-    const affected = r.affectedRows ?? r.changes ?? 0;
-    if (!affected) return res.status(404).json({ error: 'Demande introuvable.' });
-    writeAudit('demande_orientation.updated', { id, statut, adminId: req.adminId });
+    await db.query(finalSql, params);
     const [rows] = await db.query('SELECT * FROM demandes_orientation WHERE id = ?', [id]);
+    if (!rows.length) return res.status(404).json({ error: 'Demande introuvable.' });
+    writeAudit('demande_orientation.updated', { id, statut, adminId: req.adminId });
     res.json(rows[0]);
   } catch (err) {
     console.error(err);

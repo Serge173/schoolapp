@@ -43,10 +43,9 @@ async function patchRendezVous(id, body, actor) {
     finalSql = `UPDATE rendez_vous SET ${sets.join(', ')} WHERE id = ?`;
   }
   const [r] = await db.query(finalSql, params);
-  const affected = r.affectedRows ?? r.changes ?? 0;
-  if (!affected) return { status: 404, body: { error: 'Rendez-vous introuvable.' } };
-  writeAudit('rendez_vous.updated', { id, statut, adminId: actor?.id });
   const [rows] = await db.query('SELECT * FROM rendez_vous WHERE id = ?', [id]);
+  if (!rows.length) return { status: 404, body: { error: 'Rendez-vous introuvable.' } };
+  writeAudit('rendez_vous.updated', { id, statut, adminId: actor?.id });
   return { status: 200, body: rows[0] };
 }
 

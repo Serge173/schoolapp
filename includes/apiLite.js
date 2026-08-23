@@ -71,8 +71,11 @@ function originalApiPath(req) {
   const url = new URL(req.url || '/', 'http://localhost');
   let route = url.searchParams.get('__route');
   if (route) {
-    if (route.includes(':id') && forwarded) {
-      const idMatch = forwarded.match(/\/(\d+)(?:\/)?$/);
+    if (route.includes(':id')) {
+      const idMatch =
+        (forwarded && forwarded.match(/\/(\d+)(?:\/)?$/)) ||
+        pathnameOf(req).match(/\/(\d+)(?:\/)?$/) ||
+        route.match(/\/(\d+)(?:\/)?$/);
       if (idMatch) route = route.replace(':id', idMatch[1]);
     }
     if (route.startsWith('admin/')) {

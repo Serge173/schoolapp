@@ -38,3 +38,4 @@ Thumbs.db
 # Fichiers HTML exportés par erreur
 **/dashboard pro bien jolie - Recherche Images.html
 **/dashboard pro bien jolie - Recherche Images_files/
+.env*

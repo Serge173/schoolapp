@@ -51,8 +51,8 @@ function originalApiPath(req) {
   let path = pathnameOf(req);
   const forwarded = req.headers['x-vercel-original-url'] || req.headers['x-forwarded-uri'];
   const needsForward =
-    path === '/api/health' ||
     path === '/api/admin' ||
+    path === '/api/filieres' ||
     (path.startsWith('/api/admin/') && path.split('/').length < 4);
 
   if (forwarded && needsForward) {

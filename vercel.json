@@ -27,7 +27,8 @@
   "rewrites": [
     { "source": "/api/ping", "destination": "/api/ping" },
     { "source": "/api/health", "destination": "/api/ping" },
-    { "source": "/api/admin/:path*", "destination": "/api/admin/:path*" },
+    { "source": "/api/admin/:path*", "destination": "/api/admin?__route=:path*" },
+    { "source": "/api/admin", "destination": "/api/admin" },
     { "source": "/api/contact", "destination": "/api/filieres?__route=contact" },
     { "source": "/api/inscriptions", "destination": "/api/filieres?__route=inscriptions" },
     { "source": "/api/rendez-vous", "destination": "/api/filieres?__route=rendez-vous" },

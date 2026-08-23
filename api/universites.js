@@ -35,13 +35,22 @@ module.exports = async (req, res) => {
          WHERE uf.universite_id = ? AND f.actif = 1 ORDER BY f.nom`,
         [id]
       );
-      const [photos] = await db.query(
-        'SELECT id, filename FROM universite_photos WHERE universite_id = ? ORDER BY id',
-        [id]
-      );
+      let photos = [];
+      try {
+        const [photoRows] = await db.query(
+          'SELECT id, filename FROM universite_photos WHERE universite_id = ? ORDER BY id',
+          [id]
+        );
+        photos = photoRows || [];
+      } catch (photoErr) {
+        const msg = String(photoErr.message || '');
+        if (!msg.includes('does not exist') && !msg.includes('no such table') && photoErr.code !== 'ER_NO_SUCH_TABLE') {
+          throw photoErr;
+        }
+      }
       u.campuses = campuses || [];
       u.filieres = filieres || [];
-      u.photos = (photos || []).map((p) => ({
+      u.photos = photos.map((p) => ({
         id: p.id,
         url: '/uploads/photos/' + path.basename(p.filename),
       }));

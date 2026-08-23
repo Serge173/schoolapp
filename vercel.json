@@ -11,7 +11,8 @@
       "maxDuration": 30
     },
     "api/universites.js": {
-      "includeFiles": "database/figs-programmes.json"
+      "includeFiles": "database/figs-programmes.json",
+      "maxDuration": 30
     },
     "api/server.js": {
       "maxDuration": 15
@@ -19,13 +20,13 @@
     "api/admin.js": {
       "maxDuration": 30
     },
-    "api/health.js": {
-      "maxDuration": 30
+    "api/fallback.js": {
+      "maxDuration": 10
     }
   },
   "rewrites": [
     { "source": "/api/ping", "destination": "/api/ping" },
-    { "source": "/api/health", "destination": "/api/health" },
+    { "source": "/api/health", "destination": "/api/ping" },
     { "source": "/api/admin/:path*", "destination": "/api/admin/:path*" },
     { "source": "/api/contact", "destination": "/api/filieres?__route=contact" },
     { "source": "/api/inscriptions", "destination": "/api/filieres?__route=inscriptions" },
@@ -39,8 +40,8 @@
     { "source": "/api/universites/:id", "destination": "/api/universites" },
     { "source": "/api/universites", "destination": "/api/universites" },
     { "source": "/uploads/(.*)", "destination": "/api/server" },
-    { "source": "/api/(.*)", "destination": "/api/server" },
-    { "source": "/api", "destination": "/api/server" },
+    { "source": "/api/(.*)", "destination": "/api/fallback" },
+    { "source": "/api", "destination": "/api/fallback" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

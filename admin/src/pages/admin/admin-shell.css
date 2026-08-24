@@ -429,7 +429,25 @@
   font-size: 0.85rem;
 }
 
+.admin-profil-page__grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(300px, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.admin-profil-page__form {
+  max-width: none;
+  margin: 0;
+}
+
+.admin-profil-page__form-title {
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+}
+
 @media (max-width: 900px) {
+  .admin-profil-page__grid,
   .admin-comptes-page__grid {
     grid-template-columns: 1fr;
   }

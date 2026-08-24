@@ -91,9 +91,9 @@ input, select, textarea {
 
 /* Layout candidat */
 .layout-header {
-  background: #ffffff;
-  border-bottom: 1px solid var(--border);
-  box-shadow: 0 1px 6px rgba(15, 23, 42, 0.06);
+  background: #ff7309;
+  border-bottom: 1px solid rgba(173, 112, 0, 0.35);
+  box-shadow: 0 2px 8px rgba(255, 174, 27, 0.35);
   padding: 0.85rem 0;
 }
 .layout-header .container.layout-header__inner {
@@ -105,6 +105,9 @@ input, select, textarea {
   gap: 0.5rem;
   text-decoration: none;
   line-height: 0;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 0.22rem 0.55rem;
 }
 .layout-logo-img {
   display: block;
@@ -127,12 +130,12 @@ input, select, textarea {
 .layout-header nav a,
 .layout-header-nav a {
   margin-left: 1.5rem;
-  color: var(--text);
+  color: #234766;
   font-weight: 600;
 }
 .layout-header nav a:hover,
 .layout-header-nav a:hover {
-  color: var(--accent);
+  color: #0f2e4a;
 }
 
 /* Admin shell */

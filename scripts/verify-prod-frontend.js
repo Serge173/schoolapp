@@ -42,13 +42,17 @@ async function main() {
   if (cssHash) {
     const css = await fetchText(`${BASE}/assets/index-${cssHash}.css`);
     ok('GET CSS', css.status === 200);
-    ok('Fond blanc (header)', /layout-header[\s\S]*background:\s*#fff/i.test(css.text) || /\.layout-header\{[^}]*background:#fff/i.test(css.text.replace(/\s/g, '')));
+    ok('Navbar orange', /layout-header[\s\S]{0,120}background:\s*#ff7309/i.test(css.text) || css.text.replace(/\s/g, '').includes('.layout-header{background:#ff7309'));
+    ok('Logo fond blanc', /\.logo[\s\S]{0,80}background:\s*#fff/i.test(css.text) || css.text.includes('background:#ffffff'));
+    ok('CSS responsive (drawer)', css.text.includes('layout-nav-drawer'));
+    ok('CSS responsive (safe-area)', css.text.includes('safe-area-inset') || css.text.includes('viewport-fit'));
   }
 
   if (jsHash) {
     const js = await fetchText(`${BASE}/assets/index-${jsHash}.js`);
     ok('GET JS', js.status === 200);
     ok('Popup inscription (validation)', js.text.includes('ins-validation-overlay') || js.text.includes('Champ obligatoire'));
+    ok('JS responsive (menu mobile)', js.text.includes('layout-nav-drawer') || js.text.includes('Ouvrir le menu'));
   }
 
   const logo = await fetch(`${BASE}/images/figsapp-logo.jpg`, { method: 'HEAD' });

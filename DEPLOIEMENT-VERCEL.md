@@ -116,4 +116,23 @@ Sur Vercel, fichiers dans `/tmp` — non persistants. Utilisez des URLs `/images
 
 ## Mises à jour
 
-Chaque `git push` sur `main` / `master` redéploie le site + l'API.
+Chaque `git push` sur `main` / `master` redéploie le site + l'API **si** le projet Vercel lié au domaine est bien configuré.
+
+### Le site live ne change pas après `git push`
+
+Symptômes : `https://figsappcotedivoire.com` affiche encore un ancien CSS (`index-CFdguPtV.css`) ou un vieux logo.
+
+**Cause fréquente** : le domaine `figsappcotedivoire.com` est rattaché au projet Vercel **`frontend`**, alors que les déploiements récents partent sur **`figsapp`**. Vérifiez dans GitHub → Actions → déploiements `Production – frontend` vs `Production – figsapp`.
+
+**Correctif (2 min)** :
+
+1. [vercel.com](https://vercel.com) → projet qui a le domaine **figsappcotedivoire.com** (souvent `frontend`)
+2. **Deployments** → dernier commit sur `master` (ex. `77cfd08`)
+3. **Redeploy** → **désactiver** « Use existing Build Cache »
+4. Attendre 2 min, puis vérifier :
+   - `npm run verify:prod` en local
+   - ou `https://figsappcotedivoire.com/images/figsapp-logo.jpg` (~74 KB)
+
+**Option durable** : Vercel → **figsapp** (monorepo actuel) → **Settings → Domains** → ajouter `figsappcotedivoire.com` et retirer l'ancien projet.
+
+**Deploy Hook** (pour forcer chaque push) : Vercel → projet → Settings → Git → Deploy Hooks → créer un hook Production → copier l'URL dans le secret GitHub `VERCEL_DEPLOY_HOOK`.

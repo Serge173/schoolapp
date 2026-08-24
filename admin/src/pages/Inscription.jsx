@@ -14,6 +14,7 @@ export default function Inscription() {
   const [uniPreview, setUniPreview] = useState(null);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
+  const [validationModal, setValidationModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isAutreFiliere, setIsAutreFiliere] = useState(false);
 
@@ -114,21 +115,25 @@ export default function Inscription() {
     return f?.nom || null;
   }, [filieres, form.filiere_id, form.filiere_autre]);
 
+  const isFormComplete = () => {
+    const hasFiliere = Boolean(form.filiere_id) || Boolean(form.filiere_autre.trim());
+    return Boolean(
+      form.nom.trim() &&
+        form.prenom.trim() &&
+        form.date_naissance &&
+        form.telephone.trim() &&
+        form.email.trim() &&
+        form.ville &&
+        hasFiliere &&
+        form.universite_id
+    );
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    const hasFiliere = Boolean(form.filiere_id) || Boolean(form.filiere_autre.trim());
-    if (
-      !form.nom ||
-      !form.prenom ||
-      !form.date_naissance ||
-      !form.telephone ||
-      !form.email ||
-      !form.ville ||
-      !hasFiliere ||
-      !form.universite_id
-    ) {
-      setError('Veuillez remplir tous les champs obligatoires.');
+    if (!isFormComplete()) {
+      setValidationModal(true);
       return;
     }
     setLoading(true);
@@ -501,6 +506,27 @@ export default function Inscription() {
           </form>
         </div>
       </div>
+
+      {validationModal ? (
+        <div
+          className="ins-validation-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="ins-validation-title"
+          onClick={() => setValidationModal(false)}
+        >
+          <div className="ins-validation-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="ins-validation-modal__icon" aria-hidden="true">!</div>
+            <h2 id="ins-validation-title" className="ins-validation-modal__title">Champ obligatoire</h2>
+            <p className="ins-validation-modal__text">
+              Il y a un champ obligatoire à remplir pour valider votre inscription.
+            </p>
+            <button type="button" className="btn btn-primary ins-validation-modal__btn" onClick={() => setValidationModal(false)}>
+              OK
+            </button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

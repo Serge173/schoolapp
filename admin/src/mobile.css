@@ -454,9 +454,6 @@ button {
 }
 
 /* ─── Admin mobile : voir pages/admin/admin-mobile.css ─── */
-.admin-shell__menu-toggle {
-  display: none;
-}
 
 /* ─── Inscription / RDV / Contact mobile ─── */
 @media (max-width: 768px) {

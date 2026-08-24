@@ -63,17 +63,19 @@ export default function AdminLayout() {
     <div className="admin-page admin-shell" style={{ minHeight: '100vh' }}>
       <header className="layout-header admin-header admin-shell__header">
         <div className="container layout-header__inner admin-shell__header-inner">
-          <Link to="/" className="logo" aria-label="Retour au site public" onClick={closeMenu}>
-            <img
-              src={FIGSAPP_LOGO}
-              alt={FIGSAPP_LOGO_ALT}
-              className="layout-logo-img"
-              width={114}
-              height={48}
-              decoding="async"
-            />
-          </Link>
-          <span className="admin-shell__title">Administration</span>
+          <div className="admin-shell__header-brand">
+            <Link to="/" className="logo" aria-label="Retour au site public" onClick={closeMenu}>
+              <img
+                src={FIGSAPP_LOGO}
+                alt={FIGSAPP_LOGO_ALT}
+                className="layout-logo-img"
+                width={114}
+                height={48}
+                decoding="async"
+              />
+            </Link>
+            <span className="admin-shell__title">Administration</span>
+          </div>
           <button
             type="button"
             className="admin-shell__menu-toggle"

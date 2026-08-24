@@ -1,24 +1,21 @@
 /* Admin mobile — scoped sous .admin-shell uniquement */
 
 @media (max-width: 900px) {
-  .admin-shell__header {
-    flex-direction: row;
+  .admin-header.admin-shell__header {
+    padding: 0.55rem 0;
+  }
+
+  .layout-header.admin-header .container.layout-header__inner.admin-shell__header-inner {
     flex-wrap: nowrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    padding: 0.55rem max(0.65rem, var(--safe-left)) 0.55rem max(0.65rem, var(--safe-right));
+    gap: 0.45rem;
+    padding-left: max(0.65rem, var(--safe-left));
+    padding-right: max(0.65rem, var(--safe-right));
   }
 
   .admin-shell__header-brand {
-    flex: 1;
+    flex: 1 1 auto;
     min-width: 0;
     gap: 0.45rem;
-    flex-wrap: nowrap;
-  }
-
-  .admin-shell__header-inner {
-    flex-wrap: nowrap;
   }
 
   .admin-shell__title {

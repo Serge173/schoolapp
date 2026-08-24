@@ -27,7 +27,7 @@ async function handleLogin(req, res) {
     const { generateToken, ADMIN_COOKIE_NAME } = require('../server/middleware/auth');
     const { writeAudit } = require('./auditLog');
     const { ensureAdminsRoles } = require('../database/ensureAdminsRoles');
-    const { publicAdminRow } = require('./adminAccounts');
+    const { fetchAdminById, publicAdminRow } = require('./adminAccounts');
     await ensureAdminsRoles();
     const body = await readJsonBody(req);
     const email = String(body.email || '').trim();
@@ -66,7 +66,8 @@ async function handleLogin(req, res) {
     const cookie = `${ADMIN_COOKIE_NAME}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${12 * 60 * 60}${isProd ? '; Secure' : ''}`;
     res.setHeader('Set-Cookie', cookie);
     writeAudit('admin.login.success', { adminId: admin.id, email: admin.email, ip: getClientIp(req) });
-    return res.status(200).json({ admin: publicAdminRow(admin) });
+    const full = await fetchAdminById(admin.id);
+    return res.status(200).json({ admin: publicAdminRow(full || admin) });
   } catch (err) {
     console.error('[liteAdmin] login', err);
     return res.status(500).json({ error: 'Erreur serveur.' });
@@ -92,6 +93,20 @@ async function handleMe(req, res) {
     return res.status(200).json({ admin: publicAdminRow(row) });
   } catch (err) {
     console.error('[liteAdmin] me', err);
+    return res.status(500).json({ error: 'Erreur serveur.' });
+  }
+}
+
+async function handleMePatch(req, res) {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+  try {
+    const { patchOwnProfile } = require('./adminProfile');
+    const body = await readJsonBody(req);
+    const result = await patchOwnProfile(admin.id, body);
+    return res.status(result.status).json(result.body);
+  } catch (err) {
+    console.error('[liteAdmin] me patch', err);
     return res.status(500).json({ error: 'Erreur serveur.' });
   }
 }
@@ -369,6 +384,10 @@ async function handleLiteAdmin(req, res) {
   }
   if (path === '/api/admin/me' && req.method === 'GET') {
     await handleMe(req, res);
+    return true;
+  }
+  if (path === '/api/admin/me' && req.method === 'PATCH') {
+    await handleMePatch(req, res);
     return true;
   }
   if (path === '/api/admin/stats' && req.method === 'GET') {

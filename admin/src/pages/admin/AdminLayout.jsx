@@ -71,12 +71,30 @@ export default function AdminLayout() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
           {admin ? (
-            <div style={{ textAlign: 'right', fontSize: '0.85rem' }}>
-              <div style={{ fontWeight: 600 }}>{admin.nom}</div>
-              <span className={`badge ${roleBadgeClass(role)}`} style={{ fontSize: '0.72rem', marginTop: '0.2rem' }}>
-                {ADMIN_ROLE_LABELS[role]}
-              </span>
-            </div>
+            <Link
+              to="/admin/profil"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.65rem',
+                textDecoration: 'none',
+                color: 'inherit',
+              }}
+            >
+              {admin.photo_url ? (
+                <img
+                  src={admin.photo_url}
+                  alt=""
+                  style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--border)' }}
+                />
+              ) : null}
+              <div style={{ textAlign: 'right', fontSize: '0.85rem' }}>
+                <div style={{ fontWeight: 600 }}>{admin.prenom ? `${admin.prenom} ${admin.nom}` : admin.nom}</div>
+                <span className={`badge ${roleBadgeClass(role)}`} style={{ fontSize: '0.72rem', marginTop: '0.2rem' }}>
+                  {ADMIN_ROLE_LABELS[role]}
+                </span>
+              </div>
+            </Link>
           ) : null}
           <button type="button" className="btn btn-secondary" onClick={handleLogout}>
             Déconnexion
@@ -122,6 +140,9 @@ export default function AdminLayout() {
                   {stats.rendezVous.nouveau}
                 </span>
               )}
+            </NavLink>
+            <NavLink to="/admin/profil" className={navBtn} style={{ justifyContent: 'flex-start' }}>
+              Mon profil
             </NavLink>
             {canManageContent(role) ? (
               <>

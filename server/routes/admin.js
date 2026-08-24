@@ -88,7 +88,7 @@ router.post('/login', loginLimiter, [
     if (!errors.isEmpty()) return res.status(400).json({ error: errors.array()[0].msg });
 
     const { ensureAdminsRoles } = require('../../database/ensureAdminsRoles');
-    const { publicAdminRow } = require('../../includes/adminAccounts');
+    const { fetchAdminById, publicAdminRow } = require('../../includes/adminAccounts');
     await ensureAdminsRoles();
     const { email, password } = req.body || {};
     const normalizedEmail = String(email || '').trim().toLowerCase();
@@ -123,7 +123,8 @@ router.post('/login', loginLimiter, [
       path: '/',
     });
     writeAudit('admin.login.success', { adminId: admin.id, email: admin.email, ip: getClientIp(req) });
-    res.json({ admin: publicAdminRow(admin) });
+    const full = await fetchAdminById(admin.id);
+    res.json({ admin: publicAdminRow(full || admin) });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Erreur serveur.' });
@@ -145,6 +146,30 @@ router.get('/me', authenticate, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Erreur serveur.' });
+  }
+});
+
+router.patch('/me', authenticate, async (req, res) => {
+  try {
+    const { patchOwnProfile } = require('../../includes/adminProfile');
+    const result = await patchOwnProfile(req.adminId, req.body);
+    res.status(result.status).json(result.body);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
+});
+
+router.post('/me/photo', authenticate, uploadLogo, async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'Aucun fichier photo.' });
+    const photoUrl = '/uploads/logos/' + req.file.filename;
+    const { patchOwnProfile } = require('../../includes/adminProfile');
+    const result = await patchOwnProfile(req.adminId, { photo_url: photoUrl });
+    res.status(result.status).json({ photoUrl, admin: result.body?.admin });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur upload.' });
   }
 });
 

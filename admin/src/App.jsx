@@ -18,6 +18,7 @@ import AdminOverviewPage from './pages/admin/AdminOverviewPage';
 import AdminInscriptionsPage from './pages/admin/AdminInscriptionsPage';
 import AdminInscriptionDossierPage from './pages/admin/AdminInscriptionDossierPage';
 import AdminComptesPage from './pages/admin/AdminComptesPage';
+import AdminProfilPage from './pages/admin/AdminProfilPage';
 import AdminRdvPage from './pages/admin/AdminRdvPage';
 import AdminUniversitesPage from './pages/admin/AdminUniversitesPage';
 import AdminFilieresPage from './pages/admin/AdminFilieresPage';
@@ -60,6 +61,7 @@ export default function App() {
           <Route path="inscriptions" element={<AdminInscriptionsPage />} />
           <Route path="inscriptions/:id" element={<AdminInscriptionDossierPage />} />
           <Route path="comptes" element={<AdminComptesPage />} />
+          <Route path="profil" element={<AdminProfilPage />} />
           <Route path="rendez-vous" element={<AdminRdvPage />} />
           <Route path="orientation" element={<Navigate to="/admin/inscriptions" replace />} />
           <Route path="universites" element={<AdminContentRoute><AdminUniversitesPage /></AdminContentRoute>} />

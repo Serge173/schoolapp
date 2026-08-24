@@ -65,6 +65,23 @@ export const api = {
     login: (email, password) =>
       request('/admin/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
     me: () => request('/admin/me'),
+    profileUpdate: (body) =>
+      request('/admin/me', { method: 'PATCH', body: JSON.stringify(body) }),
+    profilePhotoUpload: (file) => {
+      const fd = new FormData();
+      fd.append('logo', file);
+      return fetch(`${API_BASE}/admin/me/photo`, { method: 'POST', credentials: 'include', body: fd }).then(async (res) => {
+        const text = await res.text();
+        let data = {};
+        try {
+          data = JSON.parse(text);
+        } catch {
+          throw new Error('Réponse serveur invalide.');
+        }
+        if (!res.ok) throw new Error(data.error || 'Erreur upload');
+        return data;
+      });
+    },
     logout: () => request('/admin/logout', { method: 'POST' }),
     stats: () => request('/admin/stats'),
     inscriptions: (params = {}) => {

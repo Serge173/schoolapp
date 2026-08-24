@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { api } from '../../api';
+import PasswordInput from '../../components/PasswordInput';
 import {
   ADMIN_ROLE_LABELS,
   ADMIN_ROLE_DESCRIPTIONS,
@@ -39,9 +40,26 @@ function RoleBadge({ role, actif }) {
 export default function AdminComptesPage() {
   const [comptes, setComptes] = useState([]);
   const [profile, setProfile] = useState(null);
-  const [form, setForm] = useState({ nom: '', email: '', password: '', role: 'conseiller' });
+  const [form, setForm] = useState({
+    nom: '',
+    prenom: '',
+    email: '',
+    telephone: '',
+    poste: '',
+    pays_bureau: '',
+    password: '',
+    password_confirm: '',
+    role: 'conseiller',
+  });
   const [editId, setEditId] = useState(null);
-  const [editForm, setEditForm] = useState({ nom: '', role: 'conseiller', actif: true, password: '' });
+  const [editForm, setEditForm] = useState({
+    nom: '',
+    prenom: '',
+    role: 'conseiller',
+    actif: true,
+    password: '',
+    password_confirm: '',
+  });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -76,13 +94,27 @@ export default function AdminComptesPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (form.password !== form.password_confirm) {
+      setError('Les mots de passe ne correspondent pas.');
+      return;
+    }
     setSaving(true);
     setError('');
     setSuccess('');
     try {
       await api.admin.comptes.create(form);
       setSuccess('Compte créé avec succès.');
-      setForm({ nom: '', email: '', password: '', role: 'conseiller' });
+      setForm({
+        nom: '',
+        prenom: '',
+        email: '',
+        telephone: '',
+        poste: '',
+        pays_bureau: '',
+        password: '',
+        password_confirm: '',
+        role: 'conseiller',
+      });
       await load();
     } catch (err) {
       setError(err.message);
@@ -93,25 +125,39 @@ export default function AdminComptesPage() {
 
   const openEdit = (c) => {
     setEditId(c.id);
-    setEditForm({ nom: c.nom, role: c.role, actif: c.actif, password: '' });
+    setEditForm({
+      nom: c.nom,
+      prenom: c.prenom || '',
+      role: c.role,
+      actif: c.actif,
+      password: '',
+      password_confirm: '',
+    });
     setError('');
     setSuccess('');
   };
 
   const closeEdit = () => {
     setEditId(null);
-    setEditForm({ nom: '', role: 'conseiller', actif: true, password: '' });
+    setEditForm({ nom: '', prenom: '', role: 'conseiller', actif: true, password: '', password_confirm: '' });
   };
 
   const handleEditSave = async (e) => {
     e.preventDefault();
     if (!editId) return;
+    if (editForm.password && editForm.password !== editForm.password_confirm) {
+      setError('Les mots de passe ne correspondent pas.');
+      return;
+    }
     setSaving(true);
     setError('');
     setSuccess('');
     try {
-      const payload = { nom: editForm.nom, role: editForm.role, actif: editForm.actif };
-      if (editForm.password.trim()) payload.password = editForm.password;
+      const payload = { nom: editForm.nom, prenom: editForm.prenom, role: editForm.role, actif: editForm.actif };
+      if (editForm.password.trim()) {
+        payload.password = editForm.password;
+        payload.password_confirm = editForm.password_confirm;
+      }
       await api.admin.comptes.update(editId, payload);
       setSuccess('Compte mis à jour.');
       closeEdit();
@@ -127,7 +173,8 @@ export default function AdminComptesPage() {
     <>
       <h1 style={{ marginBottom: '0.5rem' }}>Comptes & rôles</h1>
       <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.95rem', maxWidth: '720px' }}>
-        Créez des comptes avec un rôle précis. Seul le <strong>super administrateur</strong> peut gérer les comptes.
+        Créez des comptes avec un rôle précis. Le mot de passe doit être saisi deux fois. L&apos;utilisateur peut le modifier dans{' '}
+        <strong>Mon profil</strong>.
       </p>
 
       <div className="card" style={{ marginBottom: '1.25rem', padding: '1rem 1.15rem' }}>
@@ -163,8 +210,28 @@ export default function AdminComptesPage() {
             <input name="nom" value={form.nom} onChange={handleChange} required style={inputStyle} />
           </div>
           <div style={{ marginBottom: '0.85rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', fontWeight: 600 }}>Prénom</label>
+            <input name="prenom" value={form.prenom} onChange={handleChange} style={inputStyle} />
+          </div>
+          <div style={{ marginBottom: '0.85rem' }}>
             <label style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', fontWeight: 600 }}>Email *</label>
             <input type="email" name="email" value={form.email} onChange={handleChange} required style={inputStyle} />
+          </div>
+          <div style={{ marginBottom: '0.85rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', fontWeight: 600 }}>Téléphone</label>
+            <input name="telephone" value={form.telephone} onChange={handleChange} style={inputStyle} />
+          </div>
+          <div style={{ marginBottom: '0.85rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', fontWeight: 600 }}>Fonction</label>
+            <input name="poste" value={form.poste} onChange={handleChange} style={inputStyle} />
+          </div>
+          <div style={{ marginBottom: '0.85rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', fontWeight: 600 }}>Bureau</label>
+            <select name="pays_bureau" value={form.pays_bureau} onChange={handleChange} style={inputStyle}>
+              <option value="">—</option>
+              <option value="CI">Côte d&apos;Ivoire</option>
+              <option value="BF">Burkina Faso</option>
+            </select>
           </div>
           <div style={{ marginBottom: '0.85rem' }}>
             <label style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', fontWeight: 600 }}>Rôle *</label>
@@ -179,19 +246,21 @@ export default function AdminComptesPage() {
               {ADMIN_ROLE_DESCRIPTIONS[form.role]}
             </p>
           </div>
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', fontWeight: 600 }}>Mot de passe *</label>
-            <input
-              type="password"
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              required
-              minLength={8}
-              style={inputStyle}
-              placeholder="8 caractères minimum"
-            />
-          </div>
+          <PasswordInput
+            label="Mot de passe *"
+            name="password"
+            value={form.password}
+            onChange={handleChange}
+            required
+            hint="8 caractères minimum — vérifiez avec le champ ci-dessous."
+          />
+          <PasswordInput
+            label="Confirmer le mot de passe *"
+            name="password_confirm"
+            value={form.password_confirm}
+            onChange={handleChange}
+            required
+          />
           <button type="submit" className="btn btn-primary" disabled={saving}>
             {saving ? 'Création…' : 'Créer le compte'}
           </button>
@@ -219,8 +288,11 @@ export default function AdminComptesPage() {
                   }}
                 >
                   <div style={{ flex: 1, minWidth: 200 }}>
-                    <strong>{c.nom}</strong>
+                    <strong>{c.prenom ? `${c.prenom} ${c.nom}` : c.nom}</strong>
                     <div style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginTop: '0.2rem' }}>{c.email}</div>
+                    {c.poste ? (
+                      <div style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginTop: '0.2rem' }}>{c.poste}</div>
+                    ) : null}
                     <div style={{ marginTop: '0.45rem' }}>
                       <RoleBadge role={c.role} actif={c.actif} />
                     </div>
@@ -274,6 +346,14 @@ export default function AdminComptesPage() {
               />
             </div>
             <div style={{ marginBottom: '0.85rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', fontWeight: 600 }}>Prénom</label>
+              <input
+                value={editForm.prenom}
+                onChange={(e) => setEditForm((f) => ({ ...f, prenom: e.target.value }))}
+                style={inputStyle}
+              />
+            </div>
+            <div style={{ marginBottom: '0.85rem' }}>
               <label style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', fontWeight: 600 }}>Rôle</label>
               <select
                 value={editForm.role}
@@ -297,19 +377,19 @@ export default function AdminComptesPage() {
                 Compte actif
               </label>
             </div>
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', fontWeight: 600 }}>
-                Nouveau mot de passe
-              </label>
-              <input
-                type="password"
-                value={editForm.password}
-                onChange={(e) => setEditForm((f) => ({ ...f, password: e.target.value }))}
-                minLength={8}
-                style={inputStyle}
-                placeholder="Laisser vide pour ne pas changer"
-              />
-            </div>
+            <PasswordInput
+              label="Nouveau mot de passe"
+              name="password"
+              value={editForm.password}
+              onChange={(e) => setEditForm((f) => ({ ...f, password: e.target.value }))}
+              placeholder="Laisser vide pour ne pas changer"
+            />
+            <PasswordInput
+              label="Confirmer le mot de passe"
+              name="password_confirm"
+              value={editForm.password_confirm}
+              onChange={(e) => setEditForm((f) => ({ ...f, password_confirm: e.target.value }))}
+            />
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
               <button type="button" className="btn btn-secondary" onClick={closeEdit}>
                 Annuler

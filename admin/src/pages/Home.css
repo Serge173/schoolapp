@@ -506,6 +506,9 @@
 
   .home-showcase-center {
     order: -1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }
 

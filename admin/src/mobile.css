@@ -391,6 +391,10 @@ button {
 
   .home-showcase-center {
     order: -1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
   }
 
   .home-showcase-side-cta {
@@ -400,23 +404,23 @@ button {
   }
 
   .home-showcase-cta-link {
-    width: 100%;
-    max-width: 100%;
-    aspect-ratio: auto;
-    border-radius: var(--radius);
-    animation: none;
+    width: min(76vw, 260px);
+    max-width: 260px;
+    margin: 0 auto;
+    aspect-ratio: 1 / 1;
+    border-radius: 999px;
+    flex-shrink: 0;
   }
 
   .home-cta-card--featured {
-    border-radius: var(--radius) !important;
-    padding: 1.35rem 1.15rem !important;
-    min-height: auto;
+    border-radius: 999px !important;
+    padding: 1.35rem 1.1rem !important;
+    min-height: 0;
   }
 
   .home-cta-card--featured::after {
-    border-radius: var(--radius);
-    animation: none;
-    opacity: 0.2;
+    border-radius: 999px;
+    opacity: 0.35;
   }
 
   .home-cta-favicon {

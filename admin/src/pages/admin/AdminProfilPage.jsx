@@ -139,8 +139,8 @@ export default function AdminProfilPage() {
 
   return (
     <>
-      <h1 style={{ marginBottom: '0.5rem' }}>Mon profil</h1>
-      <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', maxWidth: '640px' }}>
+      <h1 className="admin-shell__page-title">Mon profil</h1>
+      <p className="admin-shell__page-desc">
         Complétez votre identité pour l&apos;équipe FIGS. Vous pouvez modifier le mot de passe défini par l&apos;administrateur.
       </p>
 
@@ -153,7 +153,7 @@ export default function AdminProfilPage() {
         </div>
       ) : null}
 
-      <form onSubmit={handleSubmit} className="card" style={{ maxWidth: 720 }}>
+      <form onSubmit={handleSubmit} className="card admin-shell__panel admin-shell__form-card">
         <div style={{ marginBottom: '1.25rem' }}>
           <label style={labelStyle}>Photo de profil</label>
           <ProfilePhotoPicker

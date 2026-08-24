@@ -34,15 +34,14 @@ export default function AdminInscriptionsPage() {
 
   return (
     <>
-      <h1 style={{ marginBottom: '0.5rem' }}>Inscriptions</h1>
-      <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.95rem', maxWidth: '720px' }}>
+      <h1 className="admin-shell__page-title">Inscriptions</h1>
+      <p className="admin-shell__page-desc">
         Consultez et modifiez chaque dossier d&apos;inscription via « Voir ».
       </p>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
+      <div className="admin-shell__filters">
         <select
           value={filter.statut}
           onChange={(e) => handleFilterChange('statut', e.target.value)}
-          style={{ padding: '0.5rem 1rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--text)' }}
         >
           <option value="">Tous statuts</option>
           {Object.entries(INSCRIPTION_STATUT_LABELS).map(([v, lab]) => (
@@ -54,7 +53,6 @@ export default function AdminInscriptionsPage() {
         <select
           value={filter.type}
           onChange={(e) => handleFilterChange('type', e.target.value)}
-          style={{ padding: '0.5rem 1rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--text)' }}
         >
           <option value="">Tous types</option>
           <option value="publique">Publique</option>
@@ -63,7 +61,6 @@ export default function AdminInscriptionsPage() {
         <select
           value={filter.pays_bureau}
           onChange={(e) => handleFilterChange('pays_bureau', e.target.value)}
-          style={{ padding: '0.5rem 1rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--text)' }}
         >
           <option value="">Tous bureaux</option>
           <option value="CI">Côte d&apos;Ivoire (Abidjan)</option>
@@ -72,7 +69,6 @@ export default function AdminInscriptionsPage() {
         <select
           value={filter.filiere_id}
           onChange={(e) => handleFilterChange('filiere_id', e.target.value)}
-          style={{ padding: '0.5rem 1rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--text)' }}
         >
           <option value="">Toutes filières</option>
           {filieres.map((f) => (
@@ -84,7 +80,6 @@ export default function AdminInscriptionsPage() {
         <select
           value={filter.universite_id}
           onChange={(e) => handleFilterChange('universite_id', e.target.value)}
-          style={{ padding: '0.5rem 1rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--text)' }}
         >
           <option value="">Toutes universités</option>
           {universites.map((u) => (
@@ -97,33 +92,31 @@ export default function AdminInscriptionsPage() {
           type="date"
           value={filter.date_debut}
           onChange={(e) => handleFilterChange('date_debut', e.target.value)}
-          style={{ padding: '0.5rem 1rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--text)' }}
         />
         <input
           type="date"
           value={filter.date_fin}
           onChange={(e) => handleFilterChange('date_fin', e.target.value)}
-          style={{ padding: '0.5rem 1rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--text)' }}
         />
       </div>
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <div className="admin-shell__table-wrap">
+        <table>
           <thead>
-            <tr style={{ borderBottom: '1px solid var(--border)' }}>
-              <th style={{ textAlign: 'left', padding: '0.75rem' }}>Nom</th>
-              <th style={{ textAlign: 'left', padding: '0.75rem' }}>Téléphone</th>
-              <th style={{ textAlign: 'left', padding: '0.75rem' }}>Contact</th>
-              <th style={{ textAlign: 'left', padding: '0.75rem' }}>Filière</th>
-              <th style={{ textAlign: 'left', padding: '0.75rem' }}>Université</th>
-              <th style={{ textAlign: 'left', padding: '0.75rem' }}>Statut</th>
-              <th style={{ textAlign: 'left', padding: '0.75rem' }}>Date</th>
-              <th style={{ textAlign: 'left', padding: '0.75rem' }}> </th>
+            <tr>
+              <th>Nom</th>
+              <th>Téléphone</th>
+              <th>Contact</th>
+              <th>Filière</th>
+              <th>Université</th>
+              <th>Statut</th>
+              <th>Date</th>
+              <th> </th>
             </tr>
           </thead>
           <tbody>
             {inscriptions.map((i) => (
-              <tr key={i.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                <td style={{ padding: '0.75rem' }}>
+              <tr key={i.id}>
+                <td>
                   {i.prenom} {i.nom}
                 </td>
                 <td style={{ padding: '0.75rem' }}>{i.telephone}</td>

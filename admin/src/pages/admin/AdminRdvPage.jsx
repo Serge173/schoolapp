@@ -67,11 +67,11 @@ export default function AdminRdvPage() {
 
   return (
     <>
-      <h1 style={{ marginBottom: '1.5rem' }}>Rendez-vous</h1>
-      <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', maxWidth: '52rem' }}>
+      <h1 className="admin-shell__page-title">Rendez-vous</h1>
+      <p className="admin-shell__page-desc">
         Consultez les demandes, mettez à jour le statut et ajoutez des notes internes si besoin.
       </p>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
+      <div className="admin-shell__stat-badges">
         {['total', 'nouveau', 'a_confirmer', 'confirme', 'annule', 'termine'].map((k) => (
           <span
             key={k}
@@ -87,11 +87,10 @@ export default function AdminRdvPage() {
           </span>
         ))}
       </div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
+      <div className="admin-shell__filters">
         <select
           value={rdvFilter.statut}
           onChange={(e) => handleRdvFilterChange('statut', e.target.value)}
-          style={{ padding: '0.5rem 1rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--text)' }}
         >
           <option value="">Tous statuts</option>
           {Object.entries(RDV_STATUT_LABELS).map(([v, lab]) => (
@@ -103,7 +102,6 @@ export default function AdminRdvPage() {
         <select
           value={rdvFilter.pays_bureau}
           onChange={(e) => handleRdvFilterChange('pays_bureau', e.target.value)}
-          style={{ padding: '0.5rem 1rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--text)' }}
         >
           <option value="">Tous bureaux</option>
           <option value="CI">Côte d’Ivoire</option>
@@ -113,13 +111,11 @@ export default function AdminRdvPage() {
           type="date"
           value={rdvFilter.date_debut}
           onChange={(e) => handleRdvFilterChange('date_debut', e.target.value)}
-          style={{ padding: '0.5rem 1rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--text)' }}
         />
         <input
           type="date"
           value={rdvFilter.date_fin}
           onChange={(e) => handleRdvFilterChange('date_fin', e.target.value)}
-          style={{ padding: '0.5rem 1rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--text)' }}
         />
         <button
           type="button"
@@ -129,20 +125,20 @@ export default function AdminRdvPage() {
           Actualiser
         </button>
       </div>
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 1100 }}>
+      <div className="admin-shell__table-wrap admin-shell__table-wrap--wide">
+        <table>
           <thead>
-            <tr style={{ borderBottom: '1px solid var(--border)' }}>
-              <th style={{ textAlign: 'left', padding: '0.75rem' }}>Reçu</th>
-              <th style={{ textAlign: 'left', padding: '0.75rem' }}>Contact</th>
-              <th style={{ textAlign: 'left', padding: '0.75rem' }}>Bureau</th>
-              <th style={{ textAlign: 'left', padding: '0.75rem' }}>Motif</th>
-              <th style={{ textAlign: 'left', padding: '0.75rem' }}>Date souhaitée</th>
-              <th style={{ textAlign: 'left', padding: '0.75rem' }}>Créneau</th>
-              <th style={{ textAlign: 'left', padding: '0.75rem' }}>Message</th>
-              <th style={{ textAlign: 'left', padding: '0.75rem' }}>Statut</th>
-              <th style={{ textAlign: 'left', padding: '0.75rem' }}>Notes internes</th>
-              <th style={{ textAlign: 'left', padding: '0.75rem' }}>Actions</th>
+            <tr>
+              <th>Reçu</th>
+              <th>Contact</th>
+              <th>Bureau</th>
+              <th>Motif</th>
+              <th>Date souhaitée</th>
+              <th>Créneau</th>
+              <th>Message</th>
+              <th>Statut</th>
+              <th>Notes internes</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -150,8 +146,8 @@ export default function AdminRdvPage() {
               const telDigits = String(r.telephone || '').replace(/\D/g, '');
               const waHref = telDigits ? `https://wa.me/${telDigits.replace(/^0+/, '')}` : null;
               return (
-                <tr key={r.id} style={{ borderBottom: '1px solid var(--border)', verticalAlign: 'top' }}>
-                  <td style={{ padding: '0.75rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+                <tr key={r.id} style={{ verticalAlign: 'top' }}>
+                  <td style={{ color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
                     {new Date(r.created_at).toLocaleString('fr-FR')}
                   </td>
                   <td style={{ padding: '0.75rem' }}>

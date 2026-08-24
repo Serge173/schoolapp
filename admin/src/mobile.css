@@ -453,73 +453,9 @@ button {
   }
 }
 
-/* ─── Admin mobile ─── */
+/* ─── Admin mobile : voir pages/admin/admin-mobile.css ─── */
 .admin-shell__menu-toggle {
   display: none;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.5rem 0.85rem;
-  font-size: 0.88rem;
-  font-weight: 600;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--surface);
-  color: var(--text);
-}
-
-@media (max-width: 900px) {
-  .admin-shell__menu-toggle {
-    display: inline-flex;
-  }
-
-  .admin-shell__aside {
-    display: none;
-  }
-
-  .admin-shell__aside.is-open {
-    display: block;
-    animation: adminAsideIn 0.32s var(--ease-out-expo);
-  }
-
-  @keyframes adminAsideIn {
-    from {
-      opacity: 0;
-      transform: translateY(-8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .admin-shell__user {
-    width: 100%;
-    justify-content: flex-end;
-  }
-
-  .admin-shell__header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .admin-shell__header-brand {
-    justify-content: space-between;
-  }
-
-  .admin-header-logo {
-    max-height: 36px;
-  }
-}
-
-@media (max-width: 480px) {
-  .admin-shell__user .btn {
-    padding: 0.55rem 0.85rem;
-    font-size: 0.88rem;
-  }
-
-  .admin-shell__user > a > div {
-    font-size: 0.8rem;
-  }
 }
 
 /* ─── Inscription / RDV / Contact mobile ─── */

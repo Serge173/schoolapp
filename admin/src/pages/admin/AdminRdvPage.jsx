@@ -69,9 +69,7 @@ export default function AdminRdvPage() {
     <>
       <h1 style={{ marginBottom: '1.5rem' }}>Rendez-vous</h1>
       <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', maxWidth: '52rem' }}>
-        Gérez les demandes de rendez-vous : statut, filtres et notes internes. Les nouvelles demandes déclenchent une alerte e-mail et
-        WhatsApp côté serveur (variables <code style={{ fontSize: '0.85em' }}>NOTIFY_EMAIL_TO</code>, SMTP,{' '}
-        <code style={{ fontSize: '0.85em' }}>WHATSAPP_*</code>).
+        Consultez les demandes, mettez à jour le statut et ajoutez des notes internes si besoin.
       </p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
         {['total', 'nouveau', 'a_confirmer', 'confirme', 'annule', 'termine'].map((k) => (

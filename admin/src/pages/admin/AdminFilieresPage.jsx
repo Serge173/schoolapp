@@ -186,8 +186,8 @@ export default function AdminFilieresPage() {
         <h3 style={{ marginBottom: '0.5rem', fontSize: '1rem' }}>Spécialités référentiel → sous-filières</h3>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '0.75rem', lineHeight: 1.45 }}>
           Les intitulés des <strong>onze domaines</strong> (comme sur la page publique Filières) sont ajoutés en sous-filières pour chaque filière,
-          selon le <strong>domaine résolu</strong> (grand groupe choisi ou auto). Les libellés déjà présents ne sont pas dupliqués. À la{' '}
-          <strong>création</strong> d’une filière ou au <strong>changement de grand groupe</strong>, l’import partiel est aussi lancé côté serveur.
+          selon le <strong>domaine résolu</strong> (grand groupe choisi ou auto). Les libellés déjà présents ne sont pas dupliqués. L&apos;import
+          se lance aussi automatiquement à la création d&apos;une filière ou au changement de grand groupe.
         </p>
         <button type="button" className="btn btn-secondary" style={{ fontSize: '0.88rem' }} disabled={syncAllLoading} onClick={handleSyncAllReferentiel}>
           {syncAllLoading ? 'Import en cours…' : 'Importer pour toutes les filières'}

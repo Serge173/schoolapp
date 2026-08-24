@@ -73,8 +73,7 @@ export default function DemandeOrientationFiliere() {
           <h2>Demande enregistrée</h2>
           <p style={{ color: 'var(--text-muted)', maxWidth: 480, margin: '0 auto 1rem' }}>
             FIGS a bien reçu votre demande pour le domaine <strong>{grandeFiliere}</strong> —{' '}
-            <strong>{specialite}</strong>. Une alerte a été envoyée à l’équipe (e-mail et WhatsApp si le serveur est
-            configuré). Nous vous recontacterons rapidement.
+            <strong>{specialite}</strong>. Notre équipe vous recontactera rapidement par e-mail, téléphone ou WhatsApp.
           </p>
           <p style={{ color: 'var(--text-muted)', maxWidth: 480, margin: '0 auto 1.25rem', fontSize: '0.95rem' }}>
             Pour poursuivre votre parcours, vous pouvez prendre rendez-vous avec un conseiller ou explorer le catalogue.

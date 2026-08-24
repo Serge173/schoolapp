@@ -36,8 +36,7 @@ export default function AdminInscriptionsPage() {
     <>
       <h1 style={{ marginBottom: '0.5rem' }}>Inscriptions</h1>
       <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.95rem', maxWidth: '720px' }}>
-        Consultez et modifiez chaque dossier d&apos;inscription. Les nouvelles demandes déclenchent aussi une alerte e-mail
-        et WhatsApp si SMTP et l&apos;API Meta sont configurés.
+        Consultez et modifiez chaque dossier d&apos;inscription via « Voir ».
       </p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
         <select

@@ -86,8 +86,8 @@ export default function Niveaux() {
 
       {!loading && !err && cartesNiveaux.length === 0 && (
         <p style={{ textAlign: 'center', color: 'var(--text-muted)', maxWidth: '36rem', margin: '0 auto' }}>
-          Aucun niveau ne figure dans le catalogue FIGS pour cette filière avec les écoles privées liées. Vérifiez les
-          liaisons filière / école en administration ou le fichier <code>figs-programmes.json</code>.
+          Aucun niveau est disponible pour cette filière pour le moment. Contactez le bureau FIGS pour une orientation
+          personnalisée.
         </p>
       )}
     </>

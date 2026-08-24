@@ -188,8 +188,7 @@ export default function Filieres() {
       </div>
       {filieres.length === 0 && (
         <p className="filieres-empty-db" role="status">
-          Aucune filière avec école privée en base : le parcours après choix de spécialité ne pourra pas démarrer tant
-          que des liaisons ne sont pas configurées.
+          Les filières seront bientôt disponibles. Contactez le bureau FIGS pour une orientation personnalisée.
         </p>
       )}
     </div>

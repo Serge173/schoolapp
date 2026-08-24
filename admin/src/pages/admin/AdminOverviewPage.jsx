@@ -62,7 +62,7 @@ export default function AdminOverviewPage() {
           <div>
             <strong style={{ color: '#b91c1c' }}>{stats.rendezVous.nouveau} nouvelle(s) demande(s) de rendez-vous</strong>
             <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-              Un e-mail et une alerte WhatsApp ont été envoyés si configurés sur le serveur.
+              L&apos;équipe a été notifiée par e-mail et WhatsApp.
             </div>
           </div>
           <Link to="/admin/rendez-vous" className="btn btn-primary">

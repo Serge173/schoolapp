@@ -65,9 +65,8 @@ export default function CatalogueProgrammes() {
       <header className="figs-catalogue__hero">
         <h1>Catalogue formations FIGS</h1>
         <p>
-          Parcourez les formations par grand domaine. Cliquez sur une ligne pour ouvrir la fiche complete (RNCP,
-          rythme, tarifs, prerequis) et poursuivre l’inscription. Source : tableau FIGS deduplique — pour regenerer,{' '}
-          <code>node scripts/parse-figs-tsv.mjs</code>.
+          Parcourez les formations par grand domaine. Cliquez sur une ligne pour ouvrir la fiche complète (RNCP,
+          rythme, tarifs, prérequis) et poursuivre l’inscription.
         </p>
       </header>
 

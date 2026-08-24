@@ -3,13 +3,14 @@ import { Navigate } from 'react-router-dom';
 import { api } from '../../api';
 import PasswordInput from '../../components/PasswordInput';
 import ProfilePhotoPicker from '../../components/ProfilePhotoPicker';
-import AdminCreateCompteForm from '../../components/AdminCreateCompteForm';
+import AdminAccountSummaryCard from '../../components/AdminAccountSummaryCard';
+import AdminAccountsList from '../../components/AdminAccountsList';
+import AdminCreateCompteModal from '../../components/AdminCreateCompteModal';
 import {
   ADMIN_ROLE_LABELS,
   ADMIN_ROLE_DESCRIPTIONS,
   ADMIN_ROLES,
   canManageAccounts,
-  normalizeRole,
   roleBadgeClass,
 } from '../../data/adminRoles';
 
@@ -23,25 +24,30 @@ const inputStyle = {
   boxSizing: 'border-box',
 };
 
-function RoleBadge({ role, actif }) {
-  const r = normalizeRole(role);
+function RoleLegend() {
   return (
-    <span style={{ display: 'inline-flex', gap: '0.35rem', flexWrap: 'wrap', alignItems: 'center' }}>
-      <span className={`badge ${roleBadgeClass(r)}`} style={{ border: '1px solid var(--border)' }}>
-        {ADMIN_ROLE_LABELS[r] || r}
-      </span>
-      {!actif ? (
-        <span className="badge" style={{ background: 'rgba(220,38,38,0.12)', color: '#dc2626', border: '1px solid rgba(220,38,38,0.3)' }}>
-          Désactivé
-        </span>
-      ) : null}
-    </span>
+    <div className="card admin-comptes-roles" style={{ marginBottom: '1.25rem', padding: '1rem 1.15rem' }}>
+      <h2 style={{ margin: '0 0 0.75rem', fontSize: '0.95rem' }}>Rôles disponibles</h2>
+      <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: '0.65rem' }}>
+        {ADMIN_ROLES.map((r) => (
+          <li key={r} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+            <span className={`badge ${roleBadgeClass(r)}`} style={{ border: '1px solid var(--border)' }}>
+              {ADMIN_ROLE_LABELS[r]}
+            </span>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.88rem', lineHeight: 1.45 }}>
+              {ADMIN_ROLE_DESCRIPTIONS[r]}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
 export default function AdminComptesPage() {
   const [comptes, setComptes] = useState([]);
   const [profile, setProfile] = useState(null);
+  const [createOpen, setCreateOpen] = useState(false);
   const [editId, setEditId] = useState(null);
   const [editForm, setEditForm] = useState({
     nom: '',
@@ -64,9 +70,10 @@ export default function AdminComptesPage() {
     try {
       const [me, list] = await Promise.all([api.admin.me(), api.admin.comptes.list()]);
       setProfile(me.admin);
-      setComptes(list);
+      setComptes(Array.isArray(list) ? list : []);
     } catch (err) {
       setError(err.message);
+      setComptes([]);
     } finally {
       setLoading(false);
     }
@@ -82,6 +89,7 @@ export default function AdminComptesPage() {
 
   const handleCreateSuccess = async () => {
     setSuccess('Compte créé avec succès.');
+    setCreateOpen(false);
     await load();
   };
 
@@ -135,6 +143,10 @@ export default function AdminComptesPage() {
       setError('Les mots de passe ne correspondent pas.');
       return;
     }
+    if (editForm.password && editForm.password.length < 8) {
+      setError('Le mot de passe doit contenir au moins 8 caractères.');
+      return;
+    }
     setSaving(true);
     setError('');
     setSuccess('');
@@ -157,25 +169,27 @@ export default function AdminComptesPage() {
 
   return (
     <>
-      <h1 style={{ marginBottom: '0.5rem' }}>Comptes & rôles</h1>
-      <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.95rem', maxWidth: '720px' }}>
-        Créez des comptes avec un rôle précis. Le mot de passe doit être saisi deux fois. L&apos;utilisateur peut le modifier dans{' '}
-        <strong>Mon profil</strong>.
-      </p>
-
-      <div className="card" style={{ marginBottom: '1.25rem', padding: '1rem 1.15rem' }}>
-        <h2 style={{ margin: '0 0 0.75rem', fontSize: '0.95rem' }}>Rôles disponibles</h2>
-        <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: '0.65rem' }}>
-          {ADMIN_ROLES.map((r) => (
-            <li key={r} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-              <RoleBadge role={r} actif />
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.88rem', lineHeight: 1.45 }}>
-                {ADMIN_ROLE_DESCRIPTIONS[r]}
-              </span>
-            </li>
-          ))}
-        </ul>
+      <div className="admin-comptes-page__head">
+        <div>
+          <h1 className="admin-shell__page-title" style={{ marginBottom: '0.35rem' }}>Comptes & rôles</h1>
+          <p className="admin-shell__page-desc" style={{ marginBottom: 0 }}>
+            Gérez les accès de l&apos;équipe. Les utilisateurs peuvent modifier leur mot de passe dans{' '}
+            <strong>Mon profil</strong>.
+          </p>
+        </div>
+        <button
+          type="button"
+          className="btn btn-primary admin-comptes-page__create-btn"
+          onClick={() => {
+            setCreateOpen(true);
+            setError('');
+          }}
+        >
+          Créer un compte
+        </button>
       </div>
+
+      <RoleLegend />
 
       {error ? (
         <div className="ins-error" role="alert" style={{ marginBottom: '1rem' }}>
@@ -183,110 +197,53 @@ export default function AdminComptesPage() {
         </div>
       ) : null}
       {success ? (
-        <div style={{ marginBottom: '1rem', padding: '0.75rem 1rem', background: 'rgba(34,197,94,0.12)', borderRadius: 8 }}>
-          {success}
-        </div>
+        <div className="admin-comptes-page__success">{success}</div>
       ) : null}
 
-      <div style={{ display: 'grid', gap: '1.5rem', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', alignItems: 'start' }}>
-        <AdminCreateCompteForm creatorRole={profile?.role} onSuccess={handleCreateSuccess} />
-
-        <div className="card">
-          <h2 style={{ margin: '0 0 1rem', fontSize: '1.05rem' }}>Comptes existants ({comptes.length})</h2>
-          {loading ? (
-            <p style={{ color: 'var(--text-muted)' }}>Chargement…</p>
-          ) : comptes.length === 0 ? (
-            <p style={{ color: 'var(--text-muted)' }}>Aucun compte.</p>
-          ) : (
-            <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-              {comptes.map((c) => (
-                <li
-                  key={c.id}
-                  style={{
-                    padding: '0.75rem 0',
-                    borderBottom: '1px solid var(--border)',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    gap: '1rem',
-                    flexWrap: 'wrap',
-                    alignItems: 'flex-start',
-                  }}
-                >
-                  <div style={{ flex: 1, minWidth: 200, display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-                    <div
-                      style={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: '50%',
-                        overflow: 'hidden',
-                        background: 'var(--surface)',
-                        border: '1px solid var(--border)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '0.9rem',
-                        fontWeight: 700,
-                        color: 'var(--text-muted)',
-                        flexShrink: 0,
-                      }}
-                    >
-                      {c.photo_url ? (
-                        <img src={c.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        (c.prenom?.[0] || c.nom?.[0] || '?').toUpperCase()
-                      )}
-                    </div>
-                    <div>
-                    <strong>{c.prenom ? `${c.prenom} ${c.nom}` : c.nom}</strong>
-                    <div style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginTop: '0.2rem' }}>{c.email}</div>
-                    {c.poste ? (
-                      <div style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginTop: '0.2rem' }}>{c.poste}</div>
-                    ) : null}
-                    <div style={{ marginTop: '0.45rem' }}>
-                      <RoleBadge role={c.role} actif={c.actif} />
-                    </div>
-                    {c.created_at ? (
-                      <div style={{ color: 'var(--text-muted)', fontSize: '0.78rem', marginTop: '0.35rem' }}>
-                        Créé le {new Date(c.created_at).toLocaleDateString('fr-FR')}
-                      </div>
-                    ) : null}
-                    </div>
-                  </div>
-                  <button type="button" className="btn btn-secondary" style={{ fontSize: '0.82rem' }} onClick={() => openEdit(c)}>
-                    Modifier
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
+      <div className="admin-comptes-page__grid">
+        <AdminAccountSummaryCard admin={profile} title="Super administrateur" />
+        <div className="card admin-comptes-page__list-card">
+          <h2 className="admin-comptes-page__list-title">Comptes existants ({comptes.length})</h2>
+          <AdminAccountsList
+            comptes={comptes}
+            loading={loading}
+            onEdit={openEdit}
+          />
         </div>
       </div>
 
+      <AdminCreateCompteModal
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        creatorRole={profile?.role}
+        onSuccess={handleCreateSuccess}
+      />
+
       {editId ? (
         <div
-          role="dialog"
-          aria-modal="true"
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.55)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 100,
-            padding: '1rem',
-          }}
+          className="admin-modal-backdrop"
+          role="presentation"
           onClick={closeEdit}
         >
           <form
-            className="card"
+            className="admin-modal-panel card"
             style={{ width: '100%', maxWidth: 420, margin: 0 }}
             onClick={(e) => e.stopPropagation()}
             onSubmit={handleEditSave}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-edit-compte-title"
           >
-            <h2 style={{ margin: '0 0 1rem', fontSize: '1.05rem' }}>Modifier le compte</h2>
+            <div className="admin-modal-panel__head">
+              <h2 id="admin-edit-compte-title" className="admin-modal-panel__title">Modifier le compte</h2>
+              <button type="button" className="btn btn-secondary admin-modal-panel__close" onClick={closeEdit}>
+                Fermer
+              </button>
+            </div>
             <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', fontWeight: 600 }}>Photo de profil</label>
+              <label style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', fontWeight: 600 }}>
+                Photo de profil
+              </label>
               <ProfilePhotoPicker
                 photoUrl={editForm.photo_url}
                 name={editForm.prenom || editForm.nom}

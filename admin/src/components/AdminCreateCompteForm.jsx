@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '../api';
 import PasswordInput from './PasswordInput';
 import ProfilePhotoPicker from './ProfilePhotoPicker';
@@ -21,7 +21,14 @@ const inputStyle = {
 
 const labelStyle = { display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', fontWeight: 600 };
 
-export default function AdminCreateCompteForm({ creatorRole = 'conseiller', onSuccess, compact = false }) {
+const MIN_PASSWORD_LEN = 8;
+
+export default function AdminCreateCompteForm({
+  creatorRole = 'conseiller',
+  onSuccess,
+  compact = false,
+  hideTitle = false,
+}) {
   const [form, setForm] = useState({
     nom: '',
     prenom: '',
@@ -45,13 +52,33 @@ export default function AdminCreateCompteForm({ creatorRole = 'conseiller', onSu
     setForm((f) => ({ ...f, [name]: value }));
   };
 
+  useEffect(() => {
+    return () => {
+      if (createPhotoPreview) URL.revokeObjectURL(createPhotoPreview);
+    };
+  }, [createPhotoPreview]);
+
   const handleCreatePhotoSelect = (file) => {
+    if (createPhotoPreview) URL.revokeObjectURL(createPhotoPreview);
     setPendingCreatePhoto(file);
     setCreatePhotoPreview(URL.createObjectURL(file));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const email = form.email.trim().toLowerCase();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('Email invalide.');
+      return;
+    }
+    if (!form.nom.trim()) {
+      setError('Le nom est requis.');
+      return;
+    }
+    if (form.password.length < MIN_PASSWORD_LEN) {
+      setError(`Le mot de passe doit contenir au moins ${MIN_PASSWORD_LEN} caractères.`);
+      return;
+    }
     if (form.password !== form.password_confirm) {
       setError('Les mots de passe ne correspondent pas.');
       return;
@@ -59,7 +86,7 @@ export default function AdminCreateCompteForm({ creatorRole = 'conseiller', onSu
     setSaving(true);
     setError('');
     try {
-      const created = await api.admin.comptes.create(form);
+      const created = await api.admin.comptes.create({ ...form, email });
       if (pendingCreatePhoto && created?.id) {
         await api.admin.comptes.photoUpload(created.id, pendingCreatePhoto);
       }
@@ -74,6 +101,7 @@ export default function AdminCreateCompteForm({ creatorRole = 'conseiller', onSu
         password_confirm: '',
         role: 'conseiller',
       });
+      if (createPhotoPreview) URL.revokeObjectURL(createPhotoPreview);
       setPendingCreatePhoto(null);
       setCreatePhotoPreview('');
       onSuccess?.();
@@ -86,7 +114,7 @@ export default function AdminCreateCompteForm({ creatorRole = 'conseiller', onSu
 
   return (
     <form onSubmit={handleSubmit} className={compact ? 'admin-create-compte-form admin-create-compte-form--compact' : 'card admin-create-compte-form'}>
-      <h2 className="admin-create-compte-form__title">Nouveau compte</h2>
+      {!hideTitle ? <h2 className="admin-create-compte-form__title">Nouveau compte</h2> : null}
       {error ? (
         <div className="ins-error" role="alert" style={{ marginBottom: '0.75rem' }}>{error}</div>
       ) : null}

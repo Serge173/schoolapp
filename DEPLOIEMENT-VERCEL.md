@@ -120,7 +120,7 @@ Chaque `git push` sur `main` / `master` redéploie le site + l'API **si** le pro
 
 ### Le site live ne change pas après `git push`
 
-Symptômes : `https://figsappcotedivoire.com` affiche encore un ancien CSS (`index-CFdguPtV.css`) ou un vieux logo.
+Symptômes : `https://figsappcotedivoire.com` affiche encore un ancien CSS (ex. `index-BPICCivz.css`) alors que `https://figsapp.vercel.app` a le build récent (ex. `index-DR4Op6nq.css`).
 
 **Cause fréquente** : le domaine `figsappcotedivoire.com` est rattaché au projet Vercel **`frontend`**, alors que les déploiements récents partent sur **`figsapp`**. Vérifiez dans GitHub → Actions → déploiements `Production – frontend` vs `Production – figsapp`.
 
@@ -133,6 +133,12 @@ Symptômes : `https://figsappcotedivoire.com` affiche encore un ancien CSS (`ind
    - `npm run verify:prod` en local
    - ou `https://figsappcotedivoire.com/images/figsapp-logo.jpg` (~74 KB)
 
-**Option durable** : Vercel → **figsapp** (monorepo actuel) → **Settings → Domains** → ajouter `figsappcotedivoire.com` et retirer l'ancien projet.
+**Option durable (recommandée)** : Vercel → projet **`figsapp`** → **Settings → Domains** → ajouter `figsappcotedivoire.com` et `www.figsappcotedivoire.com`, puis retirer ces domaines du projet **`frontend`**.
+
+**Déploiement CLI** (après `vercel login`) :
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/deploy-vercel.ps1
+```
 
 **Deploy Hook** (pour forcer chaque push) : Vercel → projet → Settings → Git → Deploy Hooks → créer un hook Production → copier l'URL dans le secret GitHub `VERCEL_DEPLOY_HOOK`.

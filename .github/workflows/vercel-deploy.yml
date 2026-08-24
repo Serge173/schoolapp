@@ -3,6 +3,7 @@ name: Deploy Vercel Production
 on:
   push:
     branches: [main, master]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -33,8 +34,24 @@ jobs:
           VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
         run: |
           if [ -z "$VERCEL_DEPLOY_HOOK" ]; then
-            echo "VERCEL_DEPLOY_HOOK non configuré — ajoutez le secret GitHub (voir DEPLOIEMENT-VERCEL.md)."
+            echo "::warning::VERCEL_DEPLOY_HOOK non configuré — le déploiement repose sur l'intégration Git Vercel (projet « frontend » pour figsappcotedivoire.com)."
             exit 0
           fi
           curl -fsSL -X POST "$VERCEL_DEPLOY_HOOK"
           echo "Déploiement Vercel demandé."
+
+  verify-prod:
+    name: Verify production after deploy
+    needs: [trigger-deploy]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Wait for Vercel propagation
+        run: sleep 120
+      - name: API + frontend checks
+        run: npm run verify:prod
+        continue-on-error: true

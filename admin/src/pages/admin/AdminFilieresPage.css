@@ -39,36 +39,32 @@
   color: var(--text);
 }
 
-/* Colonne sous-filières : pile nom + boutons */
+/* Colonne spécialités : liste déroulante compacte */
 .admin-filiere-sf-cell {
   min-width: 0;
-  max-width: 280px;
+  max-width: 200px;
 }
 
-.admin-filiere-sf-list {
+.admin-filiere-sf-compact {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
-}
-
-.admin-filiere-sf-line {
-  display: flex;
-  flex-direction: column;
+  gap: 0.35rem;
   align-items: stretch;
-  gap: 0.3rem;
-  padding: 0.3rem 0.4rem;
-  background: var(--surface-hover);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  box-sizing: border-box;
 }
 
-.admin-filiere-sf-line-name {
-  font-size: 0.8rem;
-  line-height: 1.35;
-  word-break: break-word;
-  overflow-wrap: anywhere;
-  min-width: 0;
+.admin-filiere-sf-select {
+  max-width: 100%;
+}
+
+.admin-filiere-sf-count {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  line-height: 1.2;
+}
+
+.admin-filiere-sf-empty {
+  font-size: 0.78rem;
+  color: var(--text-muted);
 }
 
 .admin-filiere-sf-line-actions {

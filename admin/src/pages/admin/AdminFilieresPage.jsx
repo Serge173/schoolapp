@@ -13,8 +13,22 @@ export default function AdminFilieresPage() {
   const [filiereDomaineFilter, setFiliereDomaineFilter] = useState('');
   const [syncMsg, setSyncMsg] = useState('');
   const [syncAllLoading, setSyncAllLoading] = useState(false);
+  const [selectedSfByFiliere, setSelectedSfByFiliere] = useState({});
 
-  const loadFilieresTree = () => api.admin.filieresTree().then(setFilieresTree);
+  const loadFilieresTree = () =>
+    api.admin.filieresTree().then((rows) => {
+      setFilieresTree(rows);
+      setSelectedSfByFiliere((prev) => {
+        const next = { ...prev };
+        for (const f of rows) {
+          const sous = f.sous_filieres || [];
+          const cur = next[f.id];
+          const stillValid = sous.some((s) => String(s.id) === String(cur));
+          if (!stillValid) next[f.id] = sous[0]?.id ?? '';
+        }
+        return next;
+      });
+    });
 
   useEffect(() => {
     api.admin.filieresTree().then(setFilieresTree);
@@ -85,8 +99,11 @@ export default function AdminFilieresPage() {
     const nom = (subFiliereDraft[filiereId] || '').trim();
     if (!nom) return;
     try {
-      await api.admin.sousFiliereCreate(filiereId, { nom });
+      const created = await api.admin.sousFiliereCreate(filiereId, { nom });
       setSubFiliereDraft((prev) => ({ ...prev, [filiereId]: '' }));
+      if (created?.id) {
+        setSelectedSfByFiliere((prev) => ({ ...prev, [filiereId]: created.id }));
+      }
       loadFilieresTree();
     } catch (err) {
       alert(err.message);
@@ -286,13 +303,17 @@ export default function AdminFilieresPage() {
                   <th style={{ textAlign: 'left' }}>Filière</th>
                   <th style={{ textAlign: 'left' }}>Domaine (site)</th>
                   <th style={{ textAlign: 'left' }}>Grand groupe</th>
-                  <th style={{ textAlign: 'left' }}>Sous-filières</th>
+                  <th style={{ textAlign: 'left' }}>Spécialités</th>
                   <th style={{ textAlign: 'left' }}>Statut</th>
                   <th style={{ textAlign: 'left' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filieresFilteredForAdmin.map((f) => (
+                {filieresFilteredForAdmin.map((f) => {
+                  const sous = f.sous_filieres || [];
+                  const selectedSfId = selectedSfByFiliere[f.id] ?? sous[0]?.id ?? '';
+                  const selectedSf = sous.find((s) => String(s.id) === String(selectedSfId));
+                  return (
                   <tr key={f.id} style={{ borderBottom: '1px solid var(--border)' }}>
                     <td style={{ minWidth: 140 }}>
                       <strong style={{ fontSize: '0.88rem' }}>{f.nom}</strong>
@@ -317,27 +338,50 @@ export default function AdminFilieresPage() {
                       </select>
                     </td>
                     <td className="admin-filiere-sf-cell">
-                      <div className="admin-filiere-sf-list">
-                        {(f.sous_filieres || []).map((sf) => (
-                          <div key={sf.id} className="admin-filiere-sf-line">
-                            <span className="admin-filiere-sf-line-name">{sf.nom}</span>
-                            <div className="admin-filiere-sf-line-actions">
-                              <button type="button" className="admin-filiere-btn" onClick={() => handleRenameSousFiliere(sf)}>
-                                Modifier
-                              </button>
-                              <button type="button" className="admin-filiere-btn" onClick={() => handleDeleteSousFiliere(sf)}>
-                                Supprimer
-                              </button>
-                            </div>
+                      <div className="admin-filiere-sf-compact">
+                        {sous.length === 0 ? (
+                          <span className="admin-filiere-sf-empty">Aucune spécialité</span>
+                        ) : (
+                          <>
+                            <select
+                              className="admin-filiere-select admin-filiere-sf-select"
+                              value={selectedSfId}
+                              onChange={(e) =>
+                                setSelectedSfByFiliere((prev) => ({ ...prev, [f.id]: e.target.value }))
+                              }
+                              aria-label={`Spécialités de ${f.nom}`}
+                            >
+                              {sous.map((sf) => (
+                                <option key={sf.id} value={sf.id}>
+                                  {sf.nom}
+                                </option>
+                              ))}
+                            </select>
+                            <span className="admin-filiere-sf-count">{sous.length} au total</span>
+                          </>
+                        )}
+                        {selectedSf ? (
+                          <div className="admin-filiere-sf-line-actions">
+                            <button type="button" className="admin-filiere-btn" onClick={() => handleRenameSousFiliere(selectedSf)}>
+                              Modifier
+                            </button>
+                            <button type="button" className="admin-filiere-btn" onClick={() => handleDeleteSousFiliere(selectedSf)}>
+                              Supprimer
+                            </button>
                           </div>
-                        ))}
+                        ) : null}
                         <div className="admin-filiere-sf-add">
                           <input
                             value={subFiliereDraft[f.id] || ''}
                             onChange={(e) => setSubFiliereDraft((prev) => ({ ...prev, [f.id]: e.target.value }))}
-                            placeholder="Nouvelle sous-filière"
+                            placeholder="Nouvelle spécialité"
+                            aria-label={`Nouvelle spécialité pour ${f.nom}`}
                           />
-                          <button type="button" className="admin-filiere-btn admin-filiere-btn--primary" onClick={() => handleCreateSousFiliere(f.id)}>
+                          <button
+                            type="button"
+                            className="admin-filiere-btn admin-filiere-btn--primary"
+                            onClick={() => handleCreateSousFiliere(f.id)}
+                          >
                             Ajouter
                           </button>
                         </div>
@@ -362,7 +406,8 @@ export default function AdminFilieresPage() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>

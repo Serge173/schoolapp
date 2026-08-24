@@ -2,12 +2,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import { api } from '../../api';
 import { FIGSAPP_LOGO, FIGSAPP_LOGO_ALT } from '../../data/brand';
+import AdminProfileMenu from '../../components/AdminProfileMenu';
 import {
-  ADMIN_ROLE_LABELS,
   canManageAccounts,
   canManageContent,
   normalizeRole,
-  roleBadgeClass,
 } from '../../data/adminRoles';
 import './admin-shell.css';
 import './admin-mobile.css';
@@ -62,19 +61,18 @@ export default function AdminLayout() {
 
   return (
     <div className="admin-page admin-shell" style={{ minHeight: '100vh' }}>
-      <header className="admin-header admin-shell__header">
-        <div className="admin-shell__header-brand">
-          <Link to="/" className="admin-shell__header-site" style={{ color: 'var(--text-muted)' }} aria-label="Retour au site">
-            Site
+      <header className="layout-header admin-header admin-shell__header">
+        <div className="container layout-header__inner admin-shell__header-inner">
+          <Link to="/" className="logo" aria-label="Retour au site public" onClick={closeMenu}>
+            <img
+              src={FIGSAPP_LOGO}
+              alt={FIGSAPP_LOGO_ALT}
+              className="layout-logo-img"
+              width={114}
+              height={48}
+              decoding="async"
+            />
           </Link>
-          <img
-            src={FIGSAPP_LOGO}
-            alt={FIGSAPP_LOGO_ALT}
-            className="admin-header-logo"
-            width={140}
-            height={40}
-            decoding="async"
-          />
           <span className="admin-shell__title">Administration</span>
           <button
             type="button"
@@ -84,38 +82,12 @@ export default function AdminLayout() {
           >
             {menuOpen ? 'Fermer' : 'Menu'}
           </button>
-        </div>
-        <div className="admin-shell__user">
-          {admin ? (
-            <Link
-              to="/admin/profil"
-              onClick={closeMenu}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.65rem',
-                textDecoration: 'none',
-                color: 'inherit',
-              }}
-            >
-              {admin.photo_url ? (
-                <img
-                  src={admin.photo_url}
-                  alt=""
-                  style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--border)' }}
-                />
-              ) : null}
-              <div className="admin-shell__user-meta" style={{ textAlign: 'right', fontSize: '0.85rem' }}>
-                <div style={{ fontWeight: 600 }}>{admin.prenom ? `${admin.prenom} ${admin.nom}` : admin.nom}</div>
-                <span className={`badge ${roleBadgeClass(role)}`} style={{ fontSize: '0.72rem', marginTop: '0.2rem' }}>
-                  {ADMIN_ROLE_LABELS[role]}
-                </span>
-              </div>
-            </Link>
-          ) : null}
-          <button type="button" className="btn btn-secondary" onClick={handleLogout}>
-            Déconnexion
-          </button>
+          <div className="admin-shell__header-actions">
+            <AdminProfileMenu admin={admin} />
+            <button type="button" className="btn admin-shell__logout-btn" onClick={handleLogout}>
+              Déconnexion
+            </button>
+          </div>
         </div>
       </header>
       {menuOpen ? (

@@ -143,7 +143,6 @@ input, select, textarea {
 
 /* Admin shell */
 .admin-shell__header {
-  padding: 1rem 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -239,18 +238,57 @@ input, select, textarea {
 }
 
 .admin-header {
+  background: #ff7309;
+  border-bottom: 1px solid rgba(173, 112, 0, 0.35);
+  box-shadow: 0 2px 8px rgba(255, 174, 27, 0.35);
+  padding: 0.85rem 0;
+}
+
+.admin-shell__header-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.admin-shell__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-left: auto;
+}
+
+.admin-header .admin-shell__title {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.admin-shell__logout-btn {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  padding: 0.45rem 0.85rem;
+  font-size: 0.82rem;
+  border-radius: 10px;
+}
+
+.admin-shell__logout-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+}
+
+.admin-header a.logo {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  line-height: 0;
   background: #ffffff;
-  border-bottom: 1px solid var(--border);
-  box-shadow: 0 1px 6px rgba(15, 23, 42, 0.06);
-}
-
-.admin-header a,
-.admin-header span {
-  color: var(--text) !important;
-}
-
-.admin-header a:hover {
-  color: var(--accent) !important;
+  border-radius: 8px;
+  padding: 0.12rem 0.14rem 0.12rem 0.26rem;
+  overflow: hidden;
+  flex-shrink: 0;
+  max-width: fit-content;
 }
 
 .admin-header-logo {

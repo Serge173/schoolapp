@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { api } from '../../api';
 import PasswordInput from '../../components/PasswordInput';
 import ProfilePhotoPicker from '../../components/ProfilePhotoPicker';
+import AdminCreateCompteForm from '../../components/AdminCreateCompteForm';
 import {
   ADMIN_ROLE_LABELS,
   ADMIN_ROLE_DESCRIPTIONS,
@@ -41,17 +42,6 @@ function RoleBadge({ role, actif }) {
 export default function AdminComptesPage() {
   const [comptes, setComptes] = useState([]);
   const [profile, setProfile] = useState(null);
-  const [form, setForm] = useState({
-    nom: '',
-    prenom: '',
-    email: '',
-    telephone: '',
-    poste: '',
-    pays_bureau: '',
-    password: '',
-    password_confirm: '',
-    role: 'conseiller',
-  });
   const [editId, setEditId] = useState(null);
   const [editForm, setEditForm] = useState({
     nom: '',
@@ -64,8 +54,6 @@ export default function AdminComptesPage() {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [createPhotoPreview, setCreatePhotoPreview] = useState('');
-  const [pendingCreatePhoto, setPendingCreatePhoto] = useState(null);
   const [editPhotoLoading, setEditPhotoLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -92,45 +80,9 @@ export default function AdminComptesPage() {
     return <Navigate to="/admin/dashboard" replace />;
   }
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((f) => ({ ...f, [name]: value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (form.password !== form.password_confirm) {
-      setError('Les mots de passe ne correspondent pas.');
-      return;
-    }
-    setSaving(true);
-    setError('');
-    setSuccess('');
-    try {
-      const created = await api.admin.comptes.create(form);
-      if (pendingCreatePhoto && created?.id) {
-        await api.admin.comptes.photoUpload(created.id, pendingCreatePhoto);
-      }
-      setSuccess('Compte créé avec succès.');
-      setForm({
-        nom: '',
-        prenom: '',
-        email: '',
-        telephone: '',
-        poste: '',
-        pays_bureau: '',
-        password: '',
-        password_confirm: '',
-        role: 'conseiller',
-      });
-      setPendingCreatePhoto(null);
-      setCreatePhotoPreview('');
-      await load();
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setSaving(false);
-    }
+  const handleCreateSuccess = async () => {
+    setSuccess('Compte créé avec succès.');
+    await load();
   };
 
   const openEdit = (c) => {
@@ -159,11 +111,6 @@ export default function AdminComptesPage() {
       password_confirm: '',
       photo_url: '',
     });
-  };
-
-  const handleCreatePhotoSelect = (file) => {
-    setPendingCreatePhoto(file);
-    setCreatePhotoPreview(URL.createObjectURL(file));
   };
 
   const handleEditPhotoSelect = async (file) => {
@@ -242,76 +189,7 @@ export default function AdminComptesPage() {
       ) : null}
 
       <div style={{ display: 'grid', gap: '1.5rem', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', alignItems: 'start' }}>
-        <form onSubmit={handleSubmit} className="card">
-          <h2 style={{ margin: '0 0 1rem', fontSize: '1.05rem' }}>Nouveau compte</h2>
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', fontWeight: 600 }}>Photo de profil</label>
-            <ProfilePhotoPicker
-              photoUrl={createPhotoPreview}
-              name={form.prenom || form.nom}
-              onFileSelect={handleCreatePhotoSelect}
-            />
-          </div>
-          <div style={{ marginBottom: '0.85rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', fontWeight: 600 }}>Nom *</label>
-            <input name="nom" value={form.nom} onChange={handleChange} required style={inputStyle} />
-          </div>
-          <div style={{ marginBottom: '0.85rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', fontWeight: 600 }}>Prénom</label>
-            <input name="prenom" value={form.prenom} onChange={handleChange} style={inputStyle} />
-          </div>
-          <div style={{ marginBottom: '0.85rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', fontWeight: 600 }}>Email *</label>
-            <input type="email" name="email" value={form.email} onChange={handleChange} required style={inputStyle} />
-          </div>
-          <div style={{ marginBottom: '0.85rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', fontWeight: 600 }}>Téléphone</label>
-            <input name="telephone" value={form.telephone} onChange={handleChange} style={inputStyle} />
-          </div>
-          <div style={{ marginBottom: '0.85rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', fontWeight: 600 }}>Fonction</label>
-            <input name="poste" value={form.poste} onChange={handleChange} style={inputStyle} />
-          </div>
-          <div style={{ marginBottom: '0.85rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', fontWeight: 600 }}>Bureau</label>
-            <select name="pays_bureau" value={form.pays_bureau} onChange={handleChange} style={inputStyle}>
-              <option value="">—</option>
-              <option value="CI">Côte d&apos;Ivoire</option>
-              <option value="BF">Burkina Faso</option>
-            </select>
-          </div>
-          <div style={{ marginBottom: '0.85rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', fontWeight: 600 }}>Rôle *</label>
-            <select name="role" value={form.role} onChange={handleChange} required style={inputStyle}>
-              {ADMIN_ROLES.filter((r) => r !== 'super_admin' || profile?.role === 'super_admin').map((r) => (
-                <option key={r} value={r}>
-                  {ADMIN_ROLE_LABELS[r]}
-                </option>
-              ))}
-            </select>
-            <p style={{ margin: '0.35rem 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-              {ADMIN_ROLE_DESCRIPTIONS[form.role]}
-            </p>
-          </div>
-          <PasswordInput
-            label="Mot de passe *"
-            name="password"
-            value={form.password}
-            onChange={handleChange}
-            required
-            hint="8 caractères minimum — vérifiez avec le champ ci-dessous."
-          />
-          <PasswordInput
-            label="Confirmer le mot de passe *"
-            name="password_confirm"
-            value={form.password_confirm}
-            onChange={handleChange}
-            required
-          />
-          <button type="submit" className="btn btn-primary" disabled={saving}>
-            {saving ? 'Création…' : 'Créer le compte'}
-          </button>
-        </form>
+        <AdminCreateCompteForm creatorRole={profile?.role} onSuccess={handleCreateSuccess} />
 
         <div className="card">
           <h2 style={{ margin: '0 0 1rem', fontSize: '1.05rem' }}>Comptes existants ({comptes.length})</h2>

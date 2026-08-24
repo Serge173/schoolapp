@@ -17,14 +17,19 @@
     flex-wrap: nowrap;
   }
 
-  .admin-shell__header-site {
-    font-size: 0.72rem;
-    white-space: nowrap;
+  .admin-shell__header-inner {
+    flex-wrap: nowrap;
   }
 
-  .admin-header-logo {
+  .admin-shell__title {
+    display: none;
+  }
+
+  .admin-header-logo,
+  .admin-header .layout-logo-img {
     max-height: 30px;
-    width: auto;
+    height: 30px;
+    width: 5.5rem;
   }
 
   .admin-shell__menu-toggle {
@@ -33,22 +38,23 @@
     padding: 0.38rem 0.6rem;
     font-size: 0.76rem;
     border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
   }
 
-  .admin-shell__user {
-    width: auto;
-    flex-shrink: 0;
+  .admin-shell__header-actions {
     gap: 0.35rem;
   }
 
-  .admin-shell__user-meta {
-    display: none;
-  }
-
-  .admin-shell__user .btn-secondary {
+  .admin-shell__logout-btn {
     padding: 0.38rem 0.55rem;
     font-size: 0.72rem;
-    border-radius: 8px;
+  }
+
+  .admin-profile-menu__panel {
+    right: 0;
+    width: min(100vw - 1.25rem, 360px);
   }
 
   .admin-shell__body {
@@ -254,11 +260,7 @@
 }
 
 @media (max-width: 380px) {
-  .admin-shell__header-site {
-    display: none;
-  }
-
-  .admin-shell__user .btn-secondary {
+  .admin-shell__logout-btn {
     padding: 0.35rem 0.45rem;
     font-size: 0.68rem;
   }

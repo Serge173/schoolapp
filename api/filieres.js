@@ -4,6 +4,7 @@
 const db = require('../config/db');
 const { pathnameOf } = require('../includes/apiLite');
 const { handleLitePublic } = require('../includes/litePublicHandler');
+const { withServerlessSecurity } = require('../includes/serverlessSecurity');
 
 async function listFilieres(query) {
   const type = query.type;
@@ -40,7 +41,7 @@ async function listFilieres(query) {
   return filieres;
 }
 
-module.exports = async (req, res) => {
+module.exports = withServerlessSecurity(async (req, res) => {
   if (await handleLitePublic(req, res)) return;
 
   if (req.method !== 'GET') {
@@ -98,4 +99,4 @@ module.exports = async (req, res) => {
     console.error('[api/filieres]', err);
     return res.status(500).json({ error: 'Erreur serveur.' });
   }
-};
+});

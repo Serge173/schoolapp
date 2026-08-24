@@ -1,5 +1,6 @@
 const { ensureJwtSecretEnv } = require('../config/ensureJwtSecretEnv');
 const { pathnameOf } = require('../includes/apiLite');
+const { applySecurityHeaders } = require('../includes/securityHeaders');
 
 function hasJwtConfig() {
   ensureJwtSecretEnv();
@@ -14,26 +15,19 @@ function hasJwtConfig() {
 }
 
 module.exports = (req, res) => {
+  applySecurityHeaders(res);
   const path = pathnameOf(req);
 
   if (path === '/api/health') {
-    const jwtReady = hasJwtConfig();
-    return res.status(200).json({
-      ok: true,
-      jwt: jwtReady,
-      env: process.env.NODE_ENV || process.env.VERCEL_ENV || null,
-      vercel: Boolean(process.env.VERCEL || process.env.VERCEL_ENV),
-      db: jwtReady && !(process.env.JWT_SECRET || '').trim(),
-    });
+    const ready = hasJwtConfig();
+    return res.status(200).json({ ok: true, ready });
   }
 
+  const ready = hasJwtConfig();
   res.status(200).json({
-    v: 'fast-api-6',
-    features: ['contact-inscription', 'admin-roles', 'rdv-patch-delete', 'dossier-inscription', 'universite-detail', 'filiere-mutations-lite'],
+    ok: true,
+    v: 'fast-api-7',
+    ready,
     vercel: Boolean(process.env.VERCEL || process.env.VERCEL_ENV),
-    hasPostgresUrl: Boolean(process.env.POSTGRES_URL),
-    hasDatabaseUrl: Boolean(process.env.DATABASE_URL),
-    hasJwtSecret: Boolean((process.env.JWT_SECRET || '').trim()),
-    nodeEnv: process.env.NODE_ENV || process.env.VERCEL_ENV || null,
   });
 };

@@ -52,11 +52,11 @@ async function main() {
   console.log(`\n=== Vérification BDD / API (${BASE}) ===\n`);
 
   const ping = await req('/api/ping');
-  const pingOk = ping.status === 200 && ping.body?.hasPostgresUrl;
+  const pingOk = ping.status === 200 && ping.body?.ok === true && ping.body?.ready === true;
   ok('Ping / DB config', pingOk, JSON.stringify(ping.body));
-  const deployReady = ['fast-api-5', 'fast-api-6'].includes(ping.body?.v);
+  const deployReady = ['fast-api-6', 'fast-api-7'].includes(ping.body?.v);
   if (!deployReady) {
-    console.log('  WARN  Déploiement API pas à jour (v attendue fast-api-6, reçue ' + (ping.body?.v || '?') + ')');
+    console.log('  WARN  Déploiement API pas à jour (v attendue fast-api-7, reçue ' + (ping.body?.v || '?') + ')');
   }
 
   const filieres = await req('/api/filieres?type=privee');

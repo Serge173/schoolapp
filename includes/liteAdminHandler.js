@@ -23,6 +23,10 @@ function getClientIp(req) {
 
 async function handleLogin(req, res) {
   try {
+    const { allowRequest, rateLimitMessage, LOGIN_MAX, DEFAULT_WINDOW_MS } = require('./loginRateLimit');
+    if (!allowRequest(`login:${getClientIp(req)}`, LOGIN_MAX, DEFAULT_WINDOW_MS)) {
+      return res.status(429).json(rateLimitMessage('Trop de tentatives de connexion. Réessayez plus tard.'));
+    }
     const bcrypt = require('bcryptjs');
     const { generateToken, ADMIN_COOKIE_NAME } = require('../server/middleware/auth');
     const { writeAudit } = require('./auditLog');
@@ -281,6 +285,8 @@ async function handleFiliereMutation(req, res, handler) {
 
 /** Retourne true si la route légère a été traitée. */
 async function handleLiteAdmin(req, res) {
+  const { applySecurityHeaders } = require('./securityHeaders');
+  applySecurityHeaders(res);
   const path = originalApiPath(req);
 
   if (path === '/api/admin/filieres' && req.method === 'POST') {

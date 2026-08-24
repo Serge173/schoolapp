@@ -6,6 +6,19 @@ const { readJsonBody, originalApiPath } = require('./apiLite');
 const { createInscription } = require('./createInscription');
 const { createRendezVous } = require('./createRendezVous');
 const { createDemandeOrientation } = require('./createDemandeOrientation');
+const { allowRequest, rateLimitMessage } = require('./loginRateLimit');
+
+function getClientIp(req) {
+  return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+}
+
+function enforcePublicRateLimit(req, res, scope, max) {
+  if (!allowRequest(`${scope}:${getClientIp(req)}`, max)) {
+    res.status(429).json(rateLimitMessage());
+    return false;
+  }
+  return true;
+}
 
 const dataFile = process.env.VERCEL || process.env.VERCEL_ENV
   ? path.join('/tmp', 'figsapp-contact-messages.json')
@@ -88,21 +101,28 @@ async function handleDemandesOrientation(req, res) {
 async function handleLitePublic(req, res) {
   if (req.method !== 'POST') return false;
 
+  const { applySecurityHeaders } = require('./securityHeaders');
+  applySecurityHeaders(res);
+
   const path = originalApiPath(req);
 
   if (path === '/api/contact') {
+    if (!enforcePublicRateLimit(req, res, 'contact', 20)) return true;
     await handleContact(req, res);
     return true;
   }
   if (path === '/api/inscriptions') {
+    if (!enforcePublicRateLimit(req, res, 'inscriptions', 10)) return true;
     await handleInscriptions(req, res);
     return true;
   }
   if (path === '/api/rendez-vous') {
+    if (!enforcePublicRateLimit(req, res, 'rendez-vous', 15)) return true;
     await handleRendezVous(req, res);
     return true;
   }
   if (path === '/api/demandes-orientation') {
+    if (!enforcePublicRateLimit(req, res, 'demandes-orientation', 12)) return true;
     await handleDemandesOrientation(req, res);
     return true;
   }

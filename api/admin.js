@@ -2,6 +2,7 @@
  * Routes admin — handlers légers en premier, Express chargé uniquement si nécessaire.
  */
 const { handleLiteAdmin } = require('../includes/liteAdminHandler');
+const { withServerlessSecurity } = require('../includes/serverlessSecurity');
 
 require('../config/ensureJwtSecretEnv').ensureJwtSecretEnv();
 
@@ -22,11 +23,38 @@ function restoreReqUrl(req) {
 function createExpressHandler() {
   const serverless = require('serverless-http');
   const express = require('express');
+  const helmet = require('helmet');
+  const rateLimit = require('express-rate-limit');
   const cookieParser = require('cookie-parser');
   const app = express();
   const isVercel = Boolean(process.env.VERCEL || process.env.VERCEL_ENV);
+  const isProd = process.env.NODE_ENV === 'production';
+  const rateLimitDefaults = isVercel ? { validate: false } : {};
+
   app.set('trust proxy', 1);
+  app.use(helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    contentSecurityPolicy: false,
+    hsts: isProd ? { maxAge: 31536000, includeSubDomains: true, preload: true } : false,
+  }));
   app.use(cookieParser());
+
+  const loginLimiter = rateLimit({
+    ...rateLimitDefaults,
+    windowMs: 15 * 60 * 1000,
+    max: 20,
+    message: { error: 'Trop de tentatives de connexion. Réessayez plus tard.' },
+  });
+  app.use('/api/admin/login', loginLimiter);
+
+  const adminLimiter = rateLimit({
+    ...rateLimitDefaults,
+    windowMs: 15 * 60 * 1000,
+    max: 200,
+    message: { error: 'Trop de requêtes admin. Réessayez plus tard.' },
+  });
+  app.use('/api/admin', adminLimiter);
+
   app.use((req, res, next) => {
     if (req.body != null && typeof req.body === 'object' && !Buffer.isBuffer(req.body)) {
       return next();
@@ -50,7 +78,7 @@ function createExpressHandler() {
   return serverless(app);
 }
 
-module.exports = async (req, res) => {
+const innerHandler = async (req, res) => {
   try {
     if (await handleLiteAdmin(req, res)) return;
 
@@ -67,3 +95,5 @@ module.exports = async (req, res) => {
     }
   }
 };
+
+module.exports = withServerlessSecurity(innerHandler);

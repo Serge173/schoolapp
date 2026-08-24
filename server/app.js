@@ -17,6 +17,7 @@ const { uploadDir } = require('./middleware/upload');
 const { requestLogger } = require('./middleware/requestLogger');
 const { ensureJwtSecretEnv } = require('../config/ensureJwtSecretEnv');
 const { assertJwtSecretConfigured, isVercelRuntime } = require('../config/jwtSecret');
+const { getAllowedCorsOrigins, expandCorsOrigins } = require('../includes/corsOrigins');
 
 ensureJwtSecretEnv();
 
@@ -51,34 +52,11 @@ app.use(helmet({
 }));
 
 /** Accepte aussi la variante www / sans-www de chaque origine configurée. */
-function expandCorsOrigins(origins) {
-  const set = new Set(origins);
-  for (const origin of origins) {
-    try {
-      const u = new URL(origin);
-      const host = u.hostname;
-      const base = `${u.protocol}//`;
-      const port = u.port ? `:${u.port}` : '';
-      if (host.startsWith('www.')) {
-        set.add(`${base}${host.slice(4)}${port}`);
-      } else {
-        set.add(`${base}www.${host}${port}`);
-      }
-    } catch {
-      /* ignore invalid URL */
-    }
-  }
-  return [...set];
-}
-
-const corsOrigins = expandCorsOrigins(
-  (process.env.CORS_ORIGIN || '').split(',').map((v) => v.trim()).filter(Boolean)
-);
+const corsOrigins = expandCorsOrigins(getAllowedCorsOrigins());
 app.use(cors({
   origin: (origin, cb) => {
     if (!origin) return cb(null, true);
     if (!isProd) return cb(null, true);
-    if (process.env.VERCEL && corsOrigins.length === 0) return cb(null, true);
     return cb(null, corsOrigins.includes(origin));
   },
   credentials: true,

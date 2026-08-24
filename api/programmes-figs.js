@@ -2,8 +2,9 @@
  * Catalogue FIGS — handler léger sans boot Express (pas de JWT / DB requis).
  */
 const { listPrograms, getProgram } = require('../includes/figsProgrammesCatalog');
+const { withServerlessSecurity } = require('../includes/serverlessSecurity');
 
-module.exports = (req, res) => {
+module.exports = withServerlessSecurity((req, res) => {
   try {
     const id = Number(req.query?.id);
     if (Number.isFinite(id) && id > 0) {
@@ -18,4 +19,4 @@ module.exports = (req, res) => {
     console.error('[api/programmes-figs]', e);
     res.status(500).json({ error: 'Impossible de charger le catalogue FIGS.' });
   }
-};
+});

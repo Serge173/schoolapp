@@ -5,8 +5,9 @@ const path = require('path');
 const db = require('../config/db');
 const { resolveLogoUrl } = require('../includes/logoUrl');
 const { pathnameOf } = require('../includes/apiLite');
+const { withServerlessSecurity } = require('../includes/serverlessSecurity');
 
-module.exports = async (req, res) => {
+module.exports = withServerlessSecurity(async (req, res) => {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Méthode non autorisée.' });
   }
@@ -100,4 +101,4 @@ module.exports = async (req, res) => {
     console.error('[api/universites]', err);
     return res.status(500).json({ error: 'Erreur serveur.' });
   }
-};
+});

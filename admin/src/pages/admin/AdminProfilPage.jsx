@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { api } from '../../api';
 import PasswordInput from '../../components/PasswordInput';
+import ProfilePhotoPicker from '../../components/ProfilePhotoPicker';
 import { ADMIN_ROLE_LABELS, normalizeRole, roleBadgeClass } from '../../data/adminRoles';
 
 const inputStyle = {
@@ -116,9 +117,7 @@ export default function AdminProfilPage() {
     }
   };
 
-  const handlePhotoFile = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handlePhotoFile = async (file) => {
     setPhotoLoading(true);
     setError('');
     try {
@@ -129,7 +128,6 @@ export default function AdminProfilPage() {
       setError(err.message);
     } finally {
       setPhotoLoading(false);
-      e.target.value = '';
     }
   };
 
@@ -156,35 +154,14 @@ export default function AdminProfilPage() {
       ) : null}
 
       <form onSubmit={handleSubmit} className="card" style={{ maxWidth: 720 }}>
-        <div style={{ display: 'flex', gap: '1.25rem', flexWrap: 'wrap', marginBottom: '1.25rem', alignItems: 'center' }}>
-          <div
-            style={{
-              width: 88,
-              height: 88,
-              borderRadius: '50%',
-              overflow: 'hidden',
-              border: '2px solid var(--border)',
-              background: 'var(--surface-hover)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '2rem',
-              color: 'var(--text-muted)',
-            }}
-          >
-            {photoSrc ? (
-              <img src={photoSrc} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            ) : (
-              (form.prenom?.[0] || form.nom?.[0] || '?').toUpperCase()
-            )}
-          </div>
-          <div>
-            <label style={labelStyle}>Photo de profil</label>
-            <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={handlePhotoFile} disabled={photoLoading} />
-            <p style={{ margin: '0.35rem 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-              JPG, PNG ou WebP — max 2 Mo
-            </p>
-          </div>
+        <div style={{ marginBottom: '1.25rem' }}>
+          <label style={labelStyle}>Photo de profil</label>
+          <ProfilePhotoPicker
+            photoUrl={photoSrc}
+            name={form.prenom || form.nom}
+            onFileSelect={handlePhotoFile}
+            loading={photoLoading}
+          />
         </div>
 
         <div style={{ marginBottom: '0.85rem' }}>

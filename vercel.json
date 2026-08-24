@@ -28,6 +28,7 @@
     { "source": "/api/ping", "destination": "/api/ping" },
     { "source": "/api/health", "destination": "/api/ping" },
     { "source": "/api/admin/me/photo", "destination": "/api/admin?__route=admin/me/photo" },
+    { "source": "/api/admin/comptes/:id/photo", "destination": "/api/admin?__route=admin/comptes/:id/photo" },
     { "source": "/api/admin/rendez-vous", "destination": "/api/admin?__route=admin/rendez-vous" },
     { "source": "/api/admin/inscriptions/:id", "destination": "/api/admin?__route=admin/inscriptions/:id" },
     { "source": "/api/admin/inscriptions", "destination": "/api/admin?__route=admin/inscriptions" },

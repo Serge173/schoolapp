@@ -301,6 +301,22 @@ router.patch('/comptes/:id', accountsGuard, [
   }
 });
 
+router.post('/comptes/:id/photo', accountsGuard, [param('id').isInt()], uploadLogo, async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ error: errors.array()[0].msg });
+    if (!req.file) return res.status(400).json({ error: 'Aucun fichier photo.' });
+    const photoUrl = '/uploads/logos/' + req.file.filename;
+    const { patchAdminAccount } = require('../../includes/adminAccounts');
+    const result = await patchAdminAccount(Number(req.params.id), { photo_url: photoUrl }, adminActor(req));
+    if (result.status !== 200) return res.status(result.status).json(result.body);
+    res.json({ photoUrl, admin: result.body });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur upload.' });
+  }
+});
+
 const RDV_STATUTS = ['nouveau', 'a_confirmer', 'confirme', 'annule', 'termine'];
 
 router.get('/rendez-vous', [

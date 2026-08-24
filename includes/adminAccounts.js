@@ -30,6 +30,9 @@ async function ensureAdminSchema() {
   await ensureAdminsRoles();
   await ensureAdminProfile();
 }
+
+async function fetchAdminById(id) {
+  await ensureAdminSchema();
   const [rows] = await db.query(`${ADMIN_SELECT} WHERE id = ?`, [id]);
   return rows[0] || null;
 }
@@ -185,6 +188,15 @@ async function patchAdminAccount(id, body, actor) {
     if (pb && !['CI', 'BF'].includes(pb)) return { status: 400, body: { error: 'Bureau invalide.' } };
     sets.push('pays_bureau = ?');
     params.push(pb);
+  }
+  if (b.photo_url !== undefined) {
+    const { isValidPhotoUrl } = require('./adminPhotoUrl');
+    const photo = String(b.photo_url || '').trim().slice(0, 500) || null;
+    if (photo && !isValidPhotoUrl(photo)) {
+      return { status: 400, body: { error: 'URL de photo invalide.' } };
+    }
+    sets.push('photo_url = ?');
+    params.push(photo);
   }
 
   if (b.password !== undefined) {

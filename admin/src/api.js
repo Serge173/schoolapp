@@ -100,6 +100,21 @@ export const api = {
       create: (body) => request('/admin/comptes', { method: 'POST', body: JSON.stringify(body) }),
       update: (id, body) =>
         request(`/admin/comptes/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+      photoUpload: (id, file) => {
+        const fd = new FormData();
+        fd.append('logo', file);
+        return fetch(`${API_BASE}/admin/comptes/${id}/photo`, { method: 'POST', credentials: 'include', body: fd }).then(async (res) => {
+          const text = await res.text();
+          let data = {};
+          try {
+            data = JSON.parse(text);
+          } catch {
+            throw new Error('Réponse serveur invalide.');
+          }
+          if (!res.ok) throw new Error(data.error || 'Erreur upload');
+          return data;
+        });
+      },
     },
     rendezVous: (params = {}) => {
       const clean = Object.fromEntries(

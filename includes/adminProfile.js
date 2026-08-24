@@ -62,8 +62,9 @@ async function patchOwnProfile(adminId, body) {
     params.push(pb);
   }
   if (b.photo_url !== undefined) {
+    const { isValidPhotoUrl } = require('./adminPhotoUrl');
     const photo = cleanStr(b.photo_url, 500);
-    if (photo && !/^https?:\/\//i.test(photo) && !/^\/?uploads\//i.test(photo) && !/^\/?images\//i.test(photo)) {
+    if (photo && !isValidPhotoUrl(photo)) {
       return { status: 400, body: { error: 'URL de photo invalide.' } };
     }
     sets.push('photo_url = ?');

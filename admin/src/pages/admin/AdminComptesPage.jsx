@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { api } from '../../api';
 import PasswordInput from '../../components/PasswordInput';
+import ProfilePhotoPicker from '../../components/ProfilePhotoPicker';
 import {
   ADMIN_ROLE_LABELS,
   ADMIN_ROLE_DESCRIPTIONS,
@@ -59,9 +60,13 @@ export default function AdminComptesPage() {
     actif: true,
     password: '',
     password_confirm: '',
+    photo_url: '',
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [createPhotoPreview, setCreatePhotoPreview] = useState('');
+  const [pendingCreatePhoto, setPendingCreatePhoto] = useState(null);
+  const [editPhotoLoading, setEditPhotoLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
@@ -102,7 +107,10 @@ export default function AdminComptesPage() {
     setError('');
     setSuccess('');
     try {
-      await api.admin.comptes.create(form);
+      const created = await api.admin.comptes.create(form);
+      if (pendingCreatePhoto && created?.id) {
+        await api.admin.comptes.photoUpload(created.id, pendingCreatePhoto);
+      }
       setSuccess('Compte créé avec succès.');
       setForm({
         nom: '',
@@ -115,6 +123,8 @@ export default function AdminComptesPage() {
         password_confirm: '',
         role: 'conseiller',
       });
+      setPendingCreatePhoto(null);
+      setCreatePhotoPreview('');
       await load();
     } catch (err) {
       setError(err.message);
@@ -132,6 +142,7 @@ export default function AdminComptesPage() {
       actif: c.actif,
       password: '',
       password_confirm: '',
+      photo_url: c.photo_url || '',
     });
     setError('');
     setSuccess('');
@@ -139,7 +150,35 @@ export default function AdminComptesPage() {
 
   const closeEdit = () => {
     setEditId(null);
-    setEditForm({ nom: '', prenom: '', role: 'conseiller', actif: true, password: '', password_confirm: '' });
+    setEditForm({
+      nom: '',
+      prenom: '',
+      role: 'conseiller',
+      actif: true,
+      password: '',
+      password_confirm: '',
+      photo_url: '',
+    });
+  };
+
+  const handleCreatePhotoSelect = (file) => {
+    setPendingCreatePhoto(file);
+    setCreatePhotoPreview(URL.createObjectURL(file));
+  };
+
+  const handleEditPhotoSelect = async (file) => {
+    if (!editId) return;
+    setEditPhotoLoading(true);
+    setError('');
+    try {
+      const res = await api.admin.comptes.photoUpload(editId, file);
+      setEditForm((f) => ({ ...f, photo_url: res.photoUrl || res.admin?.photo_url || f.photo_url }));
+      setSuccess('Photo mise à jour.');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setEditPhotoLoading(false);
+    }
   };
 
   const handleEditSave = async (e) => {
@@ -205,6 +244,14 @@ export default function AdminComptesPage() {
       <div style={{ display: 'grid', gap: '1.5rem', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', alignItems: 'start' }}>
         <form onSubmit={handleSubmit} className="card">
           <h2 style={{ margin: '0 0 1rem', fontSize: '1.05rem' }}>Nouveau compte</h2>
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', fontWeight: 600 }}>Photo de profil</label>
+            <ProfilePhotoPicker
+              photoUrl={createPhotoPreview}
+              name={form.prenom || form.nom}
+              onFileSelect={handleCreatePhotoSelect}
+            />
+          </div>
           <div style={{ marginBottom: '0.85rem' }}>
             <label style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', fontWeight: 600 }}>Nom *</label>
             <input name="nom" value={form.nom} onChange={handleChange} required style={inputStyle} />
@@ -287,7 +334,31 @@ export default function AdminComptesPage() {
                     alignItems: 'flex-start',
                   }}
                 >
-                  <div style={{ flex: 1, minWidth: 200 }}>
+                  <div style={{ flex: 1, minWidth: 200, display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                    <div
+                      style={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: '50%',
+                        overflow: 'hidden',
+                        background: 'var(--surface)',
+                        border: '1px solid var(--border)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '0.9rem',
+                        fontWeight: 700,
+                        color: 'var(--text-muted)',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {c.photo_url ? (
+                        <img src={c.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        (c.prenom?.[0] || c.nom?.[0] || '?').toUpperCase()
+                      )}
+                    </div>
+                    <div>
                     <strong>{c.prenom ? `${c.prenom} ${c.nom}` : c.nom}</strong>
                     <div style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginTop: '0.2rem' }}>{c.email}</div>
                     {c.poste ? (
@@ -301,6 +372,7 @@ export default function AdminComptesPage() {
                         Créé le {new Date(c.created_at).toLocaleDateString('fr-FR')}
                       </div>
                     ) : null}
+                    </div>
                   </div>
                   <button type="button" className="btn btn-secondary" style={{ fontSize: '0.82rem' }} onClick={() => openEdit(c)}>
                     Modifier
@@ -335,6 +407,15 @@ export default function AdminComptesPage() {
             onSubmit={handleEditSave}
           >
             <h2 style={{ margin: '0 0 1rem', fontSize: '1.05rem' }}>Modifier le compte</h2>
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', fontWeight: 600 }}>Photo de profil</label>
+              <ProfilePhotoPicker
+                photoUrl={editForm.photo_url}
+                name={editForm.prenom || editForm.nom}
+                onFileSelect={handleEditPhotoSelect}
+                loading={editPhotoLoading}
+              />
+            </div>
             <div style={{ marginBottom: '0.85rem' }}>
               <label style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', fontWeight: 600 }}>Nom</label>
               <input

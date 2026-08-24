@@ -60,12 +60,11 @@ export default function AdminLayout() {
           </Link>
           <img
             src={FIGSAPP_LOGO}
-            alt=""
+            alt={FIGSAPP_LOGO_ALT}
             className="admin-header-logo"
-            width={96}
-            height={36}
+            width={140}
+            height={40}
             decoding="async"
-            aria-hidden="true"
           />
           <span style={{ fontWeight: 600 }}>Administration</span>
         </div>

@@ -15,7 +15,7 @@ export default function Layout() {
               src={FIGSAPP_LOGO}
               alt={FIGSAPP_LOGO_ALT}
               className="layout-logo-img"
-              width={148}
+              width={220}
               height={56}
               decoding="async"
             />
@@ -43,8 +43,8 @@ export default function Layout() {
                 src={FIGSAPP_LOGO}
                 alt={FIGSAPP_LOGO_ALT}
                 className="layout-footer-logo-img"
-                width={160}
-                height={60}
+                width={220}
+                height={56}
                 decoding="async"
               />
             </Link>

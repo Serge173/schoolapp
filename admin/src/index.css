@@ -1,7 +1,7 @@
 :root {
-  /* Thème clair — moins de noir, lecture confortable */
-  --bg: #f0f4f8;
-  --bg-elevated: #e8eef4;
+  /* Thème clair — fond blanc */
+  --bg: #ffffff;
+  --bg-elevated: #f8fafc;
   --surface: #ffffff;
   --surface-hover: #f1f5f9;
   --border: #d8e0ea;
@@ -30,7 +30,7 @@
 
 body {
   font-family: var(--font-body);
-  background: linear-gradient(180deg, #f5f8fc 0%, var(--bg) 40%, #eef2f7 100%);
+  background: #ffffff;
   color: var(--text);
   line-height: 1.6;
   min-height: 100vh;
@@ -81,10 +81,10 @@ input, select, textarea {
 
 /* Layout candidat */
 .layout-header {
-  background: #ff7309;
-  border-bottom: 1px solid rgba(173, 112, 0, 0.35);
-  box-shadow: 0 2px 8px rgba(255, 174, 27, 0.35);
-  padding: 1rem 0;
+  background: #ffffff;
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 6px rgba(15, 23, 42, 0.06);
+  padding: 0.85rem 0;
 }
 .layout-header .container {
   display: flex;
@@ -100,14 +100,11 @@ input, select, textarea {
 }
 .layout-logo-img {
   display: block;
-  height: 52px;
+  height: 56px;
   width: auto;
-  max-width: 148px;
+  max-width: 220px;
   object-fit: contain;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.92);
-  padding: 0.2rem 0.45rem;
-  box-shadow: 0 1px 4px rgba(15, 46, 74, 0.12);
+  background: #ffffff;
 }
 .layout-logo-favicon {
   flex-shrink: 0;
@@ -118,43 +115,41 @@ input, select, textarea {
 }
 .layout-header nav a {
   margin-left: 1.5rem;
-  color: #234766;
+  color: var(--text);
   font-weight: 600;
 }
 .layout-header nav a:hover {
-  color: #0f2e4a;
+  color: var(--accent);
 }
 
 /* Admin pages - unified brand look */
 .admin-page {
   min-height: 100vh;
-  background:
-    radial-gradient(ellipse 80% 60% at 12% 10%, rgba(255, 193, 77, 0.22) 0%, transparent 55%),
-    radial-gradient(ellipse 75% 55% at 90% 20%, rgba(28, 117, 183, 0.12) 0%, transparent 60%),
-    linear-gradient(180deg, #ff8a29 0%, #ff7309 48%, #ff7f18 100%);
+  background: #ffffff;
 }
 
 .admin-header {
-  background: linear-gradient(180deg, #ff8e34 0%, #ff7309 100%);
-  border-bottom: 1px solid rgba(136, 57, 0, 0.35);
-  box-shadow: 0 3px 10px rgba(142, 56, 0, 0.25);
+  background: #ffffff;
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 6px rgba(15, 23, 42, 0.06);
 }
 
 .admin-header a,
 .admin-header span {
-  color: #173f62 !important;
+  color: var(--text) !important;
+}
+
+.admin-header a:hover {
+  color: var(--accent) !important;
 }
 
 .admin-header-logo {
   display: block;
-  height: 34px;
+  height: 40px;
   width: auto;
-  max-width: 96px;
+  max-width: 140px;
   object-fit: contain;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 0.15rem 0.35rem;
-  box-shadow: 0 1px 3px rgba(15, 46, 74, 0.1);
+  background: #ffffff;
 }
 
 .admin-login-card {
@@ -170,15 +165,11 @@ input, select, textarea {
 .admin-login-logo {
   display: block;
   height: auto;
-  max-height: 76px;
+  max-height: 88px;
   width: auto;
-  max-width: 200px;
+  max-width: 260px;
   object-fit: contain;
-  border-radius: 12px;
-  background: #fff;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border);
-  box-shadow: 0 4px 16px rgba(28, 117, 183, 0.08);
+  background: #ffffff;
 }
 
 /* Cards */
@@ -413,14 +404,11 @@ input, select, textarea {
 }
 .layout-footer-logo-img {
   display: block;
-  height: 58px;
+  height: 56px;
   width: auto;
-  max-width: 160px;
+  max-width: 220px;
   object-fit: contain;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.85);
-  padding: 0.25rem 0.5rem;
-  border: 1px solid var(--border);
+  background: #ffffff;
 }
 .layout-footer-favicon {
   flex-shrink: 0;

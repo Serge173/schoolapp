@@ -26,11 +26,10 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 92% 64% at 8% 14%, rgba(83, 142, 64, 0.24) 0%, transparent 56%),
-    radial-gradient(ellipse 85% 74% at 92% 18%, rgba(28, 117, 183, 0.22) 0%, transparent 60%),
-    radial-gradient(ellipse 78% 68% at 50% 96%, rgba(255, 174, 27, 0.2) 0%, transparent 62%),
-    radial-gradient(ellipse 55% 45% at 72% 55%, rgba(28, 117, 183, 0.09) 0%, transparent 52%),
-    linear-gradient(164deg, #f8fbff 0%, #eef5fb 42%, #eaf2fa 100%);
+    radial-gradient(ellipse 92% 64% at 8% 14%, rgba(83, 142, 64, 0.06) 0%, transparent 56%),
+    radial-gradient(ellipse 85% 74% at 92% 18%, rgba(28, 117, 183, 0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 55% at 50% 100%, rgba(255, 174, 27, 0.05) 0%, transparent 55%),
+    #ffffff;
 }
 
 .home-bg-grid {
@@ -51,9 +50,9 @@
   pointer-events: none;
   background: linear-gradient(
     120deg,
-    rgba(83, 142, 64, 0.05) 0%,
-    rgba(28, 117, 183, 0.06) 48%,
-    rgba(255, 174, 27, 0.06) 100%
+    rgba(83, 142, 64, 0.02) 0%,
+    rgba(28, 117, 183, 0.03) 48%,
+    rgba(255, 174, 27, 0.02) 100%
   );
 }
 

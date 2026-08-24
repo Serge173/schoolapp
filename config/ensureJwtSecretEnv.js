@@ -30,6 +30,10 @@ function ensureJwtSecretEnv() {
   const dbUrl = getDatabaseUrl();
   if (!dbUrl) return null;
 
+  if (process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production') {
+    console.warn('[jwt] JWT_SECRET absent — valeur dérivée de DATABASE_URL (définir JWT_SECRET explicite recommandé).');
+  }
+
   const derived = crypto.createHash('sha256').update(`${dbUrl}:figsapp-jwt-v1`).digest('hex');
   process.env.JWT_SECRET = derived;
   return derived;

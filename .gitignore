@@ -39,3 +39,4 @@ Thumbs.db
 **/dashboard pro bien jolie - Recherche Images.html
 **/dashboard pro bien jolie - Recherche Images_files/
 .env*
+.jwt-secret-setup.local

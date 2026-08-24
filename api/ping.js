@@ -29,7 +29,7 @@ module.exports = (req, res) => {
 
   res.status(200).json({
     v: 'fast-api-6',
-    features: ['contact-inscription', 'admin-roles', 'rdv-patch-delete', 'dossier-inscription', 'universite-detail'],
+    features: ['contact-inscription', 'admin-roles', 'rdv-patch-delete', 'dossier-inscription', 'universite-detail', 'filiere-mutations-lite'],
     vercel: Boolean(process.env.VERCEL || process.env.VERCEL_ENV),
     hasPostgresUrl: Boolean(process.env.POSTGRES_URL),
     hasDatabaseUrl: Boolean(process.env.DATABASE_URL),

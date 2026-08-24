@@ -251,9 +251,80 @@ async function handleRdvDelete(req, res, id) {
   }
 }
 
+async function handleFiliereMutation(req, res, handler) {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+  try {
+    const body = req.method === 'GET' || req.method === 'DELETE' ? {} : await readJsonBody(req);
+    const result = await handler(body, admin);
+    return res.status(result.status).json(result.body);
+  } catch (err) {
+    console.error('[liteAdmin] filiere', err);
+    return res.status(500).json({ error: 'Erreur serveur.' });
+  }
+}
+
 /** Retourne true si la route légère a été traitée. */
 async function handleLiteAdmin(req, res) {
   const path = originalApiPath(req);
+
+  if (path === '/api/admin/filieres' && req.method === 'POST') {
+    const { createFiliere } = require('./filiereAdmin');
+    await handleFiliereMutation(req, res, (body, admin) => createFiliere(body, admin));
+    return true;
+  }
+
+  const filStatutMatch = path.match(/^\/api\/admin\/filieres\/(\d+)\/statut$/);
+  if (filStatutMatch && req.method === 'PATCH') {
+    const id = Number(filStatutMatch[1]);
+    const { setFiliereStatut } = require('./filiereAdmin');
+    await handleFiliereMutation(req, res, (body, admin) => setFiliereStatut(id, Boolean(body.actif), admin));
+    return true;
+  }
+
+  const filGrandMatch = path.match(/^\/api\/admin\/filieres\/(\d+)\/grand-groupe$/);
+  if (filGrandMatch && req.method === 'PATCH') {
+    const id = Number(filGrandMatch[1]);
+    const { setFiliereGrandGroupe } = require('./filiereAdmin');
+    await handleFiliereMutation(req, res, (body, admin) => setFiliereGrandGroupe(id, body, admin));
+    return true;
+  }
+
+  const filSousPostMatch = path.match(/^\/api\/admin\/filieres\/(\d+)\/sous-filieres$/);
+  if (filSousPostMatch && req.method === 'POST') {
+    const filiereId = Number(filSousPostMatch[1]);
+    const { createSousFiliere } = require('./filiereAdmin');
+    await handleFiliereMutation(req, res, (body, admin) => createSousFiliere(filiereId, body, admin));
+    return true;
+  }
+
+  const filPutMatch = path.match(/^\/api\/admin\/filieres\/(\d+)$/);
+  if (filPutMatch && req.method === 'PUT') {
+    const id = Number(filPutMatch[1]);
+    const { updateFiliere } = require('./filiereAdmin');
+    await handleFiliereMutation(req, res, (body, admin) => updateFiliere(id, body, admin));
+    return true;
+  }
+  if (filPutMatch && req.method === 'DELETE') {
+    const id = Number(filPutMatch[1]);
+    const { deleteFiliere } = require('./filiereAdmin');
+    await handleFiliereMutation(req, res, (body, admin) => deleteFiliere(id, admin));
+    return true;
+  }
+
+  const sousPutMatch = path.match(/^\/api\/admin\/sous-filieres\/(\d+)$/);
+  if (sousPutMatch && req.method === 'PUT') {
+    const id = Number(sousPutMatch[1]);
+    const { updateSousFiliere } = require('./filiereAdmin');
+    await handleFiliereMutation(req, res, (body, admin) => updateSousFiliere(id, body, admin));
+    return true;
+  }
+  if (sousPutMatch && req.method === 'DELETE') {
+    const id = Number(sousPutMatch[1]);
+    const { deleteSousFiliere } = require('./filiereAdmin');
+    await handleFiliereMutation(req, res, (body, admin) => deleteSousFiliere(id, admin));
+    return true;
+  }
 
   const rdvPatchMatch = path.match(/^\/api\/admin\/rendez-vous\/(\d+)$/);
   if (rdvPatchMatch && req.method === 'PATCH') {

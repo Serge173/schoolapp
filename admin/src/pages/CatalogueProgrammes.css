@@ -325,3 +325,31 @@
   margin: 0 0 1rem;
   font-size: 1.05rem;
 }
+
+@media (max-width: 560px) {
+  .figs-prog-row {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    padding: 0.75rem 0.9rem;
+  }
+
+  .figs-prog-row__badges {
+    width: 100%;
+    order: 3;
+  }
+
+  .figs-prog-row__chev {
+    margin-left: auto;
+  }
+
+  .figs-fiche__hero,
+  .figs-fiche__detail,
+  .figs-catalogue__filters {
+    padding: 1rem;
+  }
+
+  .figs-fiche__actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

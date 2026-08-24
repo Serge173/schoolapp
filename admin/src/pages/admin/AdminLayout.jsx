@@ -14,6 +14,7 @@ export default function AdminLayout() {
   const [stats, setStats] = useState(null);
   const [admin, setAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const reloadStats = useCallback(() => api.admin.stats().then(setStats), []);
 
@@ -49,12 +50,9 @@ export default function AdminLayout() {
   }
 
   return (
-    <div className="admin-page" style={{ minHeight: '100vh' }}>
-      <header
-        className="admin-header"
-        style={{ padding: '1rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+    <div className="admin-page admin-shell" style={{ minHeight: '100vh' }}>
+      <header className="admin-header admin-shell__header">
+        <div className="admin-shell__header-brand">
           <Link to="/" style={{ color: 'var(--text-muted)' }} aria-label="Retour au site">
             Site
           </Link>
@@ -66,9 +64,17 @@ export default function AdminLayout() {
             height={40}
             decoding="async"
           />
-          <span style={{ fontWeight: 600 }}>Administration</span>
+          <span className="admin-shell__title">Administration</span>
+          <button
+            type="button"
+            className="admin-shell__menu-toggle"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            {menuOpen ? 'Fermer' : 'Menu'}
+          </button>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <div className="admin-shell__user">
           {admin ? (
             <Link
               to="/admin/profil"
@@ -100,22 +106,10 @@ export default function AdminLayout() {
           </button>
         </div>
       </header>
-      <div
-        style={{
-          width: '100%',
-          maxWidth: 'min(1760px, 100%)',
-          margin: '0 auto',
-          padding: '1.5rem',
-          display: 'grid',
-          gridTemplateColumns: 'minmax(220px, 260px) minmax(0, 1fr)',
-          gap: '1.25rem',
-          alignItems: 'start',
-          boxSizing: 'border-box',
-        }}
-      >
-        <aside className="card" style={{ position: 'sticky', top: '1rem', padding: '1rem' }}>
+      <div className="admin-shell__body">
+        <aside className={`card admin-shell__aside${menuOpen ? ' is-open' : ''}`}>
           <h2 style={{ marginBottom: '0.85rem', fontSize: '1rem' }}>Menu</h2>
-          <nav style={{ display: 'grid', gap: '0.5rem' }}>
+          <nav className="admin-shell__nav">
             <NavLink to="/admin/dashboard" className={navBtn} style={{ justifyContent: 'flex-start' }} end>
               Tableau de bord
             </NavLink>
@@ -160,7 +154,7 @@ export default function AdminLayout() {
             ) : null}
           </nav>
         </aside>
-        <main style={{ minWidth: 0, width: '100%' }}>
+        <main className="admin-shell__main">
           <Outlet context={{ stats, reloadStats, admin }} />
         </main>
       </div>

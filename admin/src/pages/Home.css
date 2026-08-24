@@ -4,10 +4,9 @@
   position: relative;
   isolation: isolate;
   min-height: min(72vh, 820px);
-  width: 100vw;
-  max-width: 100vw;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
   padding: 0.5rem 0 2rem;
   box-sizing: border-box;
   overflow-x: clip;
@@ -440,8 +439,8 @@
   color: rgba(255, 255, 255, 0.92);
 }
 
-/* Tablette / mobile : boutons côte à côte, CTA au centre, deux cartes même hauteur */
-@media (max-width: 900px) {
+/* Tablette : boutons côte à côte, CTA au centre */
+@media (min-width: 769px) and (max-width: 900px) {
   .home-showcase-layout {
     max-width: 420px;
     grid-template-columns: 1fr 1fr;
@@ -485,37 +484,28 @@
   }
 }
 
-@media (max-width: 520px) {
+/* Mobile : une seule colonne, flux vertical naturel */
+@media (max-width: 768px) {
   .home-showcase-layout {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto auto auto;
-    row-gap: 0.55rem;
+    grid-template-rows: none;
+    row-gap: 0.65rem;
     column-gap: 0;
+    max-width: 100%;
   }
 
-  .home-showcase-top--left {
+  .home-showcase-top--left,
+  .home-showcase-top--right,
+  .home-showcase-center,
+  .home-showcase-atout--left,
+  .home-showcase-atout--right {
     grid-column: 1;
-    grid-row: 1;
-  }
-
-  .home-showcase-top--right {
-    grid-column: 1;
-    grid-row: 2;
+    grid-row: auto;
+    width: 100%;
   }
 
   .home-showcase-center {
-    grid-column: 1;
-    grid-row: 3;
-  }
-
-  .home-showcase-atout--left {
-    grid-column: 1;
-    grid-row: 4;
-  }
-
-  .home-showcase-atout--right {
-    grid-column: 1;
-    grid-row: 5;
+    order: -1;
   }
 }
 

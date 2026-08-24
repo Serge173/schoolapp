@@ -29,6 +29,7 @@ async function main() {
 
   const home = await fetchText(`${BASE}/`);
   ok('GET accueil', home.status === 200, `HTTP ${home.status}`);
+  ok('Viewport mobile', /name=["']viewport["'][^>]*width=device-width/i.test(home.text));
 
   const cssMatch = home.text.match(/assets\/index-([A-Za-z0-9_-]+)\.css/);
   const cssHash = cssMatch?.[1] || '';

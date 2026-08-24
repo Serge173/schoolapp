@@ -123,9 +123,9 @@ export default function Home() {
       </div>
 
       <div className="home-content">
-        <div style={{ textAlign: 'center', marginBottom: '2.25rem' }}>
-          <h1 style={{ fontSize: '2.25rem', marginBottom: '0.5rem' }}>Bienvenue sur FigsApp-Côte d’Ivoire</h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>
+        <div className="home-hero">
+          <h1 className="home-hero__title">Bienvenue sur FigsApp-Côte d’Ivoire</h1>
+          <p className="home-hero__lead">
             <strong>FigsApp-Côte d’Ivoire</strong> est votre portail pour explorer les filières, niveaux et écoles
             partenaires et lancer une candidature, au service des <strong>bureaux régionaux d’Abidjan</strong> (
             {FIGS_ABIDJAN.pays}) et du <strong>Burkina Faso</strong> de{' '}

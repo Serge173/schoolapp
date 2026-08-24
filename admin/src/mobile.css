@@ -313,8 +313,8 @@ button {
   }
 
   .layout-logo-img {
-    height: 42px;
-    max-width: 148px;
+    height: 40px;
+    width: 6.35rem;
   }
 }
 

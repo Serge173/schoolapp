@@ -250,6 +250,19 @@ router.patch('/inscriptions/:id', async (req, res) => {
   }
 });
 
+router.delete('/inscriptions/:id', [param('id').isInt()], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ error: errors.array()[0].msg });
+    const { deleteInscription } = require('../../includes/inscriptionAdmin');
+    const result = await deleteInscription(Number(req.params.id), adminActor(req));
+    res.status(result.status).json(result.body);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
+});
+
 router.get('/comptes/meta', accountsGuard, (req, res) => {
   res.json({ roles: ADMIN_ROLES, labels: ADMIN_ROLE_LABELS, descriptions: ADMIN_ROLE_DESCRIPTIONS });
 });
@@ -440,6 +453,24 @@ router.patch('/demandes-orientation/:id', [
     const [rows] = await db.query('SELECT * FROM demandes_orientation WHERE id = ?', [id]);
     if (!rows.length) return res.status(404).json({ error: 'Demande introuvable.' });
     writeAudit('demande_orientation.updated', { id, statut, adminId: req.adminId });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
+});
+
+router.get('/rendez-vous/:id', [param('id').isInt()], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ error: errors.array()[0].msg });
+    const [rows] = await db.query(
+      `SELECT id, nom, prenom, email, telephone, pays_bureau, type_rdv, date_souhaitee, creneau, message,
+        statut, notes_internes, created_at, updated_at
+       FROM rendez_vous WHERE id = ?`,
+      [Number(req.params.id)]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Rendez-vous introuvable.' });
     res.json(rows[0]);
   } catch (err) {
     console.error(err);

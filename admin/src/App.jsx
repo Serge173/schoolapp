@@ -20,6 +20,7 @@ import AdminInscriptionDossierPage from './pages/admin/AdminInscriptionDossierPa
 import AdminComptesPage from './pages/admin/AdminComptesPage';
 import AdminProfilPage from './pages/admin/AdminProfilPage';
 import AdminRdvPage from './pages/admin/AdminRdvPage';
+import AdminRdvDetailPage from './pages/admin/AdminRdvDetailPage';
 import AdminUniversitesPage from './pages/admin/AdminUniversitesPage';
 import AdminFilieresPage from './pages/admin/AdminFilieresPage';
 import { canManageContent } from './data/adminRoles';
@@ -63,6 +64,7 @@ export default function App() {
           <Route path="comptes" element={<AdminComptesPage />} />
           <Route path="profil" element={<AdminProfilPage />} />
           <Route path="rendez-vous" element={<AdminRdvPage />} />
+          <Route path="rendez-vous/:id" element={<AdminRdvDetailPage />} />
           <Route path="orientation" element={<Navigate to="/admin/inscriptions" replace />} />
           <Route path="universites" element={<AdminContentRoute><AdminUniversitesPage /></AdminContentRoute>} />
           <Route path="filieres" element={<AdminContentRoute><AdminFilieresPage /></AdminContentRoute>} />

@@ -195,6 +195,22 @@ async function handleInscriptionGet(req, res, id) {
   }
 }
 
+async function handleInscriptionDelete(req, res, id) {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+  if (!Number.isInteger(id) || id < 1) {
+    return res.status(400).json({ error: 'Identifiant invalide.' });
+  }
+  try {
+    const { deleteInscription } = require('./inscriptionAdmin');
+    const result = await deleteInscription(id, admin);
+    return res.status(result.status).json(result.body);
+  } catch (err) {
+    console.error('[liteAdmin] inscription delete', err);
+    return res.status(500).json({ error: 'Erreur serveur.' });
+  }
+}
+
 async function handleInscriptionPatch(req, res, id) {
   const admin = requireAdmin(req, res);
   if (!admin) return;
@@ -366,6 +382,11 @@ async function handleLiteAdmin(req, res) {
   const insPatchMatch = path.match(/^\/api\/admin\/inscriptions\/(\d+)$/);
   if (insPatchMatch && req.method === 'PATCH') {
     await handleInscriptionPatch(req, res, Number(insPatchMatch[1]));
+    return true;
+  }
+  const insDeleteMatch = path.match(/^\/api\/admin\/inscriptions\/(\d+)$/);
+  if (insDeleteMatch && req.method === 'DELETE') {
+    await handleInscriptionDelete(req, res, Number(insDeleteMatch[1]));
     return true;
   }
 

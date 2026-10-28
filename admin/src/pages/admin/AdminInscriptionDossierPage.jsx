@@ -38,12 +38,13 @@ function formatDateTimeFr(iso) {
 export default function AdminInscriptionDossierPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { admin } = useOutletContext() || {};
+  const { admin, reloadStats } = useOutletContext() || {};
   const canEdit = canWriteDossiers(admin?.role);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [confirmModal, setConfirmModal] = useState(null);
+  const [pendingDelete, setPendingDelete] = useState(false);
   const [filieres, setFilieres] = useState([]);
   const [universites, setUniversites] = useState([]);
   const [form, setForm] = useState(null);
@@ -145,6 +146,17 @@ export default function AdminInscriptionDossierPage() {
     navigate('/admin/inscriptions');
   };
 
+  const handleDelete = async () => {
+    setPendingDelete(false);
+    try {
+      await api.admin.inscriptionDelete(id);
+      if (reloadStats) await reloadStats().catch(() => {});
+      navigate('/admin/inscriptions');
+    } catch (err) {
+      setError(err.message || 'Suppression impossible.');
+    }
+  };
+
   const statutSelectStyle = {
     ...inputStyle,
     ...(form?.statut === 'valide'
@@ -199,6 +211,14 @@ export default function AdminInscriptionDossierPage() {
         </div>
       ) : null}
 
+      <AdminConfirmDialog
+        open={pendingDelete}
+        title="Supprimer cette inscription ?"
+        message={form ? `${form.prenom} ${form.nom}. Cette action est irréversible.` : 'Cette action est irréversible.'}
+        confirmLabel="Supprimer"
+        onConfirm={handleDelete}
+        onClose={() => setPendingDelete(false)}
+      />
       <AdminConfirmDialog
         open={Boolean(confirmModal)}
         tone="success"
@@ -364,15 +384,27 @@ export default function AdminInscriptionDossierPage() {
           />
         </Field>
 
-        <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '1.25rem' }}>
-          <button type="button" className="btn btn-secondary" onClick={() => navigate('/admin/inscriptions')}>
-            {canEdit ? 'Annuler' : 'Retour'}
-          </button>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'space-between', marginTop: '1.25rem' }}>
           {canEdit ? (
-            <button type="submit" className="btn btn-primary" disabled={saving}>
-              {saving ? 'Enregistrement…' : 'Enregistrer le dossier'}
+            <button
+              type="button"
+              className="btn btn-secondary"
+              style={{ color: '#b91c1c', borderColor: 'rgba(220,38,38,0.35)' }}
+              onClick={() => setPendingDelete(true)}
+            >
+              Supprimer le dossier
             </button>
-          ) : null}
+          ) : <span />}
+          <div style={{ display: 'flex', gap: '0.75rem', marginLeft: 'auto' }}>
+            <button type="button" className="btn btn-secondary" onClick={() => navigate('/admin/inscriptions')}>
+              {canEdit ? 'Annuler' : 'Retour'}
+            </button>
+            {canEdit ? (
+              <button type="submit" className="btn btn-primary" disabled={saving}>
+                {saving ? 'Enregistrement…' : 'Enregistrer le dossier'}
+              </button>
+            ) : null}
+          </div>
         </div>
         </fieldset>
       </form>

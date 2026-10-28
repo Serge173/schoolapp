@@ -144,9 +144,33 @@ async function patchInscription(id, body, actor) {
   return { status: 200, body: row };
 }
 
+async function deleteInscription(id, actor) {
+  await ensureInscriptionsWorkflow();
+  const actorRole = normalizeRole(actor?.role);
+  if (!hasPermission(actorRole, 'dossiers_write')) {
+    return { status: 403, body: { error: 'Votre rôle ne permet pas de supprimer les dossiers.' } };
+  }
+  if (!Number.isInteger(id) || id < 1) {
+    return { status: 400, body: { error: 'Identifiant invalide.' } };
+  }
+  const existing = await fetchInscriptionById(id);
+  if (!existing) return { status: 404, body: { error: 'Inscription introuvable.' } };
+  await db.query('DELETE FROM inscriptions WHERE id = ?', [id]);
+  const still = await fetchInscriptionById(id);
+  if (still) return { status: 500, body: { error: 'La suppression a échoué.' } };
+  writeAudit('inscription.deleted', {
+    id,
+    email: existing.email,
+    nom: existing.nom,
+    adminId: actor?.id,
+  });
+  return { status: 200, body: { message: 'Inscription supprimée.' } };
+}
+
 module.exports = {
   INSCRIPTION_STATUTS,
   cleanQuery,
   fetchInscriptionById,
   patchInscription,
+  deleteInscription,
 };

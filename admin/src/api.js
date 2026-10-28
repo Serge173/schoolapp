@@ -94,6 +94,7 @@ export const api = {
     inscriptionGet: (id) => request(`/admin/inscriptions/${id}`),
     inscriptionUpdate: (id, body) =>
       request(`/admin/inscriptions/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+    inscriptionDelete: (id) => request(`/admin/inscriptions/${id}`, { method: 'DELETE' }),
     comptes: {
       list: () => request('/admin/comptes'),
       meta: () => request('/admin/comptes/meta'),
@@ -116,6 +117,7 @@ export const api = {
         });
       },
     },
+    rendezVousOne: (id) => request(`/admin/rendez-vous/${id}`),
     rendezVous: (params = {}) => {
       const clean = Object.fromEntries(
         Object.entries(params).filter(([, v]) => v !== undefined && v !== null && String(v).trim() !== '')

@@ -51,6 +51,12 @@ export const RDV_CRENEAU_LABELS = {
   flexible: 'Flexible',
 };
 
+export function rdvStatutBadgeClass(statut) {
+  if (statut === 'confirme' || statut === 'termine') return 'badge badge-success';
+  if (statut === 'annule' || statut === 'nouveau') return 'badge badge-danger';
+  return 'badge badge-public';
+}
+
 export const INSCRIPTION_STATUT_LABELS = {
   nouveau: 'Nouveau',
   en_cours: 'En cours',

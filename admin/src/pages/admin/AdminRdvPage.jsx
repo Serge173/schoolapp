@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
 import { api } from '../../api';
-import { RDV_CRENEAU_LABELS, RDV_STATUT_LABELS, RDV_TYPE_LABELS, rdvStatutBadgeClass } from './adminConstants';
+import { RDV_CRENEAU_LABELS, RDV_STATUT_LABELS, RDV_TYPE_LABELS, compactFilterDate, rdvStatutBadgeClass } from './adminConstants';
 
 function formatRdvDate(value) {
   if (!value) return 'Date non précisée';
@@ -64,35 +64,55 @@ export default function AdminRdvPage() {
         ))}
       </div>
       <div className="admin-shell__filters">
-        <select
-          value={rdvFilter.statut}
-          onChange={(e) => handleRdvFilterChange('statut', e.target.value)}
-        >
-          <option value="">Tous statuts</option>
-          {Object.entries(RDV_STATUT_LABELS).map(([v, lab]) => (
-            <option key={v} value={v}>
-              {lab}
-            </option>
-          ))}
-        </select>
-        <select
-          value={rdvFilter.pays_bureau}
-          onChange={(e) => handleRdvFilterChange('pays_bureau', e.target.value)}
-        >
-          <option value="">Tous bureaux</option>
-          <option value="CI">Côte d’Ivoire</option>
-          <option value="BF">Burkina Faso</option>
-        </select>
-        <input
-          type="date"
-          value={rdvFilter.date_debut}
-          onChange={(e) => handleRdvFilterChange('date_debut', e.target.value)}
-        />
-        <input
-          type="date"
-          value={rdvFilter.date_fin}
-          onChange={(e) => handleRdvFilterChange('date_fin', e.target.value)}
-        />
+        <label className={`admin-filter-sq${rdvFilter.statut ? ' is-on' : ''}`} title="Tous statuts">
+          <span className="admin-filter-sq__text">
+            {rdvFilter.statut ? RDV_STATUT_LABELS[rdvFilter.statut] || rdvFilter.statut : 'Tous statuts'}
+          </span>
+          <select
+            aria-label="Tous statuts"
+            value={rdvFilter.statut}
+            onChange={(e) => handleRdvFilterChange('statut', e.target.value)}
+          >
+            <option value="">Tous statuts</option>
+            {Object.entries(RDV_STATUT_LABELS).map(([v, lab]) => (
+              <option key={v} value={v}>
+                {lab}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className={`admin-filter-sq${rdvFilter.pays_bureau ? ' is-on' : ''}`} title="Tous bureaux">
+          <span className="admin-filter-sq__text">
+            {rdvFilter.pays_bureau === 'CI' ? 'Abidjan' : rdvFilter.pays_bureau === 'BF' ? 'Burkina' : 'Tous bureaux'}
+          </span>
+          <select
+            aria-label="Tous bureaux"
+            value={rdvFilter.pays_bureau}
+            onChange={(e) => handleRdvFilterChange('pays_bureau', e.target.value)}
+          >
+            <option value="">Tous bureaux</option>
+            <option value="CI">Côte d’Ivoire</option>
+            <option value="BF">Burkina Faso</option>
+          </select>
+        </label>
+        <label className={`admin-filter-sq${rdvFilter.date_debut ? ' is-on' : ''}`} title="Date de début">
+          <span className="admin-filter-sq__text">{compactFilterDate(rdvFilter.date_debut, 'Début')}</span>
+          <input
+            type="date"
+            aria-label="Date de début"
+            value={rdvFilter.date_debut}
+            onChange={(e) => handleRdvFilterChange('date_debut', e.target.value)}
+          />
+        </label>
+        <label className={`admin-filter-sq${rdvFilter.date_fin ? ' is-on' : ''}`} title="Date de fin">
+          <span className="admin-filter-sq__text">{compactFilterDate(rdvFilter.date_fin, 'Fin')}</span>
+          <input
+            type="date"
+            aria-label="Date de fin"
+            value={rdvFilter.date_fin}
+            onChange={(e) => handleRdvFilterChange('date_fin', e.target.value)}
+          />
+        </label>
         <button
           type="button"
           className="btn btn-secondary"

@@ -81,6 +81,14 @@ export function inscriptionStatutBadgeClass(statut) {
   }
 }
 
+/** Date ISO (yyyy-mm-dd) affichée en jj/mm dans un filtre compact. */
+export function compactFilterDate(value, emptyLabel) {
+  if (!value) return emptyLabel;
+  const parts = String(value).split('-');
+  if (parts.length !== 3 || !parts[2]) return emptyLabel;
+  return `${parts[2]}/${parts[1]}`;
+}
+
 export const DO_STATUT_LABELS = {
   nouveau: 'Nouveau',
   validee: 'Validée (prise en charge)',

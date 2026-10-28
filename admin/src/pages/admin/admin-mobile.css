@@ -221,25 +221,93 @@
   }
 
   .admin-shell__filters {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 0.45rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0.4rem;
     margin-bottom: 0.75rem;
   }
 
   .admin-shell__filters > * {
-    width: 100%;
+    width: auto;
     min-width: 0;
-    max-width: 100%;
-    box-sizing: border-box;
+    max-width: none;
   }
 
-  .admin-shell__filters select,
-  .admin-shell__filters input[type='date'] {
+  .admin-filter-sq {
+    display: grid;
+    place-items: center;
+    position: relative;
+    width: 4.35rem;
+    height: 4.35rem;
+    padding: 0.28rem;
+    box-sizing: border-box;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--text);
+    overflow: hidden;
+  }
+
+  .admin-filter-sq.is-on {
+    border-color: var(--accent);
+  }
+
+  .admin-filter-sq__text {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    max-width: 100%;
+    font-size: 0.64rem;
+    font-weight: 650;
+    line-height: 1.15;
+    text-align: center;
+    overflow-wrap: break-word;
+    pointer-events: none;
+  }
+
+  .admin-filter-sq:has(select) {
+    align-content: center;
+    padding-bottom: 0.32rem;
+  }
+
+  .admin-filter-sq:has(select)::after {
+    content: "";
+    width: 0.38rem;
+    height: 0.38rem;
+    margin-top: 0.12rem;
+    border-right: 1.5px solid var(--text-muted);
+    border-bottom: 1.5px solid var(--text-muted);
+    transform: rotate(45deg);
+    pointer-events: none;
+    justify-self: center;
+  }
+
+  .admin-filter-sq select,
+  .admin-filter-sq input[type='date'] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     min-width: 0;
-    padding: 0.42rem 0.5rem;
-    font-size: 0.8rem;
-    border-radius: 8px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    opacity: 0;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .admin-shell__filters .btn {
+    width: 4.35rem;
+    height: 4.35rem;
+    min-height: 0;
+    padding: 0.25rem;
+    font-size: 0.64rem;
+    line-height: 1.15;
+    white-space: normal;
+    border-radius: 10px;
   }
 
   .admin-shell__table-wrap,
@@ -304,6 +372,98 @@
     width: 100%;
     justify-content: flex-end;
     flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 1100px) {
+  .admin-shell__filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .admin-shell__filters > * {
+    width: auto;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .admin-filter-sq {
+    display: grid;
+    place-items: center;
+    position: relative;
+    width: 4.35rem;
+    height: 4.35rem;
+    padding: 0.28rem;
+    box-sizing: border-box;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--text);
+    overflow: hidden;
+  }
+
+  .admin-filter-sq.is-on {
+    border-color: var(--accent);
+  }
+
+  .admin-filter-sq__text {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    max-width: 100%;
+    font-size: 0.64rem;
+    font-weight: 650;
+    line-height: 1.15;
+    text-align: center;
+    overflow-wrap: break-word;
+    pointer-events: none;
+  }
+
+  .admin-filter-sq:has(select) {
+    align-content: center;
+    padding-bottom: 0.32rem;
+  }
+
+  .admin-filter-sq:has(select)::after {
+    content: "";
+    width: 0.38rem;
+    height: 0.38rem;
+    margin-top: 0.12rem;
+    border-right: 1.5px solid var(--text-muted);
+    border-bottom: 1.5px solid var(--text-muted);
+    transform: rotate(45deg);
+    pointer-events: none;
+    justify-self: center;
+  }
+
+  .admin-filter-sq select,
+  .admin-filter-sq input[type='date'] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    opacity: 0;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .admin-shell__filters .btn {
+    width: 4.35rem;
+    height: 4.35rem;
+    min-height: 0;
+    padding: 0.25rem;
+    font-size: 0.64rem;
+    line-height: 1.15;
+    white-space: normal;
+    border-radius: 10px;
   }
 }
 

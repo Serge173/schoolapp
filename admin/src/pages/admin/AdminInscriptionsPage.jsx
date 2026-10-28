@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../../api';
-import { INSCRIPTION_STATUT_LABELS, inscriptionStatutBadgeClass } from './adminConstants';
+import { INSCRIPTION_STATUT_LABELS, compactFilterDate, inscriptionStatutBadgeClass } from './adminConstants';
 
 export default function AdminInscriptionsPage() {
   const [inscriptions, setInscriptions] = useState([]);
@@ -49,65 +49,105 @@ export default function AdminInscriptionsPage() {
         Choisissez un dossier pour ouvrir son détail.
       </p>
       <div className="admin-shell__filters">
-        <select
-          value={filter.statut}
-          onChange={(e) => handleFilterChange('statut', e.target.value)}
-        >
-          <option value="">Tous statuts</option>
-          {Object.entries(INSCRIPTION_STATUT_LABELS).map(([v, lab]) => (
-            <option key={v} value={v}>
-              {lab}
-            </option>
-          ))}
-        </select>
-        <select
-          value={filter.type}
-          onChange={(e) => handleFilterChange('type', e.target.value)}
-        >
-          <option value="">Tous types</option>
-          <option value="publique">Publique</option>
-          <option value="privee">Privée</option>
-        </select>
-        <select
-          value={filter.pays_bureau}
-          onChange={(e) => handleFilterChange('pays_bureau', e.target.value)}
-        >
-          <option value="">Tous bureaux</option>
-          <option value="CI">Côte d&apos;Ivoire (Abidjan)</option>
-          <option value="BF">Burkina Faso</option>
-        </select>
-        <select
-          value={filter.filiere_id}
-          onChange={(e) => handleFilterChange('filiere_id', e.target.value)}
-        >
-          <option value="">Toutes filières</option>
-          {filieres.map((f) => (
-            <option key={f.id} value={f.id}>
-              {f.nom}
-            </option>
-          ))}
-        </select>
-        <select
-          value={filter.universite_id}
-          onChange={(e) => handleFilterChange('universite_id', e.target.value)}
-        >
-          <option value="">Toutes universités</option>
-          {universites.map((u) => (
-            <option key={u.id} value={u.id}>
-              {u.nom}
-            </option>
-          ))}
-        </select>
-        <input
-          type="date"
-          value={filter.date_debut}
-          onChange={(e) => handleFilterChange('date_debut', e.target.value)}
-        />
-        <input
-          type="date"
-          value={filter.date_fin}
-          onChange={(e) => handleFilterChange('date_fin', e.target.value)}
-        />
+        <label className={`admin-filter-sq${filter.statut ? ' is-on' : ''}`} title="Tous statuts">
+          <span className="admin-filter-sq__text">
+            {filter.statut ? INSCRIPTION_STATUT_LABELS[filter.statut] || filter.statut : 'Tous statuts'}
+          </span>
+          <select
+            aria-label="Tous statuts"
+            value={filter.statut}
+            onChange={(e) => handleFilterChange('statut', e.target.value)}
+          >
+            <option value="">Tous statuts</option>
+            {Object.entries(INSCRIPTION_STATUT_LABELS).map(([v, lab]) => (
+              <option key={v} value={v}>
+                {lab}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className={`admin-filter-sq${filter.type ? ' is-on' : ''}`} title="Tous types">
+          <span className="admin-filter-sq__text">{filter.type === 'publique' ? 'Publique' : filter.type === 'privee' ? 'Privée' : 'Tous types'}</span>
+          <select
+            aria-label="Tous types"
+            value={filter.type}
+            onChange={(e) => handleFilterChange('type', e.target.value)}
+          >
+            <option value="">Tous types</option>
+            <option value="publique">Publique</option>
+            <option value="privee">Privée</option>
+          </select>
+        </label>
+        <label className={`admin-filter-sq${filter.pays_bureau ? ' is-on' : ''}`} title="Tous bureaux">
+          <span className="admin-filter-sq__text">
+            {filter.pays_bureau === 'CI' ? 'Abidjan' : filter.pays_bureau === 'BF' ? 'Burkina' : 'Tous bureaux'}
+          </span>
+          <select
+            aria-label="Tous bureaux"
+            value={filter.pays_bureau}
+            onChange={(e) => handleFilterChange('pays_bureau', e.target.value)}
+          >
+            <option value="">Tous bureaux</option>
+            <option value="CI">Côte d&apos;Ivoire (Abidjan)</option>
+            <option value="BF">Burkina Faso</option>
+          </select>
+        </label>
+        <label className={`admin-filter-sq${filter.filiere_id ? ' is-on' : ''}`} title="Toutes filières">
+          <span className="admin-filter-sq__text">
+            {filter.filiere_id
+              ? filieres.find((f) => String(f.id) === String(filter.filiere_id))?.nom || 'Filière'
+              : 'Toutes filières'}
+          </span>
+          <select
+            aria-label="Toutes filières"
+            value={filter.filiere_id}
+            onChange={(e) => handleFilterChange('filiere_id', e.target.value)}
+          >
+            <option value="">Toutes filières</option>
+            {filieres.map((f) => (
+              <option key={f.id} value={f.id}>
+                {f.nom}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className={`admin-filter-sq${filter.universite_id ? ' is-on' : ''}`} title="Toutes universités">
+          <span className="admin-filter-sq__text">
+            {filter.universite_id
+              ? universites.find((u) => String(u.id) === String(filter.universite_id))?.nom || 'Université'
+              : 'Toutes universités'}
+          </span>
+          <select
+            aria-label="Toutes universités"
+            value={filter.universite_id}
+            onChange={(e) => handleFilterChange('universite_id', e.target.value)}
+          >
+            <option value="">Toutes universités</option>
+            {universites.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.nom}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className={`admin-filter-sq${filter.date_debut ? ' is-on' : ''}`} title="Date de début">
+          <span className="admin-filter-sq__text">{compactFilterDate(filter.date_debut, 'Début')}</span>
+          <input
+            type="date"
+            aria-label="Date de début"
+            value={filter.date_debut}
+            onChange={(e) => handleFilterChange('date_debut', e.target.value)}
+          />
+        </label>
+        <label className={`admin-filter-sq${filter.date_fin ? ' is-on' : ''}`} title="Date de fin">
+          <span className="admin-filter-sq__text">{compactFilterDate(filter.date_fin, 'Fin')}</span>
+          <input
+            type="date"
+            aria-label="Date de fin"
+            value={filter.date_fin}
+            onChange={(e) => handleFilterChange('date_fin', e.target.value)}
+          />
+        </label>
       </div>
       {listState === 'loading' ? (
         <p style={{ color: 'var(--text-muted)', marginTop: '1rem' }}>Chargement…</p>

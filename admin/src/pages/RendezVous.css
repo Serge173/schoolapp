@@ -30,7 +30,7 @@
 
 .rdv-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
+  grid-template-columns: minmax(0, 1fr) minmax(min(100%, 260px), 320px);
   gap: 1.75rem;
   align-items: start;
 }

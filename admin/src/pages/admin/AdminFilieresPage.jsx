@@ -206,13 +206,13 @@ export default function AdminFilieresPage() {
             value={newFiliereNom}
             onChange={(e) => setNewFiliereNom(e.target.value)}
             placeholder="Nom de la filière"
-            style={{ minWidth: 260, padding: '0.55rem 0.75rem', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}
+            style={{ minWidth: 'min(100%, 160px)', maxWidth: '100%', flex: '1 1 160px', boxSizing: 'border-box', padding: '0.55rem 0.75rem', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}
             required
           />
           <select
             value={newFiliereGroupe}
             onChange={(e) => setNewFiliereGroupe(e.target.value)}
-            style={{ minWidth: 220, padding: '0.55rem 0.75rem', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}
+            style={{ minWidth: 'min(100%, 160px)', maxWidth: '100%', flex: '1 1 160px', boxSizing: 'border-box', padding: '0.55rem 0.75rem', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}
             aria-label="Grand groupe (optionnel)"
           >
             <option value="">Grand groupe — auto (mots-clés)</option>
@@ -238,12 +238,12 @@ export default function AdminFilieresPage() {
             value={searchFiliere}
             onChange={(e) => setSearchFiliere(e.target.value)}
             placeholder="Rechercher par nom, slug ou sous-filière"
-            style={{ minWidth: 260, flex: '1 1 220px', padding: '0.55rem 0.75rem', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}
+            style={{ minWidth: 'min(100%, 160px)', maxWidth: '100%', flex: '1 1 180px', boxSizing: 'border-box', padding: '0.55rem 0.75rem', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}
           />
           <select
             value={filiereDomaineFilter}
             onChange={(e) => setFiliereDomaineFilter(e.target.value)}
-            style={{ minWidth: 240, padding: '0.55rem 0.75rem', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}
+            style={{ minWidth: 'min(100%, 160px)', maxWidth: '100%', flex: '1 1 160px', boxSizing: 'border-box', padding: '0.55rem 0.75rem', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}
             aria-label="Filtrer par grand domaine affiché sur le site"
           >
             <option value="">Tous les grands domaines</option>

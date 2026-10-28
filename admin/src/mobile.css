@@ -497,3 +497,120 @@ button {
     padding-bottom: 1.5rem;
   }
 }
+
+/* ─── Anti-débordement (client) ─── */
+#root,
+.layout-root,
+.layout-main,
+.layout-main > .container,
+.home-page,
+.ecoles-page,
+.filieres-page,
+.figs-catalogue,
+.contact-page,
+.rdv-page,
+.ins-page,
+.uni-detail,
+.demande-orientation-filiere-page {
+  max-width: 100%;
+  min-width: 0;
+}
+
+img,
+video,
+svg,
+canvas,
+iframe {
+  max-width: 100%;
+}
+
+.layout-logo-img,
+.layout-footer-logo-img {
+  max-width: none;
+}
+
+p,
+h1,
+h2,
+h3,
+li,
+label,
+.ecoles-chip,
+.badge,
+.home-highlight-text,
+.ecole-card__meta {
+  overflow-wrap: anywhere;
+}
+
+pre,
+code {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.grid-cards > *,
+.ecoles-grid > *,
+.home-info-grid > *,
+.home-faq-grid > *,
+.home-kpis > *,
+.home-links-row > *,
+.home-showcase-layout > *,
+.figs-catalogue__grid > *,
+.uni-detail__gallery > *,
+.campus-grid > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea,
+input,
+select,
+textarea {
+  max-width: 100%;
+}
+
+@media (min-width: 769px) and (max-width: 1100px) {
+  .layout-header__inner {
+    flex-wrap: wrap;
+    row-gap: 0.35rem;
+  }
+
+  .layout-header-nav--desktop {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    width: 100%;
+    gap: 0.15rem;
+  }
+
+  .layout-header-nav--desktop a {
+    padding: 0.35rem 0.55rem;
+    font-size: 0.82rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .ecoles-hero {
+    padding: 1.1rem 0.9rem 1.15rem;
+  }
+
+  .ecoles-chip {
+    max-width: 100%;
+    white-space: normal;
+  }
+
+  .ins-submit-wrap {
+    justify-content: stretch;
+  }
+
+  .ins-submit {
+    max-width: none;
+  }
+
+  .btn {
+    max-width: 100%;
+    white-space: normal;
+    text-align: center;
+  }
+}

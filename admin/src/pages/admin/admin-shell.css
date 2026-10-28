@@ -502,6 +502,9 @@
 .admin-shell__table-wrap {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  max-width: 100%;
+  min-width: 0;
   border: 1px solid var(--border);
   border-radius: 12px;
   background: var(--surface);
@@ -533,7 +536,7 @@
 /* Dashboard stats */
 .admin-dash-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr));
   gap: 1rem;
   margin-bottom: 1.5rem;
 }

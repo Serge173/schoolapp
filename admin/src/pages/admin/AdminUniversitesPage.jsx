@@ -302,7 +302,7 @@ export default function AdminUniversitesPage() {
               setUniPage(1);
             }}
             placeholder="Rechercher par nom ou mot-clé"
-            style={{ minWidth: 280, padding: '0.55rem 0.8rem', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}
+            style={{ minWidth: 'min(100%, 180px)', maxWidth: '100%', flex: '1 1 180px', boxSizing: 'border-box', padding: '0.55rem 0.8rem', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}
           />
         </div>
       </div>

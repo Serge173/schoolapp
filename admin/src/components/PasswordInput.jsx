@@ -26,7 +26,7 @@ export default function PasswordInput({
       <label style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', fontWeight: 600 }}>
         {label}
       </label>
-      <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'stretch' }}>
+      <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'stretch', minWidth: 0, maxWidth: '100%' }}>
         <input
           type={visible ? 'text' : 'password'}
           name={name}
@@ -35,7 +35,7 @@ export default function PasswordInput({
           required={required}
           minLength={required ? minLength : undefined}
           placeholder={placeholder}
-          style={{ ...inputStyle, flex: 1 }}
+          style={{ ...inputStyle, flex: '1 1 auto', width: 'auto', minWidth: 0 }}
           autoComplete="new-password"
         />
         <button

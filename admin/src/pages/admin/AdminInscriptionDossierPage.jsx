@@ -183,7 +183,7 @@ export default function AdminInscriptionDossierPage() {
         <button type="button" className="btn btn-secondary" onClick={() => navigate('/admin/inscriptions')}>
           ← Retour
         </button>
-        <div style={{ flex: 1, minWidth: 200 }}>
+        <div style={{ flex: '1 1 200px', minWidth: 0, maxWidth: '100%' }}>
           <h1 style={{ margin: 0, fontSize: '1.35rem' }}>Dossier d&apos;inscription n°{id}</h1>
           <p style={{ margin: '0.25rem 0 0', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
             {form.prenom} {form.nom} · demande du {formatDateTimeFr(form.created_at)}
@@ -262,7 +262,7 @@ export default function AdminInscriptionDossierPage() {
           </p>
         ) : null}
         <fieldset disabled={!canEdit} style={{ border: 'none', margin: 0, padding: 0, minWidth: 0 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0 1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: '0 1rem' }}>
           <Field label="Statut du dossier">
             <select name="statut" value={form.statut} onChange={handleChange} style={statutSelectStyle}>
               {Object.entries(INSCRIPTION_STATUT_LABELS).map(([v, lab]) => (
@@ -288,7 +288,7 @@ export default function AdminInscriptionDossierPage() {
         <h2 style={{ fontSize: '1rem', margin: '1.25rem 0 0.75rem', borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
           Identité
         </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0 1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '0 1rem' }}>
           <Field label="Nom *">
             <input name="nom" value={form.nom} onChange={handleChange} required style={inputStyle} />
           </Field>
@@ -309,7 +309,7 @@ export default function AdminInscriptionDossierPage() {
         <h2 style={{ fontSize: '1rem', margin: '1.25rem 0 0.75rem', borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
           Coordonnées candidat
         </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0 1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '0 1rem' }}>
           <Field label="Téléphone *">
             <input name="telephone" value={form.telephone} onChange={handleChange} required style={inputStyle} />
           </Field>
@@ -324,7 +324,7 @@ export default function AdminInscriptionDossierPage() {
         <h2 style={{ fontSize: '1rem', margin: '1.25rem 0 0.75rem', borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
           Personne de contact
         </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0 1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '0 1rem' }}>
           <Field label="Nom du contact (parent, tuteur…)">
             <input name="contact" value={form.contact} onChange={handleChange} placeholder="Optionnel" style={inputStyle} />
           </Field>
@@ -336,7 +336,7 @@ export default function AdminInscriptionDossierPage() {
         <h2 style={{ fontSize: '1rem', margin: '1.25rem 0 0.75rem', borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
           Parcours scolaire
         </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0 1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '0 1rem' }}>
           <Field label="Niveau d'étude">
             <input name="niveau_etude" value={form.niveau_etude} onChange={handleChange} style={inputStyle} />
           </Field>
@@ -351,7 +351,7 @@ export default function AdminInscriptionDossierPage() {
         <h2 style={{ fontSize: '1rem', margin: '1.25rem 0 0.75rem', borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
           Projet d&apos;études
         </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0 1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '0 1rem' }}>
           <Field label="Type d'établissement">
             <select name="type_universite" value={form.type_universite} onChange={handleChange} style={inputStyle}>
               <option value="privee">École privée</option>

@@ -191,9 +191,6 @@ input, select, textarea {
     padding: 1rem;
     gap: 1rem;
   }
-  .admin-shell__aside {
-    position: static;
-  }
 }
 
 @media (max-width: 768px) {
@@ -446,12 +443,12 @@ input, select, textarea {
 /* Grid */
 .grid-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
   gap: 1.5rem;
 }
 
 .grid-cards.niveaux-grid {
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
 }
 
 .grid-cards.niveaux-grid .niveau-card {

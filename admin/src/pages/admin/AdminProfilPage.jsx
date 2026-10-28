@@ -279,7 +279,7 @@ export default function AdminProfilPage() {
         <div style={{ marginTop: '0.35rem', fontSize: '0.88rem', color: 'var(--text-muted)' }}>{email}</div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0 1rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '0 1rem' }}>
         <div style={{ marginBottom: '0.85rem' }}>
           <label style={labelStyle}>Nom *</label>
           <input name="nom" value={form.nom} onChange={handleChange} required style={inputStyle} />

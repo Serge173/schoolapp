@@ -276,7 +276,8 @@
   }
 
   .admin-shell__table-wrap--wide table {
-    min-width: 720px;
+    width: 100%;
+    min-width: 0;
   }
 
   .admin-modal-panel {

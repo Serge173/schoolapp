@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { api } from '../../api';
+import AdminConfirmDialog from '../../components/AdminConfirmDialog';
 import { GROUPS, bucketCatalogueTitresByGroup, resolveFiliereGrandGroupe } from '../../data/filieresGroupsConfig';
 import { getUniversiteImage } from './adminConstants';
 import {
@@ -17,6 +18,7 @@ export default function AdminUniversitesPage() {
   const [universites, setUniversites] = useState([]);
   const [filieresTree, setFilieresTree] = useState([]);
   const [modal, setModal] = useState(null);
+  const [pendingDelete, setPendingDelete] = useState(null);
   const [formUni, setFormUni] = useState({
     nom: '',
     type: 'publique',
@@ -211,10 +213,12 @@ export default function AdminUniversitesPage() {
     }
   };
 
-  const handleDeleteUniversite = async (id) => {
-    if (!confirm('Supprimer cette université ?')) return;
+  const handleDeleteUniversite = async () => {
+    const target = pendingDelete;
+    if (!target) return;
+    setPendingDelete(null);
     try {
-      await api.admin.universiteDelete(id);
+      await api.admin.universiteDelete(target.id);
       loadUniversites();
       reloadStats();
       setUniModalFiliereFilter('');
@@ -339,7 +343,7 @@ export default function AdminUniversitesPage() {
               <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={() => openEdit(u)}>
                 Modifier
               </button>
-              <button type="button" className="btn btn-secondary" onClick={() => handleDeleteUniversite(u.id)}>
+              <button type="button" className="btn btn-secondary" onClick={() => setPendingDelete(u)}>
                 Supprimer
               </button>
             </div>
@@ -701,6 +705,14 @@ export default function AdminUniversitesPage() {
           </div>
         </div>
       )}
+      <AdminConfirmDialog
+        open={Boolean(pendingDelete)}
+        title="Supprimer cette université ?"
+        message={pendingDelete ? `« ${pendingDelete.nom} » sera retirée. Cette action est irréversible.` : ''}
+        confirmLabel="Supprimer"
+        onConfirm={handleDeleteUniversite}
+        onClose={() => setPendingDelete(null)}
+      />
     </>
   );
 }

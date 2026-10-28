@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { api } from '../../api';
+import AdminConfirmDialog from '../../components/AdminConfirmDialog';
 import { RDV_CRENEAU_LABELS, RDV_STATUT_LABELS, RDV_TYPE_LABELS } from './adminConstants';
 import { canWriteDossiers } from '../../data/adminRoles';
 
@@ -10,6 +11,7 @@ export default function AdminRdvPage() {
   const [rdvList, setRdvList] = useState([]);
   const [rdvFilter, setRdvFilter] = useState({ statut: '', pays_bureau: '', date_debut: '', date_fin: '' });
   const [notesDraft, setNotesDraft] = useState({});
+  const [pendingDelete, setPendingDelete] = useState(null);
 
   const loadRendezVous = useCallback(
     () =>
@@ -54,8 +56,10 @@ export default function AdminRdvPage() {
     }
   };
 
-  const handleRdvDelete = async (r) => {
-    if (!confirm(`Supprimer le rendez-vous de ${r.prenom} ${r.nom} ? Cette action est irréversible.`)) return;
+  const handleRdvDelete = async () => {
+    const r = pendingDelete;
+    if (!r) return;
+    setPendingDelete(null);
     try {
       await api.admin.rendezVousDelete(r.id);
       await loadRendezVous();
@@ -125,139 +129,113 @@ export default function AdminRdvPage() {
           Actualiser
         </button>
       </div>
-      <div className="admin-shell__table-wrap admin-shell__table-wrap--wide">
-        <table>
-          <thead>
-            <tr>
-              <th>Reçu</th>
-              <th>Contact</th>
-              <th>Bureau</th>
-              <th>Motif</th>
-              <th>Date souhaitée</th>
-              <th>Créneau</th>
-              <th>Message</th>
-              <th>Statut</th>
-              <th>Notes internes</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rdvList.map((r) => {
-              const telDigits = String(r.telephone || '').replace(/\D/g, '');
-              const waHref = telDigits ? `https://wa.me/${telDigits.replace(/^0+/, '')}` : null;
-              return (
-                <tr key={r.id} style={{ verticalAlign: 'top' }}>
-                  <td style={{ color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
-                    {new Date(r.created_at).toLocaleString('fr-FR')}
-                  </td>
-                  <td style={{ padding: '0.75rem' }}>
-                    <div style={{ fontWeight: 600 }}>
-                      {r.prenom} {r.nom}
-                    </div>
-                    <a href={`mailto:${encodeURIComponent(r.email)}`} style={{ fontSize: '0.88rem', color: 'var(--accent)' }}>
-                      {r.email}
-                    </a>
-                    <div style={{ fontSize: '0.88rem', marginTop: '0.2rem' }}>
-                      {r.telephone}
-                      {waHref && (
-                        <>
-                          {' '}
-                          <a href={waHref} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>
-                            WhatsApp
-                          </a>
-                        </>
-                      )}
-                    </div>
-                  </td>
-                  <td style={{ padding: '0.75rem' }}>
-                    <span className={`badge ${r.pays_bureau === 'BF' ? 'badge-private' : 'badge-public'}`}>
-                      {r.pays_bureau === 'BF' ? 'Burkina Faso' : 'Côte d’Ivoire'}
-                    </span>
-                  </td>
-                  <td style={{ padding: '0.75rem' }}>{RDV_TYPE_LABELS[r.type_rdv] || r.type_rdv}</td>
-                  <td style={{ padding: '0.75rem', whiteSpace: 'nowrap' }}>
-                    {r.date_souhaitee
-                      ? new Date(r.date_souhaitee).toLocaleDateString('fr-FR', {
-                          weekday: 'short',
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric',
-                        })
-                      : '—'}
-                  </td>
-                  <td style={{ padding: '0.75rem' }}>{RDV_CRENEAU_LABELS[r.creneau] || r.creneau}</td>
-                  <td style={{ padding: '0.75rem', maxWidth: 200, fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-                    {r.message ? String(r.message).slice(0, 180) + (String(r.message).length > 180 ? '…' : '') : '—'}
-                  </td>
-                  <td style={{ padding: '0.75rem' }}>
-                    <select
-                      value={r.statut}
-                      onChange={(e) => handleRdvStatut(r.id, e.target.value)}
-                      disabled={!canEdit}
-                      style={{
-                        padding: '0.35rem 0.5rem',
-                        background: 'var(--surface)',
-                        border: '1px solid var(--border)',
-                        borderRadius: 6,
-                        color: 'var(--text)',
-                        minWidth: 140,
-                      }}
-                    >
-                      {Object.entries(RDV_STATUT_LABELS).map(([v, lab]) => (
-                        <option key={v} value={v}>
-                          {lab}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td style={{ padding: '0.75rem' }}>
-                    <textarea
-                      value={notesDraft[r.id] ?? ''}
-                      onChange={(e) => setNotesDraft((d) => ({ ...d, [r.id]: e.target.value }))}
-                      disabled={!canEdit}
-                      rows={3}
-                      placeholder="Notes visibles uniquement dans le dash…"
-                      style={{
-                        width: '100%',
-                        minWidth: 180,
-                        maxWidth: 280,
-                        padding: '0.4rem',
-                        background: 'var(--surface)',
-                        border: '1px solid var(--border)',
-                        borderRadius: 6,
-                        color: 'var(--text)',
-                        fontSize: '0.85rem',
-                        resize: 'vertical',
-                      }}
-                    />
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      style={{ marginTop: '0.35rem', fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}
-                      onClick={() => handleRdvNotesSave(r.id)}
-                      disabled={!canEdit}
-                    >
-                      Enregistrer notes
-                    </button>
-                  </td>
-                  <td style={{ padding: '0.75rem', whiteSpace: 'nowrap' }}>
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      style={{ fontSize: '0.8rem', padding: '0.35rem 0.65rem', color: '#b91c1c', borderColor: 'rgba(220,38,38,0.35)' }}
-                      onClick={() => handleRdvDelete(r)}
-                      disabled={!canEdit}
-                    >
-                      Supprimer
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <ul className="admin-rdv-list">
+        {rdvList.map((r) => {
+          const telDigits = String(r.telephone || '').replace(/\D/g, '');
+          const waHref = telDigits ? `https://wa.me/${telDigits.replace(/^0+/, '')}` : null;
+          const message = String(r.message || '').trim();
+          const wished = r.date_souhaitee
+            ? new Date(r.date_souhaitee).toLocaleDateString('fr-FR', {
+                weekday: 'short',
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+              })
+            : 'Date non précisée';
+          return (
+            <li key={r.id} className="admin-rdv">
+              <header className="admin-rdv__head">
+                <div className="admin-rdv__who">
+                  <h2>
+                    {r.prenom} {r.nom}
+                  </h2>
+                  <a className="admin-rdv__mail" href={`mailto:${encodeURIComponent(r.email)}`}>
+                    {r.email}
+                  </a>
+                  <p className="admin-rdv__phone">
+                    {r.telephone}
+                    {waHref ? (
+                      <>
+                        {' · '}
+                        <a href={waHref} target="_blank" rel="noopener noreferrer">
+                          WhatsApp
+                        </a>
+                      </>
+                    ) : null}
+                  </p>
+                </div>
+                <time className="admin-rdv__time" dateTime={r.created_at}>
+                  {new Date(r.created_at).toLocaleString('fr-FR')}
+                </time>
+              </header>
+              <ul className="admin-rdv__facts">
+                <li>{r.pays_bureau === 'BF' ? 'Burkina Faso' : 'Côte d’Ivoire'}</li>
+                <li>{RDV_TYPE_LABELS[r.type_rdv] || r.type_rdv}</li>
+                <li>{wished}</li>
+                <li>{RDV_CRENEAU_LABELS[r.creneau] || r.creneau}</li>
+              </ul>
+              <label className="admin-rdv__statut">
+                Statut
+                <select value={r.statut} onChange={(e) => handleRdvStatut(r.id, e.target.value)} disabled={!canEdit}>
+                  {Object.entries(RDV_STATUT_LABELS).map(([v, lab]) => (
+                    <option key={v} value={v}>
+                      {lab}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <details className="admin-rdv__panel">
+                <summary>Message</summary>
+                <div className="admin-rdv__scroll">{message || 'Aucun message.'}</div>
+              </details>
+              <details className="admin-rdv__panel">
+                <summary>Notes internes</summary>
+                <textarea
+                  className="admin-rdv__notes"
+                  value={notesDraft[r.id] ?? ''}
+                  onChange={(e) => setNotesDraft((d) => ({ ...d, [r.id]: e.target.value }))}
+                  disabled={!canEdit}
+                  rows={3}
+                  placeholder="Notes visibles uniquement dans le dash…"
+                />
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  style={{ marginTop: '0.4rem', fontSize: '0.8rem', padding: '0.3rem 0.6rem' }}
+                  onClick={() => handleRdvNotesSave(r.id)}
+                  disabled={!canEdit}
+                >
+                  Enregistrer
+                </button>
+              </details>
+              <div className="admin-rdv__foot">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  style={{ fontSize: '0.8rem', padding: '0.35rem 0.65rem', color: '#b91c1c', borderColor: 'rgba(220,38,38,0.35)' }}
+                  onClick={() => setPendingDelete(r)}
+                  disabled={!canEdit}
+                >
+                  Supprimer
+                </button>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
       {rdvList.length === 0 && <p style={{ color: 'var(--text-muted)', marginTop: '1rem' }}>Aucun rendez-vous pour ces filtres.</p>}
+      <AdminConfirmDialog
+        open={Boolean(pendingDelete)}
+        title="Supprimer ce rendez-vous ?"
+        message={
+          pendingDelete
+            ? `${pendingDelete.prenom} ${pendingDelete.nom}. Cette action est irréversible.`
+            : ''
+        }
+        confirmLabel="Supprimer"
+        onConfirm={handleRdvDelete}
+        onClose={() => setPendingDelete(null)}
+      />
     </>
   );
 }

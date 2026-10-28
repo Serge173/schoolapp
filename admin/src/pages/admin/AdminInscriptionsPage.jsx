@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../../api';
+import AdminExpandText from '../../components/AdminExpandText';
 import { INSCRIPTION_STATUT_LABELS, inscriptionStatutBadgeClass } from './adminConstants';
 
 export default function AdminInscriptionsPage() {
@@ -99,61 +100,45 @@ export default function AdminInscriptionsPage() {
           onChange={(e) => handleFilterChange('date_fin', e.target.value)}
         />
       </div>
-      <div className="admin-shell__table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Nom</th>
-              <th>Téléphone</th>
-              <th>Contact</th>
-              <th>Filière</th>
-              <th>Université</th>
-              <th>Statut</th>
-              <th>Date</th>
-              <th> </th>
-            </tr>
-          </thead>
-          <tbody>
-            {inscriptions.map((i) => (
-              <tr key={i.id}>
-                <td>
-                  {i.prenom} {i.nom}
-                </td>
-                <td style={{ padding: '0.75rem' }}>{i.telephone}</td>
-                <td style={{ padding: '0.75rem', color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-                  {i.contact ? (
-                    <>
-                      {i.contact}
-                      {i.contact_telephone ? (
-                        <span style={{ display: 'block' }}>{i.contact_telephone}</span>
-                      ) : null}
-                    </>
-                  ) : (
-                    '—'
-                  )}
-                </td>
-                <td style={{ padding: '0.75rem' }}>{i.filiere_nom}</td>
-                <td style={{ padding: '0.75rem' }}>{i.universite_nom}</td>
-                <td style={{ padding: '0.75rem' }}>
-                  <span className={inscriptionStatutBadgeClass(i.statut)}>
-                    {INSCRIPTION_STATUT_LABELS[i.statut] || i.statut || 'Nouveau'}
-                  </span>
-                </td>
-                <td style={{ padding: '0.75rem', color: 'var(--text-muted)' }}>{new Date(i.created_at).toLocaleDateString('fr-FR')}</td>
-                <td style={{ padding: '0.75rem' }}>
-                  <Link
-                    to={`/admin/inscriptions/${i.id}`}
-                    className="btn btn-secondary"
-                    style={{ fontSize: '0.82rem', padding: '0.35rem 0.65rem', textDecoration: 'none' }}
-                  >
-                    Ouvrir le dossier
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <ul className="admin-record-list">
+        {inscriptions.map((i) => {
+          const contact = [i.contact, i.contact_telephone].filter(Boolean).join(' · ');
+          const track = [i.filiere_nom, i.universite_nom].filter(Boolean).join(' · ');
+          return (
+            <li key={i.id} className="admin-record">
+              <div className="admin-record__top">
+                <div className="admin-record__who">
+                  <strong>
+                    {i.prenom} {i.nom}
+                  </strong>
+                  <p className="admin-record__meta">{i.telephone}</p>
+                </div>
+                <span className={inscriptionStatutBadgeClass(i.statut)}>
+                  {INSCRIPTION_STATUT_LABELS[i.statut] || i.statut || 'Nouveau'}
+                </span>
+              </div>
+              {contact ? (
+                <div className="admin-record__line">
+                  <AdminExpandText text={contact} />
+                </div>
+              ) : null}
+              <div className="admin-record__line">
+                <AdminExpandText text={track} empty="Filière non précisée" />
+              </div>
+              <div className="admin-record__foot">
+                <time dateTime={i.created_at}>{new Date(i.created_at).toLocaleDateString('fr-FR')}</time>
+                <Link
+                  to={`/admin/inscriptions/${i.id}`}
+                  className="btn btn-secondary"
+                  style={{ fontSize: '0.82rem', padding: '0.35rem 0.65rem', textDecoration: 'none' }}
+                >
+                  Ouvrir le dossier
+                </Link>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
       {inscriptions.length === 0 && <p style={{ color: 'var(--text-muted)', marginTop: '1rem' }}>Aucune inscription.</p>}
     </>
   );

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { api } from '../../api';
+import AdminConfirmDialog from '../../components/AdminConfirmDialog';
 import { INSCRIPTION_STATUT_LABELS, inscriptionStatutBadgeClass } from './adminConstants';
 import { canWriteDossiers } from '../../data/adminRoles';
 
@@ -198,62 +199,23 @@ export default function AdminInscriptionDossierPage() {
         </div>
       ) : null}
 
-      {confirmModal ? (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="dossier-confirm-title"
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0, 0, 0, 0.55)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 200,
-            padding: '1rem',
-          }}
-          onClick={handleConfirmClose}
-        >
-          <div
-            className="card"
-            style={{ width: '100%', maxWidth: 420, margin: 0, textAlign: 'center', padding: '1.5rem 1.25rem' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div
-              style={{
-                width: 48,
-                height: 48,
-                margin: '0 auto 1rem',
-                borderRadius: '50%',
-                background: 'rgba(34, 197, 94, 0.15)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.5rem',
-                color: '#16a34a',
-              }}
-              aria-hidden="true"
-            >
-              ✓
-            </div>
-            <h2 id="dossier-confirm-title" style={{ margin: '0 0 0.5rem', fontSize: '1.15rem' }}>
-              Dossier enregistré
-            </h2>
-            <p style={{ margin: '0 0 1rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-              {confirmModal.message}
+      <AdminConfirmDialog
+        open={Boolean(confirmModal)}
+        tone="success"
+        title="Dossier enregistré"
+        message={confirmModal?.message}
+        extra={
+          confirmModal?.statut === 'valide' ? (
+            <p style={{ margin: '0 0 1rem' }}>
+              <span className={inscriptionStatutBadgeClass('valide')}>Validé</span>
             </p>
-            {confirmModal.statut === 'valide' ? (
-              <p style={{ margin: '0 0 1.25rem' }}>
-                <span className={inscriptionStatutBadgeClass('valide')}>Validé</span>
-              </p>
-            ) : null}
-            <button type="button" className="btn btn-primary" onClick={handleConfirmClose}>
-              Retour aux inscriptions
-            </button>
-          </div>
-        </div>
-      ) : null}
+          ) : null
+        }
+        confirmLabel="Retour aux inscriptions"
+        cancelLabel=""
+        onConfirm={handleConfirmClose}
+        onClose={handleConfirmClose}
+      />
 
       <form onSubmit={handleSave} className="card" style={{ maxWidth: 900 }}>
         {!canEdit ? (

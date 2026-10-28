@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '../../api';
+import AdminConfirmDialog from '../../components/AdminConfirmDialog';
+import AdminExpandText from '../../components/AdminExpandText';
 import { GROUPS, resolveFiliereGrandGroupe } from '../../data/filieresGroupsConfig';
 import './AdminFilieresPage.css';
 
@@ -14,6 +16,7 @@ export default function AdminFilieresPage() {
   const [syncMsg, setSyncMsg] = useState('');
   const [syncAllLoading, setSyncAllLoading] = useState(false);
   const [selectedSfByFiliere, setSelectedSfByFiliere] = useState({});
+  const [confirm, setConfirm] = useState(null);
 
   const loadFilieresTree = () =>
     api.admin.filieresTree().then((rows) => {
@@ -85,14 +88,15 @@ export default function AdminFilieresPage() {
     }
   };
 
-  const handleDeleteFiliere = async (f) => {
-    if (!confirm(`Supprimer la filière "${f.nom}" et ses sous-filières ?`)) return;
-    try {
-      await api.admin.filiereDelete(f.id);
-      loadFilieresTree();
-    } catch (err) {
-      alert(err.message);
-    }
+  const handleDeleteFiliere = (f) => {
+    setConfirm({
+      title: 'Supprimer cette filière ?',
+      message: `« ${f.nom} » et ses sous-filières seront retirées. Cette action est irréversible.`,
+      run: async () => {
+        await api.admin.filiereDelete(f.id);
+        loadFilieresTree();
+      },
+    });
   };
 
   const handleCreateSousFiliere = async (filiereId) => {
@@ -121,11 +125,23 @@ export default function AdminFilieresPage() {
     }
   };
 
-  const handleDeleteSousFiliere = async (sf) => {
-    if (!confirm(`Supprimer la sous-filière "${sf.nom}" ?`)) return;
+  const handleDeleteSousFiliere = (sf) => {
+    setConfirm({
+      title: 'Supprimer cette spécialité ?',
+      message: `« ${sf.nom} » sera retirée. Cette action est irréversible.`,
+      run: async () => {
+        await api.admin.sousFiliereDelete(sf.id);
+        loadFilieresTree();
+      },
+    });
+  };
+
+  const runConfirm = async () => {
+    const job = confirm?.run;
+    setConfirm(null);
+    if (!job) return;
     try {
-      await api.admin.sousFiliereDelete(sf.id);
-      loadFilieresTree();
+      await job();
     } catch (err) {
       alert(err.message);
     }
@@ -315,9 +331,9 @@ export default function AdminFilieresPage() {
                   const selectedSf = sous.find((s) => String(s.id) === String(selectedSfId));
                   return (
                   <tr key={f.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                    <td style={{ minWidth: 140 }}>
-                      <strong style={{ fontSize: '0.88rem' }}>{f.nom}</strong>
-                      <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '0.15rem', wordBreak: 'break-all' }}>{f.slug}</div>
+                    <td className="admin-filiere-name">
+                      <AdminExpandText text={f.nom} />
+                      <div className="admin-filiere-slug">{f.slug}</div>
                     </td>
                     <td style={{ fontSize: '0.78rem', color: 'var(--text-muted)', maxWidth: 160 }}>
                       {resolveFiliereGrandGroupe(f)}
@@ -413,6 +429,14 @@ export default function AdminFilieresPage() {
           </div>
         )}
       </div>
+      <AdminConfirmDialog
+        open={Boolean(confirm)}
+        title={confirm?.title}
+        message={confirm?.message}
+        confirmLabel="Supprimer"
+        onConfirm={runConfirm}
+        onClose={() => setConfirm(null)}
+      />
     </>
   );
 }

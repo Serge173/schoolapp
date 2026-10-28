@@ -520,6 +520,9 @@
   text-align: left;
   padding: 0.75rem;
   border-bottom: 1px solid var(--border);
+  min-width: 0;
+  overflow-wrap: break-word;
+  vertical-align: top;
 }
 
 .admin-shell__table-wrap th {
@@ -632,7 +635,322 @@
 }
 
 .admin-shell__table-wrap--wide table {
-  min-width: 1100px;
+  width: 100%;
+}
+
+.admin-shell .card h3,
+.admin-shell .card p {
+  overflow-wrap: break-word;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.admin-expand {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.admin-expand__text {
+  margin: 0;
+  overflow-wrap: break-word;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  line-height: 1.4;
+}
+
+.admin-expand.is-open .admin-expand__text {
+  display: block;
+  -webkit-line-clamp: unset;
+  max-height: 9.5rem;
+  overflow-y: auto;
+}
+
+.admin-expand__btn {
+  margin-top: 0.2rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-expand__empty {
+  color: var(--text-muted);
+}
+
+.admin-record-list,
+.admin-rdv-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin-record,
+.admin-rdv {
+  min-width: 0;
+  max-width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  padding: 0.85rem 1rem;
+}
+
+.admin-record__top,
+.admin-rdv__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.admin-record__who,
+.admin-rdv__who {
+  min-width: 0;
+  flex: 1;
+}
+
+.admin-record__who strong,
+.admin-rdv__who h2 {
+  display: block;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 650;
+  line-height: 1.3;
+  overflow-wrap: break-word;
+}
+
+.admin-record__meta,
+.admin-rdv__phone,
+.admin-rdv__mail {
+  margin: 0.15rem 0 0;
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.admin-rdv__mail {
+  display: block;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.admin-rdv__phone a {
+  color: var(--accent);
+}
+
+.admin-rdv__time {
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.admin-rdv__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.9rem;
+  margin: 0.7rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.84rem;
+  color: var(--text-muted);
+}
+
+.admin-rdv__facts li {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+
+.admin-rdv__statut {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.admin-rdv__statut select {
+  width: min(100%, 16rem);
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 0.4rem 0.55rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.admin-rdv__panel {
+  margin-top: 0.55rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--border);
+  min-width: 0;
+}
+
+.admin-rdv__panel summary {
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.admin-rdv__scroll {
+  margin: 0.45rem 0 0;
+  max-height: 9.5rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.admin-rdv__notes {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  margin-top: 0.45rem;
+  max-height: 8.5rem;
+  padding: 0.45rem 0.55rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  resize: vertical;
+}
+
+.admin-rdv__foot,
+.admin-record__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.7rem;
+}
+
+.admin-record__line {
+  margin-top: 0.45rem;
+  min-width: 0;
+  max-width: 100%;
+  font-size: 0.86rem;
+  color: var(--text-muted);
+}
+
+.admin-shell textarea {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  max-height: 12rem;
+  overflow-y: auto;
+}
+
+.admin-confirm {
+  width: min(100vw - 2rem, 400px);
+  max-width: calc(100vw - 2rem);
+  margin: auto;
+  padding: 1.7rem 1.4rem 1.3rem;
+  border: 1px solid var(--border);
+  border-top: 3px solid #ff7309;
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  text-align: center;
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.16);
+}
+
+.admin-confirm::backdrop {
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.admin-confirm__icon {
+  width: 3rem;
+  height: 3rem;
+  margin: 0 auto 0.85rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.admin-confirm--danger .admin-confirm__icon {
+  background: rgba(220, 38, 38, 0.1);
+  color: #b91c1c;
+  border: 1px solid rgba(220, 38, 38, 0.28);
+}
+
+.admin-confirm--success .admin-confirm__icon {
+  background: rgba(83, 142, 64, 0.12);
+  color: var(--brand-green);
+  border: 1px solid rgba(83, 142, 64, 0.28);
+}
+
+.admin-confirm--success {
+  border-top-color: var(--brand-green);
+  box-shadow: 0 18px 48px rgba(83, 142, 64, 0.12);
+}
+
+.admin-confirm--danger {
+  border-top-color: #dc2626;
+}
+
+.admin-confirm__title {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 650;
+}
+
+.admin-confirm__text {
+  margin: 0 0 1rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.admin-confirm__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.admin-confirm__actions .btn {
+  min-width: 7.5rem;
+  padding: 0.55rem 1rem;
+}
+
+.admin-confirm__danger {
+  background: #fff;
+  color: #b91c1c;
+  border: 1px solid rgba(220, 38, 38, 0.4);
+}
+
+.admin-confirm__danger:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.06);
 }
 
 .admin-shell__stat-badges {

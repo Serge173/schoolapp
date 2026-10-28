@@ -723,6 +723,7 @@
   overflow-wrap: break-word;
 }
 
+.admin-tile-grid,
 .admin-rdv-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr));
@@ -734,10 +735,12 @@
   max-width: 100%;
 }
 
+.admin-tile-grid > li,
 .admin-rdv-grid > li {
   min-width: 0;
 }
 
+.admin-tile,
 .admin-rdv-tile {
   display: flex;
   flex-direction: column;
@@ -754,29 +757,94 @@
   min-width: 0;
 }
 
-.admin-rdv-tile:hover {
+button.admin-tile {
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.admin-tile:hover,
+.admin-rdv-tile:hover,
+.admin-tile--current {
   border-color: var(--accent);
   color: var(--text);
 }
 
+.admin-tile__mark {
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-bottom: 0.15rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-hover);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.admin-tile__mark img {
+  width: 1.75rem;
+  height: 1.75rem;
+  object-fit: contain;
+}
+
+.admin-tile__mark--cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin-tile__name,
 .admin-rdv-tile__name {
   font-size: 1rem;
   font-weight: 650;
   line-height: 1.3;
   overflow-wrap: break-word;
   max-width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
+.admin-tile__meta,
 .admin-rdv-tile__meta {
   color: var(--text-muted);
   font-size: 0.84rem;
   line-height: 1.35;
   overflow-wrap: break-word;
   max-width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.admin-rdv-tile .badge {
+.admin-tile .badge,
+.admin-rdv-tile .badge,
+.admin-tile .admin-accounts-list__badges {
   margin-top: auto;
+}
+
+.admin-tile__meta--open {
+  display: block;
+  overflow: visible;
+  -webkit-line-clamp: unset;
+}
+
+.admin-filiere-detail__sf {
+  max-width: 32rem;
+}
+
+.admin-filiere-detail__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .admin-rdv-detail__top {

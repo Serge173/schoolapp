@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../../api';
-import AdminExpandText from '../../components/AdminExpandText';
 import { INSCRIPTION_STATUT_LABELS, inscriptionStatutBadgeClass } from './adminConstants';
 
 export default function AdminInscriptionsPage() {
   const [inscriptions, setInscriptions] = useState([]);
   const [filieres, setFilieres] = useState([]);
   const [universites, setUniversites] = useState([]);
+  const [listState, setListState] = useState('loading');
   const [filter, setFilter] = useState({
     type: '',
     statut: '',
@@ -18,7 +18,16 @@ export default function AdminInscriptionsPage() {
     date_fin: '',
   });
 
-  const loadInscriptions = () => api.admin.inscriptions(filter).then(setInscriptions);
+  const loadInscriptions = useCallback(() => {
+    setListState('loading');
+    return api.admin
+      .inscriptions(filter)
+      .then((rows) => {
+        setInscriptions(rows);
+        setListState('ready');
+      })
+      .catch(() => setListState('error'));
+  }, [filter]);
 
   useEffect(() => {
     api.admin.filieres().then(setFilieres);
@@ -27,7 +36,7 @@ export default function AdminInscriptionsPage() {
 
   useEffect(() => {
     loadInscriptions();
-  }, [filter]);
+  }, [loadInscriptions]);
 
   const handleFilterChange = (key, value) => {
     setFilter((f) => ({ ...f, [key]: value }));
@@ -37,7 +46,7 @@ export default function AdminInscriptionsPage() {
     <>
       <h1 className="admin-shell__page-title">Inscriptions</h1>
       <p className="admin-shell__page-desc">
-        Consultez et modifiez chaque dossier d&apos;inscription via « Voir ».
+        Choisissez un dossier pour ouvrir son détail.
       </p>
       <div className="admin-shell__filters">
         <select
@@ -100,46 +109,36 @@ export default function AdminInscriptionsPage() {
           onChange={(e) => handleFilterChange('date_fin', e.target.value)}
         />
       </div>
-      <ul className="admin-record-list">
-        {inscriptions.map((i) => {
-          const contact = [i.contact, i.contact_telephone].filter(Boolean).join(' · ');
-          const track = [i.filiere_nom, i.universite_nom].filter(Boolean).join(' · ');
-          return (
-            <li key={i.id} className="admin-record">
-              <div className="admin-record__top">
-                <div className="admin-record__who">
-                  <strong>
+      {listState === 'loading' ? (
+        <p style={{ color: 'var(--text-muted)', marginTop: '1rem' }}>Chargement…</p>
+      ) : listState === 'error' ? (
+        <p style={{ color: 'var(--text-muted)', marginTop: '1rem' }}>Impossible de charger les inscriptions.</p>
+      ) : inscriptions.length === 0 ? (
+        <p style={{ color: 'var(--text-muted)', marginTop: '1rem' }}>Aucune inscription.</p>
+      ) : (
+        <ul className="admin-tile-grid">
+          {inscriptions.map((i) => {
+            const track = [i.filiere_nom, i.universite_nom].filter(Boolean).join(' · ') || 'Filière non précisée';
+            return (
+              <li key={i.id}>
+                <Link to={`/admin/inscriptions/${i.id}`} className="admin-tile">
+                  <span className="admin-tile__name">
                     {i.prenom} {i.nom}
-                  </strong>
-                  <p className="admin-record__meta">{i.telephone}</p>
-                </div>
-                <span className={inscriptionStatutBadgeClass(i.statut)}>
-                  {INSCRIPTION_STATUT_LABELS[i.statut] || i.statut || 'Nouveau'}
-                </span>
-              </div>
-              {contact ? (
-                <div className="admin-record__line">
-                  <AdminExpandText text={contact} />
-                </div>
-              ) : null}
-              <div className="admin-record__line">
-                <AdminExpandText text={track} empty="Filière non précisée" />
-              </div>
-              <div className="admin-record__foot">
-                <time dateTime={i.created_at}>{new Date(i.created_at).toLocaleDateString('fr-FR')}</time>
-                <Link
-                  to={`/admin/inscriptions/${i.id}`}
-                  className="btn btn-secondary"
-                  style={{ fontSize: '0.82rem', padding: '0.35rem 0.65rem', textDecoration: 'none' }}
-                >
-                  Ouvrir le dossier
+                  </span>
+                  <span className="admin-tile__meta">{track}</span>
+                  <span className="admin-tile__meta">
+                    {i.telephone || 'Téléphone non précisé'}
+                    {i.created_at ? ` · ${new Date(i.created_at).toLocaleDateString('fr-FR')}` : ''}
+                  </span>
+                  <span className={inscriptionStatutBadgeClass(i.statut)}>
+                    {INSCRIPTION_STATUT_LABELS[i.statut] || i.statut || 'Nouveau'}
+                  </span>
                 </Link>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-      {inscriptions.length === 0 && <p style={{ color: 'var(--text-muted)', marginTop: '1rem' }}>Aucune inscription.</p>}
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </>
   );
 }

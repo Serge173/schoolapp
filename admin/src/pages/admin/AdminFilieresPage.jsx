@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '../../api';
 import AdminConfirmDialog from '../../components/AdminConfirmDialog';
-import AdminExpandText from '../../components/AdminExpandText';
 import { GROUPS, resolveFiliereGrandGroupe } from '../../data/filieresGroupsConfig';
 import './AdminFilieresPage.css';
 
@@ -17,6 +16,7 @@ export default function AdminFilieresPage() {
   const [syncAllLoading, setSyncAllLoading] = useState(false);
   const [selectedSfByFiliere, setSelectedSfByFiliere] = useState({});
   const [confirm, setConfirm] = useState(null);
+  const [openFiliereId, setOpenFiliereId] = useState(null);
 
   const loadFilieresTree = () =>
     api.admin.filieresTree().then((rows) => {
@@ -187,16 +187,34 @@ export default function AdminFilieresPage() {
   }, [filieresSearchFiltered, filiereDomaineFilter]);
 
   const filieresVisibleCount = filieresFilteredForAdmin.length;
+  const openFiliere = filieresTree.find((item) => String(item.id) === String(openFiliereId)) || null;
 
   return (
     <>
-      <h1 style={{ marginBottom: '1.5rem' }}>Filières</h1>
-      <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', lineHeight: 1.5 }}>
-        <strong>{filieresTree.length}</strong> filière(s) en base — <strong>{filieresTree.filter((x) => x.actif).length}</strong> actives,{' '}
-        <strong>{filieresTree.filter((x) => !x.actif).length}</strong> suspendues. Ci-dessous : <strong>liste unique</strong> (ordre A–Z) avec
-        toutes les actions. Le domaine affiché sur le site public correspond à la colonne « Domaine (site) » ; vous pouvez forcer un groupe via
-        le menu ou laisser « Auto (mots-clés) ».
-      </p>
+      {openFiliere ? (
+        <div className="admin-rdv-detail__top">
+          <button type="button" className="btn btn-secondary" onClick={() => setOpenFiliereId(null)}>
+            ← Retour
+          </button>
+          <div className="admin-rdv-detail__title">
+            <h1 className="admin-shell__page-title">{openFiliere.nom}</h1>
+            <p className="admin-shell__page-desc">
+              {resolveFiliereGrandGroupe(openFiliere)} · {openFiliere.slug}
+            </p>
+          </div>
+        </div>
+      ) : (
+        <>
+          <h1 className="admin-shell__page-title">Filières</h1>
+          <p className="admin-shell__page-desc">
+            {filieresTree.filter((x) => x.actif).length} actives · {filieresTree.filter((x) => !x.actif).length} suspendues.
+            Choisissez une filière pour ouvrir son détail.
+          </p>
+        </>
+      )}
+
+      {!openFiliere ? (
+        <>
 
       <div className="card" style={{ marginBottom: '1rem' }}>
         <h3 style={{ marginBottom: '0.5rem', fontSize: '1rem' }}>Spécialités référentiel → sous-filières</h3>
@@ -301,134 +319,142 @@ export default function AdminFilieresPage() {
         </div>
       </details>
 
-      <div className="card" style={{ marginBottom: '1rem' }}>
-        <h3 style={{ marginBottom: '0.65rem', fontSize: '1.1rem' }}>
-          Toutes les filières
-          <span style={{ color: 'var(--text-muted)', fontWeight: 500, fontSize: '0.9rem', marginLeft: '0.35rem' }}>
-            ({filieresVisibleCount} affichée{filieresVisibleCount !== 1 ? 's' : ''}
-            {filiereDomaineFilter || searchFiliere.trim() || !showSuspendedFilieres ? ` sur ${filieresSearchFiltered.length} après recherche / options` : ''})
-          </span>
-        </h3>
-        {filieresVisibleCount === 0 ? (
-          <p style={{ color: 'var(--text-muted)', margin: 0 }}>Aucune filière ne correspond aux filtres.</p>
-        ) : (
-          <div className="admin-filiere-table-wrap">
-            <table className="admin-filiere-table">
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                  <th style={{ textAlign: 'left' }}>Filière</th>
-                  <th style={{ textAlign: 'left' }}>Domaine (site)</th>
-                  <th style={{ textAlign: 'left' }}>Grand groupe</th>
-                  <th style={{ textAlign: 'left' }}>Spécialités</th>
-                  <th style={{ textAlign: 'left' }}>Statut</th>
-                  <th style={{ textAlign: 'left' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filieresFilteredForAdmin.map((f) => {
-                  const sous = f.sous_filieres || [];
-                  const selectedSfId = selectedSfByFiliere[f.id] ?? sous[0]?.id ?? '';
-                  const selectedSf = sous.find((s) => String(s.id) === String(selectedSfId));
-                  return (
-                  <tr key={f.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                    <td className="admin-filiere-name">
-                      <AdminExpandText text={f.nom} />
-                      <div className="admin-filiere-slug">{f.slug}</div>
-                    </td>
-                    <td style={{ fontSize: '0.78rem', color: 'var(--text-muted)', maxWidth: 160 }}>
-                      {resolveFiliereGrandGroupe(f)}
-                    </td>
-                    <td style={{ maxWidth: 200 }}>
+      {filieresVisibleCount === 0 ? (
+        <p style={{ color: 'var(--text-muted)', marginTop: '1rem' }}>Aucune filière ne correspond aux filtres.</p>
+      ) : (
+        <ul className="admin-tile-grid">
+          {filieresFilteredForAdmin.map((f) => {
+            const sousCount = (f.sous_filieres || []).length;
+            return (
+              <li key={f.id}>
+                <button type="button" className="admin-tile" onClick={() => setOpenFiliereId(f.id)}>
+                  <span className="admin-tile__name">{f.nom}</span>
+                  <span className="admin-tile__meta">{resolveFiliereGrandGroupe(f)}</span>
+                  <span className="admin-tile__meta">
+                    {sousCount} spécialité{sousCount !== 1 ? 's' : ''}
+                  </span>
+                  <span className={`badge ${f.actif ? 'badge-public' : 'badge-private'}`}>
+                    {f.actif ? 'Actif' : 'Suspendu'}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+        </>
+      ) : (
+        <>
+          <div className="admin-rdv-detail__grid">
+            <section className="admin-rdv-detail__block">
+              <h2>Domaine</h2>
+              <p className="admin-rdv-detail__label">Affiché sur le site</p>
+              <p>{resolveFiliereGrandGroupe(openFiliere)}</p>
+              <label className="admin-rdv-detail__label" htmlFor="filiere-groupe">
+                Grand groupe
+              </label>
+              <select
+                id="filiere-groupe"
+                className="admin-filiere-select"
+                style={{ maxWidth: '20rem', padding: '0.45rem 0.6rem', fontSize: '0.9rem' }}
+                value={openFiliere.grand_groupe || ''}
+                onChange={(e) => handleGrandGroupeChange(openFiliere, e.target.value)}
+                aria-label={`Grand groupe pour ${openFiliere.nom}`}
+              >
+                <option value="">Auto (mots-clés)</option>
+                {GROUPS.map((g) => (
+                  <option key={g} value={g}>
+                    {g}
+                  </option>
+                ))}
+              </select>
+              <p className="admin-rdv-detail__label">Statut</p>
+              <span className={`badge ${openFiliere.actif ? 'badge-public' : 'badge-private'}`}>
+                {openFiliere.actif ? 'Actif' : 'Suspendu'}
+              </span>
+            </section>
+            <section className="admin-rdv-detail__block">
+              <h2>Actions</h2>
+              <div className="admin-filiere-detail__actions">
+                <button type="button" className="btn btn-secondary" onClick={() => handleRenameFiliere(openFiliere)}>
+                  Modifier le nom
+                </button>
+                <button type="button" className="btn btn-secondary" onClick={() => handleToggleFiliere(openFiliere)}>
+                  {openFiliere.actif ? 'Suspendre' : 'Activer'}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  style={{ color: '#b91c1c', borderColor: 'rgba(220,38,38,0.35)' }}
+                  onClick={() => handleDeleteFiliere(openFiliere)}
+                >
+                  Supprimer
+                </button>
+              </div>
+            </section>
+          </div>
+          <section className="admin-rdv-detail__block admin-filiere-detail__sf">
+            <h2>Spécialités</h2>
+            {(() => {
+              const sous = openFiliere.sous_filieres || [];
+              const selectedSfId = selectedSfByFiliere[openFiliere.id] ?? sous[0]?.id ?? '';
+              const selectedSf = sous.find((s) => String(s.id) === String(selectedSfId));
+              return (
+                <div className="admin-filiere-sf-compact">
+                  {sous.length === 0 ? (
+                    <span className="admin-filiere-sf-empty">Aucune spécialité</span>
+                  ) : (
+                    <>
                       <select
-                        value={f.grand_groupe || ''}
-                        onChange={(e) => handleGrandGroupeChange(f, e.target.value)}
                         className="admin-filiere-select"
-                        aria-label={`Grand groupe pour ${f.nom}`}
+                        style={{ maxWidth: '100%', padding: '0.45rem 0.6rem', fontSize: '0.9rem' }}
+                        value={selectedSfId}
+                        onChange={(e) =>
+                          setSelectedSfByFiliere((prev) => ({ ...prev, [openFiliere.id]: e.target.value }))
+                        }
+                        aria-label={`Spécialités de ${openFiliere.nom}`}
                       >
-                        <option value="">Auto (mots-clés)</option>
-                        {GROUPS.map((g) => (
-                          <option key={g} value={g}>
-                            {g}
+                        {sous.map((sf) => (
+                          <option key={sf.id} value={sf.id}>
+                            {sf.nom}
                           </option>
                         ))}
                       </select>
-                    </td>
-                    <td className="admin-filiere-sf-cell">
-                      <div className="admin-filiere-sf-compact">
-                        {sous.length === 0 ? (
-                          <span className="admin-filiere-sf-empty">Aucune spécialité</span>
-                        ) : (
-                          <>
-                            <select
-                              className="admin-filiere-select admin-filiere-sf-select"
-                              value={selectedSfId}
-                              onChange={(e) =>
-                                setSelectedSfByFiliere((prev) => ({ ...prev, [f.id]: e.target.value }))
-                              }
-                              aria-label={`Spécialités de ${f.nom}`}
-                            >
-                              {sous.map((sf) => (
-                                <option key={sf.id} value={sf.id}>
-                                  {sf.nom}
-                                </option>
-                              ))}
-                            </select>
-                            <span className="admin-filiere-sf-count">{sous.length} au total</span>
-                          </>
-                        )}
-                        {selectedSf ? (
-                          <div className="admin-filiere-sf-line-actions">
-                            <button type="button" className="admin-filiere-btn" onClick={() => handleRenameSousFiliere(selectedSf)}>
-                              Modifier
-                            </button>
-                            <button type="button" className="admin-filiere-btn" onClick={() => handleDeleteSousFiliere(selectedSf)}>
-                              Supprimer
-                            </button>
-                          </div>
-                        ) : null}
-                        <div className="admin-filiere-sf-add">
-                          <input
-                            value={subFiliereDraft[f.id] || ''}
-                            onChange={(e) => setSubFiliereDraft((prev) => ({ ...prev, [f.id]: e.target.value }))}
-                            placeholder="Nouvelle spécialité"
-                            aria-label={`Nouvelle spécialité pour ${f.nom}`}
-                          />
-                          <button
-                            type="button"
-                            className="admin-filiere-btn admin-filiere-btn--primary"
-                            onClick={() => handleCreateSousFiliere(f.id)}
-                          >
-                            Ajouter
-                          </button>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <span className={`badge ${f.actif ? 'badge-public' : 'badge-private'}`} style={{ fontSize: '0.72rem' }}>
-                        {f.actif ? 'Actif' : 'Suspendu'}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="admin-filiere-row-actions">
-                        <button type="button" className="admin-filiere-btn" onClick={() => handleRenameFiliere(f)}>
-                          Modifier
-                        </button>
-                        <button type="button" className="admin-filiere-btn" onClick={() => handleDeleteFiliere(f)}>
-                          Supprimer
-                        </button>
-                        <button type="button" className="admin-filiere-btn" onClick={() => handleToggleFiliere(f)}>
-                          {f.actif ? 'Suspendre' : 'Activer'}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+                      <span className="admin-filiere-sf-count">{sous.length} au total</span>
+                    </>
+                  )}
+                  {selectedSf ? (
+                    <div className="admin-filiere-detail__actions">
+                      <button type="button" className="btn btn-secondary" onClick={() => handleRenameSousFiliere(selectedSf)}>
+                        Modifier
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        style={{ color: '#b91c1c', borderColor: 'rgba(220,38,38,0.35)' }}
+                        onClick={() => handleDeleteSousFiliere(selectedSf)}
+                      >
+                        Supprimer
+                      </button>
+                    </div>
+                  ) : null}
+                  <div className="admin-filiere-sf-add">
+                    <input
+                      value={subFiliereDraft[openFiliere.id] || ''}
+                      onChange={(e) => setSubFiliereDraft((prev) => ({ ...prev, [openFiliere.id]: e.target.value }))}
+                      placeholder="Nouvelle spécialité"
+                      aria-label={`Nouvelle spécialité pour ${openFiliere.nom}`}
+                    />
+                    <button type="button" className="btn btn-primary" onClick={() => handleCreateSousFiliere(openFiliere.id)}>
+                      Ajouter
+                    </button>
+                  </div>
+                </div>
+              );
+            })()}
+          </section>
+        </>
+      )}
       <AdminConfirmDialog
         open={Boolean(confirm)}
         title={confirm?.title}

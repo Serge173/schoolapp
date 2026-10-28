@@ -26,21 +26,22 @@ const inputStyle = {
 
 function RoleLegend() {
   return (
-    <div className="card admin-comptes-roles" style={{ marginBottom: '1.25rem', padding: '1rem 1.15rem' }}>
-      <h2 style={{ margin: '0 0 0.75rem', fontSize: '0.95rem' }}>Rôles disponibles</h2>
-      <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: '0.65rem' }}>
+    <section style={{ marginBottom: '1.25rem' }}>
+      <h2 className="admin-comptes-page__list-title">Rôles disponibles</h2>
+      <ul className="admin-tile-grid">
         {ADMIN_ROLES.map((r) => (
-          <li key={r} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-            <span className={`badge ${roleBadgeClass(r)}`} style={{ border: '1px solid var(--border)' }}>
-              {ADMIN_ROLE_LABELS[r]}
-            </span>
-            <span style={{ color: 'var(--text-muted)', fontSize: '0.88rem', lineHeight: 1.45 }}>
-              {ADMIN_ROLE_DESCRIPTIONS[r]}
-            </span>
+          <li key={r}>
+            <div className="admin-tile">
+              <span className="admin-tile__name">{ADMIN_ROLE_LABELS[r]}</span>
+              <span className="admin-tile__meta admin-tile__meta--open">{ADMIN_ROLE_DESCRIPTIONS[r]}</span>
+              <span className={`badge ${roleBadgeClass(r)}`} style={{ border: '1px solid var(--border)' }}>
+                {ADMIN_ROLE_LABELS[r]}
+              </span>
+            </div>
           </li>
         ))}
       </ul>
-    </div>
+    </section>
   );
 }
 
@@ -202,7 +203,7 @@ export default function AdminComptesPage() {
 
       <div className="admin-comptes-page__grid">
         <AdminAccountSummaryCard admin={profile} title="Super administrateur" />
-        <div className="card admin-comptes-page__list-card">
+        <div className="admin-comptes-page__list-card">
           <h2 className="admin-comptes-page__list-title">Comptes existants ({comptes.length})</h2>
           <AdminAccountsList
             comptes={comptes}

@@ -273,7 +273,8 @@ export default function AdminUniversitesPage() {
 
   return (
     <>
-      <h1 style={{ marginBottom: '1.5rem' }}>Universités</h1>
+      <h1 className="admin-shell__page-title">Universités</h1>
+      <p className="admin-shell__page-desc">Choisissez une école pour ouvrir sa fiche.</p>
       <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
         <button
           type="button"
@@ -310,46 +311,33 @@ export default function AdminUniversitesPage() {
           />
         </div>
       </div>
-      <div className="grid-cards">
-        {paginatedUniversites.map((u) => (
-          <div key={u.id} className="card" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <div
-              style={{
-                width: 74,
-                height: 74,
-                borderRadius: 14,
-                border: '1px solid var(--border)',
-                background: 'var(--surface-hover)',
-                display: 'grid',
-                placeItems: 'center',
-              }}
-            >
-              {getUniversiteImage(u) ? (
-                <img src={getUniversiteImage(u)} alt="" referrerPolicy="no-referrer" style={{ width: 56, height: 56, objectFit: 'contain' }} />
-              ) : (
-                <div style={{ width: 56, height: 56, borderRadius: 10, background: 'rgba(28,117,183,0.08)' }} />
-              )}
-            </div>
-            <h3>{u.nom}</h3>
-            <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-              {u.ville} · <span className={`badge badge-${u.type === 'privee' ? 'private' : 'public'}`}>{u.type === 'privee' ? 'Privée' : 'Publique'}</span>
-            </p>
-            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-              {(u.filiere_ids || []).length} filière{(u.filiere_ids || []).length !== 1 ? 's' : ''} · {(u.sous_filiere_ids || []).length + (u.specialites_catalogue || []).length}{' '}
-              spécialité
-              {(u.sous_filiere_ids || []).length + (u.specialites_catalogue || []).length !== 1 ? 's' : ''} au détail
-            </p>
-            <div style={{ marginTop: 'auto', display: 'flex', gap: '0.5rem' }}>
-              <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={() => openEdit(u)}>
-                Modifier
+      <ul className="admin-tile-grid">
+        {paginatedUniversites.map((u) => {
+          const filiereCount = (u.filiere_ids || []).length;
+          const specCount = (u.sous_filiere_ids || []).length + (u.specialites_catalogue || []).length;
+          return (
+            <li key={u.id}>
+              <button type="button" className="admin-tile" onClick={() => openEdit(u)}>
+                <span className="admin-tile__mark">
+                  {getUniversiteImage(u) ? (
+                    <img src={getUniversiteImage(u)} alt="" referrerPolicy="no-referrer" />
+                  ) : (
+                    (u.nom || '?').slice(0, 1).toUpperCase()
+                  )}
+                </span>
+                <span className="admin-tile__name">{u.nom}</span>
+                <span className="admin-tile__meta">{u.ville || 'Ville non précisée'}</span>
+                <span className="admin-tile__meta">
+                  {filiereCount} filière{filiereCount !== 1 ? 's' : ''} · {specCount} spécialité{specCount !== 1 ? 's' : ''}
+                </span>
+                <span className={`badge badge-${u.type === 'privee' ? 'private' : 'public'}`}>
+                  {u.type === 'privee' ? 'Privée' : 'Publique'}
+                </span>
               </button>
-              <button type="button" className="btn btn-secondary" onClick={() => setPendingDelete(u)}>
-                Supprimer
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+            </li>
+          );
+        })}
+      </ul>
       {filteredUniversites.length === 0 && <p style={{ color: 'var(--text-muted)', marginTop: '1rem' }}>Aucune école trouvée.</p>}
       {filteredUniversites.length > 0 && (
         <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
@@ -686,7 +674,7 @@ export default function AdminUniversitesPage() {
                   <input type="file" accept="image/*" onChange={(e) => setFormUni((f) => ({ ...f, logo_file: e.target.files?.[0] || null }))} />
                 </div>
               )}
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                 <button type="submit" className="btn btn-primary">
                   Enregistrer
                 </button>
@@ -700,6 +688,19 @@ export default function AdminUniversitesPage() {
                 >
                   Annuler
                 </button>
+                {modal !== 'add' ? (
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    style={{ marginLeft: 'auto', color: '#b91c1c', borderColor: 'rgba(220,38,38,0.35)' }}
+                    onClick={() => {
+                      const target = universites.find((u) => u.id === modal.id);
+                      if (target) setPendingDelete(target);
+                    }}
+                  >
+                    Supprimer
+                  </button>
+                ) : null}
               </div>
             </form>
           </div>

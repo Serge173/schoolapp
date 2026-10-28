@@ -371,7 +371,7 @@ export default function AdminProfilPage() {
       {canManage ? (
         <div className="admin-profil-page__grid">
           {profileForm}
-          <div className="card admin-comptes-page__list-card">
+          <div className="admin-comptes-page__list-card">
             <h2 className="admin-comptes-page__list-title">Comptes de l&apos;équipe ({comptes.length})</h2>
             <AdminAccountsList
               comptes={comptes}

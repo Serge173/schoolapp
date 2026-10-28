@@ -108,15 +108,15 @@ export default function AdminRdvPage() {
       ) : rdvList.length === 0 ? (
         <p style={{ color: 'var(--text-muted)', marginTop: '1rem' }}>Aucun rendez-vous pour ces filtres.</p>
       ) : (
-        <ul className="admin-rdv-grid">
+        <ul className="admin-tile-grid">
           {rdvList.map((r) => (
             <li key={r.id}>
-              <Link to={`/admin/rendez-vous/${r.id}`} className="admin-rdv-tile">
-                <span className="admin-rdv-tile__name">
+              <Link to={`/admin/rendez-vous/${r.id}`} className="admin-tile">
+                <span className="admin-tile__name">
                   {r.prenom} {r.nom}
                 </span>
-                <span className="admin-rdv-tile__meta">{RDV_TYPE_LABELS[r.type_rdv] || r.type_rdv}</span>
-                <span className="admin-rdv-tile__meta">
+                <span className="admin-tile__meta">{RDV_TYPE_LABELS[r.type_rdv] || r.type_rdv}</span>
+                <span className="admin-tile__meta">
                   {formatRdvDate(r.date_souhaitee)} · {RDV_CRENEAU_LABELS[r.creneau] || r.creneau}
                 </span>
                 <span className={rdvStatutBadgeClass(r.statut)}>

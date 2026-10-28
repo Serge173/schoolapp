@@ -34,6 +34,30 @@ export default function AdminAccountsList({
     return <p className="admin-accounts-list__empty">{emptyLabel}</p>;
   }
 
+  if (!compact && onEdit) {
+    return (
+      <ul className="admin-tile-grid">
+        {comptes.map((c) => (
+          <li key={c.id}>
+            <button type="button" className="admin-tile" onClick={() => onEdit(c)}>
+              <span className="admin-tile__mark admin-tile__mark--cover" aria-hidden="true">
+                {c.photo_url ? (
+                  <img src={c.photo_url} alt="" />
+                ) : (
+                  (c.prenom?.[0] || c.nom?.[0] || '?').toUpperCase()
+                )}
+              </span>
+              <span className="admin-tile__name">{c.prenom ? `${c.prenom} ${c.nom}` : c.nom}</span>
+              <span className="admin-tile__meta">{c.email}</span>
+              {c.poste ? <span className="admin-tile__meta">{c.poste}</span> : null}
+              <RoleBadge role={c.role} actif={c.actif} />
+            </button>
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
   return (
     <ul className={`admin-accounts-list${compact ? ' admin-accounts-list--compact' : ''}`}>
       {comptes.map((c) => (
